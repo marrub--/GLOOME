@@ -351,7 +351,7 @@ SDLFB::SDLFB (int width, int height, bool fullscreen)
 	FlashAmount = 0;
 
 	FString caption;
-	caption.Format(GAMESIG " %s (%s)", GetVersionString(), GetGitTime());
+	caption.Format(GAMESIG " %s", GetVersionString());
 
 	Screen = SDL_CreateWindow (caption,
 		SDL_WINDOWPOS_UNDEFINED_DISPLAY(vid_adapter), SDL_WINDOWPOS_UNDEFINED_DISPLAY(vid_adapter),

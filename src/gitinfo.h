@@ -5,7 +5,7 @@
 
 #define GIT_DESCRIPTION VERSIONSTR
 #define GIT_HASH SAVEVERSTRING
-#define GIT_TIME "[N/A]"
+#define GIT_TIME ""
 
 #endif
 
