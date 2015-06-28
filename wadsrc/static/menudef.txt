@@ -1475,13 +1475,13 @@ OptionValue GusMemory
 	4, "1024K"
 }
 
-OptionValue OplCores
+/*OptionValue OplCores
 {
 	0, "MAME OPL2"
 	1, "DOSBox OPL3"
 	2, "Java OPL3"
 	3, "Nuked OPL3"
-}
+}*/
 
 OptionMenu AdvSoundOptions
 {
@@ -1490,11 +1490,11 @@ OptionMenu AdvSoundOptions
 	Option "Buffer size",			"snd_buffersize", "BufferSizes"
 	Option "Buffer count",			"snd_buffercount", "BufferCounts"
 	StaticText " "
-	StaticText "OPL Synthesis",	1
+	/*StaticText "OPL Synthesis",	1
 	Slider "Number of emulated OPL chips", "opl_numchips", 1, 8, 1, 0
 	Option "Full MIDI stereo panning", "opl_fullpan", "OnOff"
 	Option "OPL Emulator Core", "opl_core", "OplCores"
-	StaticText " "
+	StaticText " "*/
 	StaticText "GUS Emulation",	1
 	Slider "MIDI voices",	"midi_voices", 16, 256, 4, 0
 	Option "Emulate TiMidity", "midi_timiditylike", "OnOff"
@@ -1508,11 +1508,11 @@ OptionMenu AdvSoundOptions
  *
  *=======================================*/
 
-OptionValue ModReplayers
+/*OptionValue ModReplayers
 {
 	0.0, "FMOD"
 	1.0, "foo_dumb"
-}
+}*/
 
 
 OptionValue ModInterpolations

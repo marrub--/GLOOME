@@ -789,7 +789,7 @@ static int it_xm_read_sample_data(IT_SAMPLE *sample, unsigned char roguebytes, D
 	if (dumbfile_error(f))
 		return -1;
 
-	/* FMOD extension: Samples compressed with Ogg Vorbis */
+	/* Sound System extension: Samples compressed with Ogg Vorbis */
 	if (!memcmp((char *)sample->data + 4, "OggS", 4) &&
 		!memcmp((char *)sample->data + 33, "vorbis", 7))
 	{
