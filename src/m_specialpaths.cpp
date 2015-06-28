@@ -197,39 +197,18 @@ FString M_GetCajunPath(const char *botfilename)
 FString M_GetConfigPath(bool for_reading)
 {
 	FString path;
-	HRESULT hr;
 
 	// Construct a user-specific config name
 	if (UseKnownFolders() && GetKnownFolder(CSIDL_APPDATA, FOLDERID_RoamingAppData, true, path))
 	{
 		path += "/" GAME_DIR;
 		CreatePath(path);
-		path += "/zdoom.ini";
+		path += "/" GAMENAMELOWERCASE ".ini";
 	}
 	else
-	{ // construct "$PROGDIR/zdoom-$USER.ini"
-		TCHAR uname[UNLEN+1];
-		DWORD unamelen = countof(uname);
-
+	{
 		path = progdir;
-		hr = GetUserName(uname, &unamelen);
-		if (SUCCEEDED(hr) && uname[0] != 0)
-		{
-			// Is it valid for a user name to have slashes?
-			// Check for them and substitute just in case.
-			char *probe = uname;
-			while (*probe != 0)
-			{
-				if (*probe == '\\' || *probe == '/')
-					*probe = '_';
-				++probe;
-			}
-			path << "zdoom-" << uname << ".ini";
-		}
-		else
-		{ // Couldn't get user name, so just use zdoom.ini
-			path += "zdoom.ini";
-		}
+		path += GAMENAMELOWERCASE ".ini";
 	}
 
 	// If we are reading the config file, check if it exists. If not, fallback
@@ -239,7 +218,7 @@ FString M_GetConfigPath(bool for_reading)
 		if (!FileExists(path))
 		{
 			path = progdir;
-			path << "zdoom.ini";
+			path << GAMENAMELOWERCASE ".ini";
 		}
 	}
 
@@ -411,11 +390,11 @@ FString M_GetConfigPath(bool for_reading)
 		noErr == FSRefMakePath(&folder, (UInt8*)cpath, PATH_MAX))
 	{
 		FString path;
-		path << cpath << "/zdoom.ini";
+		path << cpath << GAMENAMELOWERCASE "/.ini";
 		return path;
 	}
 	// Ungh.
-	return "zdoom.ini";
+	return GAMENAMELOWERCASE ".ini";
 }
 
 //===========================================================================
@@ -497,12 +476,12 @@ FString GetUserFile (const char *file)
 		// This can be removed after a release or two
 		// Transfer the old zdoom directory to the new location
 		bool moved = false;
-		FString oldpath = NicePath("~/.zdoom/");
+		FString oldpath = NicePath("~/." GAMENAMELOWERCASE "/");
 		if (stat (oldpath, &extrainfo) != -1)
 		{
 			if (rename(oldpath, path) == -1)
 			{
-				I_Error ("Failed to move old zdoom directory (%s) to new location (%s).",
+				I_Error ("Failed to move old " GAMENAMELOWERCASE " directory (%s) to new location (%s).",
 					oldpath.GetChars(), path.GetChars());
 			}
 			else
@@ -598,7 +577,7 @@ FString M_GetCajunPath(const char *botfilename)
 
 FString M_GetConfigPath(bool for_reading)
 {
-	return GetUserFile("zdoom.ini");
+	return GetUserFile(GAMENAMELOWERCASE ".ini");
 }
 
 //===========================================================================

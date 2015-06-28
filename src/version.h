@@ -76,7 +76,8 @@ const char *GetVersionString();
 
 // Use 4500 as the base git save version, since it's higher than the
 // SVN revision ever got.
-#define SAVEVER 4517
+#define SAVEVER 14518
+#define SAVEVERSTRING "14518"
 
 #define SAVEVERSTRINGIFY2(x) #x
 #define SAVEVERSTRINGIFY(x) SAVEVERSTRINGIFY2(x)
@@ -84,19 +85,20 @@ const char *GetVersionString();
 
 #define DYNLIGHT
 
-// This is so that derivates can use the same savegame versions without worrying about engine compatibility
-#define GAMESIG "GZDOOM"
-#define BASEWAD "gzdoom.pk3"
-
 // More stuff that needs to be different for derivatives.
-#define GAMENAME "GZDoom"
+#define GAMENAME "Raivostunut-Parranleikkaaja"
+#define GAMENAMELOWERCASE "raivostunut-parranleikkaaja"
 #define FORUM_URL "http://forum.drdteam.org"
 #define BUGS_FORUM_URL	"http://forum.drdteam.org/viewforum.php?f=24"
+
+// This is so that derivates can use the same savegame versions without worrying about engine compatibility
+#define GAMESIG GAMENAME
+#define BASEWAD GAMENAMELOWERCASE ".pk3"
 
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME
 #else
-#define GAME_DIR ".config/gzdoom"
+#define GAME_DIR ".config/" GAMENAMELOWERCASE
 #endif
 
 
