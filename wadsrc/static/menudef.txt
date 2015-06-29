@@ -1364,7 +1364,6 @@ OptionString SoundOutputsWindows
 	"WASAPI",		"Vista WASAPI"
 	"ASIO",			"ASIO"
 	"WaveOut",		"WaveOut"
-	"OpenAL",		"OpenAL (very beta)"
 	"No sound",		"No sound"
 }
 
@@ -1382,9 +1381,13 @@ OptionString SoundOutputsUnix
 
 OptionString SoundOutputsMac
 {
-	"Sound Manager",	"Sound Manager"
 	"Core Audio",		"Core Audio"
 	"No sound",			"No sound"
+}
+
+OptionString ALDevices
+{
+	// filled in by the sound code
 }
 
 OptionString OutputFormats
@@ -1418,6 +1421,13 @@ OptionString Resamplers
 	"Spline",		"Spline"
 }
 
+OptionMenu OpenALSoundItems
+{
+	Title "OPENAL OPTIONS"
+	Option "Playback device",	"snd_aldevice",	"ALDevices"
+	Option "Enable EFX",		"snd_efx",		"OnOff"
+}
+
 OptionValue MidiDevices
 {
 	// filled in by the sound code
@@ -1432,28 +1442,13 @@ OptionMenu SoundOptions
 	Option "MIDI device",		"snd_mididevice", "MidiDevices"
 	StaticText " "
 	Option "Underwater reverb",	"snd_waterreverb", "OnOff"
-	Slider "Underwater cutoff",	"snd_waterlp", 0, 2000, 50, 0
 	Option "Randomize pitches",	"snd_pitched", "OnOff"
 	Slider "Sound channels",	"snd_channels", 8, 256, 8, 0
 	StaticText " "
-	Command "Restart sound",	"snd_reset"
+	
+	Submenu "OpenAL options",	"OpenALSoundItems"
 	StaticText " "
-	IfOption(Windows)
-	{
-		Option "Output system",		"snd_output", "SoundOutputsWindows"
-	}
-	IfOption(Unix)
-	{
-		Option "Output system",		"snd_output", "SoundOutputsUnix"
-	}
-	IfOption(Mac)
-	{
-		Option "Output system",		"snd_output", "SoundOutputsMac"
-	}
-	Option "Output format",		"snd_output_format", "OutputFormats"
-	Option "Speaker mode",		"snd_speakermode", "SpeakerModes"
-	Option "Resampler",			"snd_resampler", "Resamplers"
-	Option "HRTF filter",		"snd_hrtf", "OnOff"
+	Command "Restart sound",	"snd_reset"
 
 	StaticText " "
 	Submenu "Advanced options",			"AdvSoundOptions"
@@ -1475,14 +1470,6 @@ OptionValue GusMemory
 	4, "1024K"
 }
 
-/*OptionValue OplCores
-{
-	0, "MAME OPL2"
-	1, "DOSBox OPL3"
-	2, "Java OPL3"
-	3, "Nuked OPL3"
-}*/
-
 OptionMenu AdvSoundOptions
 {
 	Title "ADVANCED SOUND OPTIONS"
@@ -1490,11 +1477,6 @@ OptionMenu AdvSoundOptions
 	Option "Buffer size",			"snd_buffersize", "BufferSizes"
 	Option "Buffer count",			"snd_buffercount", "BufferCounts"
 	StaticText " "
-	/*StaticText "OPL Synthesis",	1
-	Slider "Number of emulated OPL chips", "opl_numchips", 1, 8, 1, 0
-	Option "Full MIDI stereo panning", "opl_fullpan", "OnOff"
-	Option "OPL Emulator Core", "opl_core", "OplCores"
-	StaticText " "*/
 	StaticText "GUS Emulation",	1
 	Slider "MIDI voices",	"midi_voices", 16, 256, 4, 0
 	Option "Emulate TiMidity", "midi_timiditylike", "OnOff"
@@ -1508,14 +1490,14 @@ OptionMenu AdvSoundOptions
  *
  *=======================================*/
 
-/*OptionValue ModReplayers
+OptionValue ModReplayers
 {
-	0.0, "FMOD"
+	0.0, "Sound System"
 	1.0, "foo_dumb"
-}*/
+}
 
 
-OptionValue ModInterpolations
+/*OptionValue ModInterpolations
 {
 	0.0, "None"
 	1.0, "Linear"
@@ -1530,6 +1512,27 @@ OptionValue ModVolumeRamps
 	2.0, "Linear"
 	3.0, "XM=lin, else none"
 	4.0, "XM=lin, else log"
+}*/
+
+
+OptionValue ModQuality
+{
+	0.0, "Aliasing"
+	1.0, "Linear"
+	2.0, "Cubic"
+	3.0, "Band-limited step"		// BLEP
+	4.0, "Linear (Slower)"
+	5.0, "Band-limited linear"		// BLAM
+	6.0, "Cubic (Slower)"
+	7.0, "Sinc"
+}
+
+
+OptionValue ModVolumeRamps
+{
+	0.0, "None"
+	1.0, "Note on/off only"
+	2.0, "Full ramping"
 }
 
 
@@ -1539,7 +1542,7 @@ OptionMenu ModReplayerOptions
 	Option "Replayer engine",		"mod_dumb", "ModReplayers"
 	StaticText " "
 	Option "Sample rate",			"mod_samplerate", "SampleRates", "mod_dumb"
-	Option "Interpolation",			"mod_interp", "ModInterpolations", "mod_dumb"
+	Option "Quality",				"mod_interp", "ModQuality", "mod_dumb"
 	Option "Volume ramping",		"mod_volramp", "ModVolumeRamps", "mod_dumb"
 	StaticText " "
 	Option "Chip-o-matic",			"mod_autochip", "OnOff", "mod_dumb"

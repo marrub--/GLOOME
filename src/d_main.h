@@ -53,7 +53,6 @@ void D_Display ();
 // BASE LEVEL
 //
 void D_PageTicker (void);
-void D_PageDrawer (void);
 void D_AdvanceDemo (void);
 void D_StartTitle (void);
 bool D_AddFile (TArray<FString> &wadfiles, const char *file, bool check = true, int position = -1);
