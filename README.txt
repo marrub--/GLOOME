@@ -78,7 +78,7 @@ his work, we would not be where we are now. The entire scene would be a wildly
 different place.
 Thank you, Carmack.
 
-Randy Heit and Cristoph Oelckers (please god tell me I spelled those right)
+Randy Heit and Christoph Oelckers
 - Creating ZDoom and GZDoom, of which, of course, this is based on (and where
 at least 99% of the code comes from). Being amazing programmers and keeping
 up with a source port for 20 or so years. Without these people, this port would
