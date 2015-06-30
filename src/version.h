@@ -35,8 +35,6 @@
 #define __VERSION_H__
 
 const char *GetGitDescription();
-const char *GetGitHash();
-const char *GetGitTime();
 const char *GetVersionString();
 
 /** Lots of different version numbers **/
@@ -86,14 +84,14 @@ const char *GetVersionString();
 #define DYNLIGHT
 
 // More stuff that needs to be different for derivatives.
-#define GAMENAME "Raivostunut-Parranleikkaaja"
-#define GAMENAMELOWERCASE "raivostunut-parranleikkaaja"
+#define GAMENAME "GLOOME"
+#define GAMENAMELOWERCASE "gloome"
 #define FORUM_URL "http://forum.drdteam.org"
 #define BUGS_FORUM_URL	"http://forum.drdteam.org/viewforum.php?f=24"
 
 // This is so that derivates can use the same savegame versions without worrying about engine compatibility
 #define GAMESIG GAMENAME
-#define BASEWAD GAMENAMELOWERCASE ".pk3"
+#define BASEWAD "engine.pk3"
 
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME

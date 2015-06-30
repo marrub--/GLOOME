@@ -356,8 +356,8 @@ void NewFailure()
 
 int OriginalMain(int argc, char** argv)
 {
-	printf(GAMENAME" %s - %s - Cocoa version\nCompiled on %s\n\n",
-		GetVersionString(), GetGitTime(), __DATE__);
+	printf(GAMENAME " %s - Cocoa version\nCompiled on %s\n\n",
+		GetVersionString(), __DATE__);
 
 	seteuid(getuid());
 	std::set_new_handler(NewFailure);
@@ -2226,7 +2226,7 @@ CocoaFrameBuffer::CocoaFrameBuffer (int width, int height, bool fullscreen)
 , m_isUpdatePending(false)
 {
 	FString caption;
-	caption.Format(GAMESIG " %s (%s)", GetVersionString(), GetGitTime());
+	caption.Format(GAMESIG " %s", GetVersionString());
 
 	Screen = SDL_CreateWindow (caption, 0, 0,
 		width, height, (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));

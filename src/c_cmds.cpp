@@ -422,7 +422,7 @@ CCMD (take)
 
 CCMD (gameversion)
 {
-	Printf ("%s\nCommit %s", GetVersionString(), GetGitHash());
+	Printf ("%s " VERSIONSTR, GetVersionString());
 }
 
 CCMD (print)

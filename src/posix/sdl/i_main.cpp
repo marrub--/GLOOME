@@ -150,7 +150,7 @@ static int DoomSpecificInfo (char *buffer, char *end)
 	int i, p;
 
 	p = 0;
-	p += snprintf (buffer+p, size-p, GAMENAME" version %s (%s)\n", GetVersionString(), GetGitHash());
+	p += snprintf (buffer+p, size-p, GAMENAME " " VERSIONSTR "\n");
 #ifdef __VERSION__
 	p += snprintf (buffer+p, size-p, "Compiler version: %s\n", __VERSION__);
 #endif

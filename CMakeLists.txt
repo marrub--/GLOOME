@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.4 )
-project(GZDoom)
-set(PK3_GAME_NAME "raivostunut-parranleikkaaja.pk3")
+project(GLOOME)
+set(PK3_GAME_NAME "engine.pk3")
 
 if( COMMAND cmake_policy )
 	if( POLICY CMP0011 )
@@ -79,7 +79,7 @@ IF( NOT CMAKE_BUILD_TYPE )
 ENDIF( NOT CMAKE_BUILD_TYPE )
 
 set( ZDOOM_OUTPUT_DIR ${CMAKE_BINARY_DIR} CACHE PATH "Directory where zdoom.pk3 and the executable will be created." )
-set( ZDOOM_EXE_NAME "engine" CACHE FILEPATH "Name of the executable to create" )
+set( ZDOOM_EXE_NAME "gloome" CACHE FILEPATH "Name of the executable to create" )
 if( MSVC )
 	# Allow the user to use ZDOOM_OUTPUT_DIR as a single release point.
 	# Use zdoom, zdoomd, zdoom64, and zdoomd64 for the binary names
