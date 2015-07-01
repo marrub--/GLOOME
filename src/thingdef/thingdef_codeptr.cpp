@@ -3916,6 +3916,24 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_MonsterRefire)
 
 //===========================================================================
 //
+// A_GiveScoreToTarget
+//
+// Does this really need a description?
+//
+//===========================================================================
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveScoreToTarget)
+{
+	ACTION_PARAM_START(1);
+	ACTION_PARAM_INT(amt, 0);
+	
+	if(self->target != NULL && self->target->health > 0)
+	{
+		self->target->Score += ((amt == 0) ? (self->ScoreOnDeath) : (amt));
+	}
+}
+
+//===========================================================================
+//
 // A_SetAngle
 //
 // Set actor's angle (in degrees).

@@ -1870,6 +1870,7 @@ IMPLEMENT_CLASS(AScoreItem)
 bool AScoreItem::TryPickup (AActor *&toucher)
 {
 	toucher->Score += Amount;
+	toucher->ScoreOnDeath += Amount;
 	GoAwayAndDie();
 	return true;
 }

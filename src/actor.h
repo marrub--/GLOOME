@@ -932,6 +932,7 @@ public:
 	int				activationtype;	// How the thing behaves when activated with USESPECIAL or BUMPSPECIAL
 	int				lastbump;		// Last time the actor was bumped, used to control BUMPSPECIAL
 	int				Score;			// manipulated by score items, ACS or DECORATE. The engine doesn't use this itself for anything.
+	int				ScoreOnDeath;
 	FString *		Tag;			// Strife's tag name.
 	int				DesignatedTeam;	// Allow for friendly fire cacluations to be done on non-players.
 
