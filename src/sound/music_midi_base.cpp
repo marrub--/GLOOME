@@ -31,7 +31,7 @@ static void AddDefaultMidiDevices(FOptionValues *opt)
 	pair[p].Value = -3.0;
 	pair[p+1].Text = "TiMidity++";
 	pair[p+1].Value = -2.0;
-	pair[p+2].Text = "FMOD";
+	pair[p+2].Text = "Sound System (null)";
 	pair[p+2].Value = -1.0;
 
 }
@@ -169,7 +169,7 @@ CCMD (snd_listmididevices)
 #endif
 	PrintMidiDevice (-3, "Gravis Ultrasound Emulation", MOD_SWSYNTH, 0);
 	PrintMidiDevice (-2, "TiMidity++", MOD_SWSYNTH, 0);
-	PrintMidiDevice (-1, "FMOD", MOD_SWSYNTH, 0);
+	PrintMidiDevice (-1, "Sound System (null)", MOD_SWSYNTH, 0);
 	if (nummididevices != 0)
 	{
 		for (id = 0; id < nummididevices; ++id)
@@ -213,6 +213,6 @@ CCMD (snd_listmididevices)
 #endif
 	Printf("%s-3. Gravis Ultrasound Emulation\n", -3 == snd_mididevice ? TEXTCOLOR_BOLD : "");
 	Printf("%s-2. TiMidity++\n", -2 == snd_mididevice ? TEXTCOLOR_BOLD : "");
-	Printf("%s-1. FMOD\n", -1 == snd_mididevice ? TEXTCOLOR_BOLD : "");
+	Printf("%s-1. Sound System (null)\n", -1 == snd_mididevice ? TEXTCOLOR_BOLD : "");
 }
 #endif
