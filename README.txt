@@ -69,6 +69,68 @@ more, and then throw it up on Steam without worrying about Doom copyrights.
 
 **********************
 
+FAQ:
+
+Q: So with this I could develop a whole game in maps, sprites, sounds, etc, and
+   then release it commercially for money?
+A: Did you not read the above blurb? Yes!
+
+Q: So how exactly would I make something?
+A: GLOOME reads, recognizes, and utilizes the exact same code that Doom mods
+   have been using for years now--DECORATE, SBARINFO, and ACS. They're easy to
+   pick up, easy to use, and provide a lot of power. Likewise, it recognizes
+   the same map format that Doom mods have been using, and people can just as
+   easily draw a few linedefs, create a room, and get going.
+
+Q: Can I create something other than an FPS with this?
+A: Yes. While an FPS is obviously the native genre and one the engine can
+   handle the best, people have long been stretching the boundaries to create a
+   wide variety of different things. People have made arcade shmups, 2D
+   platformers, puzzle games, action RPGs, sneaking games, and visual novels.
+   
+Q: Is there netplay support?
+A: GZDoom's peer-to-peer netplay structure has not been touched and should work
+   the exact same way, all frustrations intact.
+
+Q: Can this run Doom or Doom mods?
+A: Yes, but seeing as how all of the Doom code has been stripped out for
+   obvious reasons, you'll have to supply your own copy of Doom or Freedoom to
+   run it with. It CAN play Doom and Doom mods, but that...isn't the point.
+
+Q: What does this offer me over the GZDoom engine?
+A: Mechanically? Nothing. Playing on GLOOME is no different from playing on
+   GZDoom. GLOOME is not an upgrade, a sidegrade, a sidestep, or anything of
+   the sort.
+
+Q: In terms of exact numbers, what featureset is this compatible with?
+A: GZDoom 1.8.10 doesn't line up with an exact ZDoom version number, but if
+   generally if you set your goal to be compatible with 2.7.1 then you should
+   be fine. We have a whole ton of extra dev features, and marrub's already
+   backported some newer features, so it should be good.
+
+Q: Why GZDoom 1.8.10? Why not go with the most recent hardware renderer?
+A: 1.8.10 is more compatible with a wider variety of hardware with less issues,
+   with the downside of being a bag of dicks to wade through on the programming
+   end. There are many aspiring developers and modders that simply can't run
+   the OpenGL upgrade that came with post-1.8.10 versions, and more importantly
+   there are plenty of players as well. Plus, if we purposely don't try and
+   stay 1:1 with GZDoom, less chance of getting into any potential upsets with
+   Graf or Randy, since they'll still have the feature-superior engine. We
+   could also talk it out like reasonable adults, sure, but Just In Case.
+
+Q: But won't the GPL license cause some issues? Needing to distribute the
+   source code along with your project might be a problem.
+A: It won't cause any problems. In fact, it's practically a non-issue. Either
+   download and .zip up the source code on the github or provide a link to the
+   github, and you're good to go. The latter is easier, but the former will
+   provide more tech-savvy people the ability to see exactly what the engine
+   is, how it works, and what a bundle of hacks it is.
+
+Q: Does this run with Brutal Doom?
+A: No.
+
+**********************
+
 CREDITS:
 
 John Carmack
@@ -92,5 +154,3 @@ marrub
 
 TerminusEst13
 - Project director.
-
-**********************
