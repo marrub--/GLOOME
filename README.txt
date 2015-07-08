@@ -91,18 +91,18 @@ A: Yes. While an FPS is obviously the native genre and one the engine can
 Q: Is there netplay support?
 A: GZDoom's peer-to-peer netplay structure has not been touched and should work
    the exact same way, all frustrations intact. Do note that support for this
-	 is limited, and may break in the future due to neglect.
-	 Poor little netcode.
+   is limited, and may break in the future due to neglect.
+   Poor little netcode.
 
 Q: Can this run Doom or Doom mods?
-A: Yes, you'll have to supply your own copy of Doom or Freedoom to run it with
+A: Yes, you'll have to supply your own copy of Doom or Freedoom to run it with.
    It CAN play Doom and Doom mods, but that...isn't the point.
 
 Q: What does this offer me over the GZDoom engine?
 A: Mechanically? Nothing. Playing on GLOOME is no different from playing on
    GZDoom. Internally, however, there are a few changes to help game makers,
-	 such as adding customizable cheat codes and new functions in
-	 ACS and DECORATE.
+   such as adding customizable cheat codes and new functions in
+   ACS and DECORATE.
 
 Q: In terms of exact numbers, what featureset is this compatible with?
 A: GZDoom 1.8.10 doesn't line up with an exact ZDoom version number, but if
