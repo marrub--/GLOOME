@@ -1835,30 +1835,32 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_TakeFromSiblings)
 
 enum SIX_Flags
 {
-	SIXF_TRANSFERTRANSLATION	= 1 << 0,
-	SIXF_ABSOLUTEPOSITION		= 1 << 1,
-	SIXF_ABSOLUTEANGLE			= 1 << 2,
-	SIXF_ABSOLUTEVELOCITY		= 1 << 3,
-	SIXF_SETMASTER				= 1 << 4,
-	SIXF_NOCHECKPOSITION		= 1 << 5,
-	SIXF_TELEFRAG				= 1 << 6,
-	SIXF_CLIENTSIDE				= 1 << 7,	// only used by Skulldronum
-	SIXF_TRANSFERAMBUSHFLAG		= 1 << 8,
-	SIXF_TRANSFERPITCH			= 1 << 9,
-	SIXF_TRANSFERPOINTERS		= 1 << 10,
-	SIXF_USEBLOODCOLOR			= 1 << 11,
-	SIXF_CLEARCALLERTID			= 1 << 12,
-	SIXF_MULTIPLYSPEED			= 1 << 13,
-	SIXF_TRANSFERSCALE			= 1 << 14,
-	SIXF_TRANSFERSPECIAL		= 1 << 15,
-	SIXF_CLEARCALLERSPECIAL		= 1 << 16,
-	SIXF_TRANSFERSTENCILCOL		= 1 << 17,
-	SIXF_TRANSFERALPHA			= 1 << 18,
-	SIXF_TRANSFERRENDERSTYLE	= 1 << 19,
-	SIXF_SETTARGET				= 1 << 20,
-	SIXF_SETTRACER				= 1 << 21,
-	SIXF_NOPOINTERS				= 1 << 22,
-	SIXF_ORIGINATOR				= 1 << 23,
+	SIXF_TRANSFERTRANSLATION  = 1 << 0,
+	SIXF_ABSOLUTEPOSITION     = 1 << 1,
+	SIXF_ABSOLUTEANGLE        = 1 << 2,
+	SIXF_ABSOLUTEVELOCITY     = 1 << 3,
+	SIXF_SETMASTER            = 1 << 4,
+	SIXF_NOCHECKPOSITION      = 1 << 5,
+	SIXF_TELEFRAG             = 1 << 6,
+	SIXF_CLIENTSIDE           = 1 << 7,	// only used by Skulldronum
+	SIXF_TRANSFERAMBUSHFLAG   = 1 << 8,
+	SIXF_TRANSFERPITCH        = 1 << 9,
+	SIXF_TRANSFERPOINTERS     = 1 << 10,
+	SIXF_USEBLOODCOLOR        = 1 << 11,
+	SIXF_CLEARCALLERTID       = 1 << 12,
+	SIXF_MULTIPLYSPEED        = 1 << 13,
+	SIXF_TRANSFERSCALE        = 1 << 14,
+	SIXF_TRANSFERSPECIAL      = 1 << 15,
+	SIXF_CLEARCALLERSPECIAL   = 1 << 16,
+	SIXF_TRANSFERSTENCILCOL   = 1 << 17,
+	SIXF_TRANSFERALPHA        = 1 << 18,
+	SIXF_TRANSFERRENDERSTYLE  = 1 << 19,
+	SIXF_SETTARGET            = 1 << 20,
+	SIXF_SETTRACER            = 1 << 21,
+	SIXF_NOPOINTERS           = 1 << 22,
+	SIXF_ORIGINATOR           = 1 << 23,
+	SIXF_TRANSFERSPRITEFRAME  = 1 << 24,
+	SIXF_TRANSFERROLL         = 1 << 25,
 };
 
 static bool InitSpawnedItem(AActor *self, AActor *mo, int flags)
@@ -2004,6 +2006,16 @@ static bool InitSpawnedItem(AActor *self, AActor *mo, int flags)
 	{
 		mo->RenderStyle = self->RenderStyle;
 	}
+	if (flags & SIXF_TRANSFERSPRITEFRAME)
+	{
+		mo->sprite = self->sprite;
+		mo->frame = self->frame;
+	}
+	if (flags & SIXF_TRANSFERROLL)
+	{
+		mo->roll = self->roll;
+	}
+	
 
 	return true;
 }
