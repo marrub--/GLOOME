@@ -1,0 +1,8 @@
+addcheat noclip          idspispopd doom
+addcheat noclip          idclip     doom
+addcheat "give Chainsaw" idchoppers doom
+addcheat "god; setplayerhealth 100" iddqd doom
+addcheat "give backpack; give weapons; give ammo; give keys; give armor; echolocal STSTR_KFAADDED" idkfa doom
+addcheat "give backpack; give weapons; give ammo; give armor; echolocal STSTR_FAADDED" idfa doom
+addcheat "toggle idmypos quiet" idmypos doom
+addcheat "test \"automapactive\" \"setcheat am_cheat 0 3\"" iddt doom

@@ -30,6 +30,7 @@ struct event_t;
 extern int ST_X;
 extern int ST_Y;
 
+bool ST_DoCmdCheat(const char *cmdcheat, bool fromccmd = false);
 bool ST_Responder(event_t* ev);
 
 // [RH] Base blending values (for e.g. underwater)

@@ -66,6 +66,7 @@
 #include "d_event.h"
 #include "d_player.h"
 #include "c_consolebuffer.h"
+#include "gstrings.h"
 
 #include "gi.h"
 
@@ -1528,6 +1529,16 @@ CCMD (echo)
 	for (int i = 1; i <= last; ++i)
 	{
 		FString formatted = strbin1 (argv[i]);
+		Printf ("%s%s", formatted.GetChars(), i!=last ? " " : "\n");
+	}
+}
+
+CCMD (echolocal)
+{
+	int last = argv.argc()-1;
+	for (int i = 1; i <= last; ++i)
+	{
+		FString formatted = GStrings(strbin1(argv[i]));
 		Printf ("%s%s", formatted.GetChars(), i!=last ? " " : "\n");
 	}
 }

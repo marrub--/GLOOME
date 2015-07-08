@@ -54,6 +54,7 @@
 #include "d_net.h"
 #include "d_main.h"
 #include "farchive.h"
+#include "st_stuff.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -182,7 +183,9 @@ static const char *KeyConfCommands[] =
 	"weaponsection",
 	"setslot",
 	"addplayerclass",
-	"clearplayerclasses"
+	"clearplayerclasses",
+	"addcheat",
+	"clearcheats"
 };
 
 static TArray<FString> StoredStartupSets;
@@ -692,9 +695,9 @@ void C_DoCommand (const char *cmd, int keynum)
 				// Save it for later, in case a CVARINFO defines it.
 				StoredStartupSets.Push(beg);
 			}
-			else
+			else if(ST_DoCmdCheat(beg) == false)
 			{
-				Printf ("Unknown command \"%.*s\"\n", len, beg);
+				Printf("Unknown command \"%.*s\"\n", len, beg);
 			}
 		}
 	}

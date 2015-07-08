@@ -1650,15 +1650,23 @@ CCMD (toggle)
 	FBaseCVar *var, *prev;
 	UCVarValue val;
 
-	if (argv.argc() > 1)
+	if (argv.argc() >= 2)
 	{
 		if ( (var = FindCVar (argv[1], &prev)) )
 		{
 			val = var->GetGenericRep (CVAR_Bool);
 			val.Bool = !val.Bool;
 			var->SetGenericRep (val, CVAR_Bool);
-			Printf ("\"%s\" is \"%s\"\n", var->GetName(),
-				val.Bool ? "true" : "false");
+			
+			bool hush = false;
+			if(argv.argc() == 3 && strnicmp(argv[2], "quiet", 5) == 0)
+			{
+				hush = true;
+			}
+			if(!hush)
+			{
+				Printf ("\"%s\" is \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
+			}
 		}
 	}
 }

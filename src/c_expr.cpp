@@ -119,6 +119,8 @@ FProduction *ProdNeqStr  (FStringProd *prod1, FStringProd *prod2);
 
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
 
+extern bool automapactive;
+
 // PUBLIC DATA DEFINITIONS -------------------------------------------------
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
@@ -168,6 +170,10 @@ static FProduction *ParseExpression (FCommandLine &argv, int &parsept)
 	if (IsFloat (token))
 	{
 		return NewDoubleProd (atof(token));
+	}
+	else if (stricmp(token, "automapactive") == 0)
+	{
+		return NewDoubleProd((double)automapactive);
 	}
 	else if (stricmp (token, "true") == 0)
 	{
