@@ -4443,7 +4443,9 @@ enum EACSFunctions
 	ACSF_SwapActorTeleFog,
 	ACSF_SetActorRoll,
 	ACSF_ChangeActorRoll,
-	ACSF_GetActorRoll,
+	ACSF_GetActorRoll,			// 90
+	// ACSF_QuakeEx
+	ACSF_ChangeFlag = 92,
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -5878,6 +5880,114 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 		case ACSF_GetActorRoll:
 			actor = SingleActorFromTID(args[0], activator);
 			return actor != NULL? actor->roll >> 16 : 0;
+		
+		case ACSF_ChangeFlag:
+			if(argCount >= 3)
+			{
+				const char *flagname = FBehavior::StaticLookupString(args[1]);
+				bool expression = !!args[2];
+				AActor *aptr;
+				
+				if (argCount > 3 && args[3] != AAPTR_DEFAULT) // condition (x != AAPTR_DEFAULT) is essentially condition (x).
+				{
+					aptr = COPY_AAPTR(SingleActorFromTID(args[0], activator), args[3]);
+				}
+				else
+				{
+					aptr = SingleActorFromTID(args[0], activator);
+				}
+				
+				if(aptr == NULL)
+				{
+					aptr = activator;
+				}
+				
+				const char *dot = strchr (flagname, '.');
+				FFlagDef *fd;
+				const PClass *cls = aptr->GetClass();
+
+				if (dot != NULL)
+				{
+					FString part1(flagname, dot-flagname);
+					fd = FindFlag (cls, part1, dot+1);
+				}
+				else
+				{
+					fd = FindFlag (cls, flagname, NULL);
+				}
+
+				if (fd != NULL)
+				{
+					bool kill_before, kill_after;
+					INTBOOL item_before, item_after;
+					INTBOOL secret_before, secret_after;
+
+					kill_before = aptr->CountsAsKill();
+					item_before = aptr->flags & MF_COUNTITEM;
+					secret_before = aptr->flags5 & MF5_COUNTSECRET;
+
+					if (fd->structoffset == -1)
+					{
+						HandleDeprecatedFlags(aptr, cls->ActorInfo, expression, fd->flagbit);
+					}
+					else
+					{
+						DWORD *flagp = (DWORD*)(((char*)aptr) + fd->structoffset);
+
+						// If these 2 flags get changed we need to update the blockmap and sector links.
+						bool linkchange = flagp == &aptr->flags && (fd->flagbit == MF_NOBLOCKMAP || fd->flagbit == MF_NOSECTOR);
+
+						if (linkchange) aptr->UnlinkFromWorld();
+						ModActorFlag(aptr, fd, expression);
+						if (linkchange) aptr->LinkToWorld();
+					}
+					kill_after = aptr->CountsAsKill();
+					item_after = aptr->flags & MF_COUNTITEM;
+					secret_after = aptr->flags5 & MF5_COUNTSECRET;
+					// Was this monster previously worth a kill but no longer is?
+					// Or vice versa?
+					if (kill_before != kill_after)
+					{
+						if (kill_after)
+						{ // It counts as a kill now.
+							level.total_monsters++;
+						}
+						else
+						{ // It no longer counts as a kill.
+							level.total_monsters--;
+						}
+					}
+					// same for items
+					if (item_before != item_after)
+					{
+						if (item_after)
+						{ // It counts as an item now.
+							level.total_items++;
+						}
+						else
+						{ // It no longer counts as an item
+							level.total_items--;
+						}
+					}
+					// and secretd
+					if (secret_before != secret_after)
+					{
+						if (secret_after)
+						{ // It counts as an secret now.
+							level.total_secrets++;
+						}
+						else
+						{ // It no longer counts as an secret
+							level.total_secrets--;
+						}
+					}
+				}
+				else
+				{
+					Printf("Unknown flag '%s' in '%s'\n", flagname, cls->TypeName.GetChars());
+				}
+			}
+			break;
 
 		default:
 			break;
