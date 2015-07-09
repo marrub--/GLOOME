@@ -14,4 +14,4 @@ addcheat "give Berserk" idbeholds doom
 addcheat "give BlurSphere" idbeholdi doom
 addcheat "give RadSuit" idbeholdr doom
 addcheat "give Allmap" idbeholda doom
-addcheat "give Infared" idbeholdl doom
+addcheat "give Infrared" idbeholdl doom
