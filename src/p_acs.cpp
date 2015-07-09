@@ -4445,9 +4445,9 @@ enum EACSFunctions
 	ACSF_ChangeActorRoll,
 	ACSF_GetActorRoll,			// 90
 	// ACSF_QuakeEx
-	ACSF_ChangeFlag = 92,
-	ACSF_SetTicrate,
-	ACSF_GetTicrate,
+	ACSF_ChangeFlag = 11192,
+	// ACSF_SetTicrate,
+	ACSF_GetTicrate = 11194,
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -5991,9 +5991,10 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			}
 			break;
 
+		/* [marrub] FIXME: this doesn't work yet -- yell at TZK
 		case ACSF_SetTicrate:
 			I_SetTicAdjust(args[1] - TICRATE);
-			break;
+			break;*/
 
 		case ACSF_GetTicrate:
 			return TICRATE + I_GetTicAdjust();
