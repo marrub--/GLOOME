@@ -47,7 +47,9 @@ struct FCheatDef
 
 static bool DoingSTCheat;
 static unsigned SCheatDefsSize;
+static unsigned SCheatArgsLen;
 static TArray<FCheatDef> SCheatDefs;
+static BYTE SCheatArgs[8];
 
 static const char *CmdCheatCommands[] =
 {
@@ -63,6 +65,7 @@ static const char *CmdCheatCommands[] =
 	"setcheat",
 	"test",
 	"eval",
+	"idclev"
 };
 
 CCMD(addcheat)
@@ -260,8 +263,33 @@ static bool RunCmdCheat(FString a_ccmd)
 	{
 		if(a_ccmd[i] == ';' || a_ccmd[i] == '\0')
 		{
-			//Printf("running cmdcheat: \"%s\"\n", cmd.GetChars());
 			if(CheckCmdCheat(a_ccmd.Mid(beg, i - beg)) == false)
+			{
+				return false;
+			}
+			
+			beg = i + 1;
+		}
+	}
+	
+	return true;
+}
+
+static bool RunCmdCheatArgs(FString a_ccmd, BYTE *a_args, unsigned a_argLen)
+{
+	unsigned beg = 0;
+	FString ccmd = a_ccmd;
+	for(unsigned i = 0; i < a_argLen; i++)
+	{
+		FString sub, rep = a_args[i];
+		sub.Format("&%u", i+1);
+		ccmd.Substitute(sub, rep);
+	}
+	for(unsigned i = 0; i < ccmd.Len() + 1; i++)
+	{
+		if(ccmd[i] == ';' || ccmd[i] == '\0')
+		{
+			if(CheckCmdCheat(ccmd.Mid(beg, i - beg)) == false)
 			{
 				return false;
 			}
@@ -299,18 +327,25 @@ bool ST_DoCmdCheat(const char *cmdcheat, bool fromccmd)
 bool ST_Responder (event_t *ev)
 {
 	bool eat = false;
+	bool clear;
 	if(ev->type == EV_KeyDown)
 	{
 		BYTE key = (BYTE)ev->data2;
 		
 		for(unsigned i = 0; i < SCheatDefsSize; i++)
 		{
+			clear = false;
 			if(allcheats || SCheatDefs[i].mGame == GAME_Any || SCheatDefs[i].mGame & gameinfo.gametype)
 			{
 				unsigned pos = SCheatDefs[i].mPos;
-				if(key == SCheatDefs[i].mName[pos])
+				if(key == SCheatDefs[i].mName[pos] || SCheatDefs[i].mName[pos] == '.')
 				{
 					eat = true;
+					
+					if(SCheatDefs[i].mName[pos] == '.' && SCheatArgsLen < 8)
+					{
+						SCheatArgs[SCheatArgsLen++] = key;
+					}
 					
 					if(pos < SCheatDefs[i].mName.Len() - 1)
 					{
@@ -318,17 +353,22 @@ bool ST_Responder (event_t *ev)
 					}
 					else
 					{
-						ST_DoCmdCheat(SCheatDefs[i].mName);
-						SCheatDefs[i].mPos = 0;
+						RunCmdCheatArgs(SCheatDefs[i].mCCMD, SCheatArgs, SCheatArgsLen);
+						SCheatArgsLen = 0;
+						for(int j = 0; j < countof(SCheatArgs); j++)
+						{
+							SCheatArgs[j] = 0;
+						}
+						clear = true;
 					}
 				}
 				else
 				{
-					SCheatDefs[i].mPos = 0;
+					clear = true;
 				}
 			}
 			
-			if(!eat)
+			if(clear)
 			{
 				SCheatDefs[i].mPos = 0;
 			}
