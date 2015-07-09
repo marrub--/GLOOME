@@ -148,8 +148,15 @@ int (*I_GetTime) (bool saveMS);
 int (*I_WaitForTic) (int);
 void (*I_FreezeTime) (bool frozen);
 
+// [ZK] Variable ticrate
+int I_SetTicAdjust(int a);
+int I_GetTicAdjust();
+
 os_t OSPlatform;
 bool gameisdead;
+
+// [ZK] Variable ticrate
+int ticAdjust;
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
@@ -173,6 +180,31 @@ static int DefaultWad;
 static HCURSOR CustomCursor;
 
 // CODE --------------------------------------------------------------------
+
+//==========================================================================
+//
+// I_SetTicAdjust
+//
+//==========================================================================
+
+int I_SetTicAdjust(int a)
+{
+	const int min = -TICRATE + 1;
+	const int max = TICRATE * 4;
+	ticAdjust = (a < min ? min : (a > max ? max : a));
+	return ticAdjust;
+}
+
+//==========================================================================
+//
+// I_GetTicAdjust
+//
+//==========================================================================
+
+int I_GetTicAdjust()
+{
+	return ticAdjust;
+}
 
 //==========================================================================
 //
@@ -328,6 +360,10 @@ static int I_GetTimePolled(bool saveMS)
 		return TicFrozen;
 	}
 
+	// cheap way to handle seizure-inducing effects of interpolation with adjusted tic count
+	//if (ticAdjust)
+	//	R_ResetViewInterpolation();
+
 	tm = timeGetTime();
 	if (basetime == 0)
 	{
@@ -336,10 +372,10 @@ static int I_GetTimePolled(bool saveMS)
 	if (saveMS)
 	{
 		TicStart = tm;
-		TicNext = (tm * TICRATE / 1000 + 1) * 1000 / TICRATE;
+		TicNext = Scale((Scale(tm, TICRATE + ticAdjust, 1000) + 1), 1000, TICRATE + ticAdjust);
 	}
 
-	return ((tm-basetime)*TICRATE)/1000;
+	return Scale(tm - basetime, TICRATE + ticAdjust, 1000);
 }
 
 //==========================================================================
