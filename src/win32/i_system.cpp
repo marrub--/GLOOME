@@ -86,6 +86,9 @@
 #include "textures/bitmap.h"
 #include "textures/textures.h"
 
+// [ZK] Variable ticrate
+#include "r_main.h"
+
 // MACROS ------------------------------------------------------------------
 
 #ifdef _MSC_VER
@@ -189,9 +192,7 @@ static HCURSOR CustomCursor;
 
 int I_SetTicAdjust(int a)
 {
-	const int min = -TICRATE + 1;
-	const int max = TICRATE * 4;
-	ticAdjust = (a < min ? min : (a > max ? max : a));
+	ticAdjust = abs(a);
 	return ticAdjust;
 }
 
@@ -289,7 +290,8 @@ static void I_SelectTimer()
 		}
 		if (delay == 0)
 		{
-			delay = 1000/TICRATE;
+			// [ZK] Variable ticrate
+			delay = 1000/(TICRATE + ticAdjust);
 		}
 		MillisecondsPerTic = delay;
 		TimerEventID = timeSetEvent(delay, 0, TimerTicked, 0, TIME_PERIODIC);
@@ -359,10 +361,6 @@ static int I_GetTimePolled(bool saveMS)
 	{
 		return TicFrozen;
 	}
-
-	// cheap way to handle seizure-inducing effects of interpolation with adjusted tic count
-	//if (ticAdjust)
-	//	R_ResetViewInterpolation();
 
 	tm = timeGetTime();
 	if (basetime == 0)
@@ -507,9 +505,9 @@ fixed_t I_GetTimeFrac(uint32 *ms)
 	DWORD now = timeGetTime();
 	if (ms != NULL)
 	{
-		*ms = TicNext;
+		*ms = TicNext + ticAdjust;
 	}
-	DWORD step = TicNext - TicStart;
+	DWORD step = (TicNext + ticAdjust) - TicStart;
 	if (step == 0)
 	{
 		return FRACUNIT;
