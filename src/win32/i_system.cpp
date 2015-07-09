@@ -156,7 +156,7 @@ os_t OSPlatform;
 bool gameisdead;
 
 // [ZK] Variable ticrate
-int ticAdjust;
+static int ticAdjust;
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
