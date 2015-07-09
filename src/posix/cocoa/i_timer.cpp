@@ -10,9 +10,35 @@
 #include "i_system.h"
 #include "templates.h"
 
+// [ZK] Variable ticrate
+static int ticAdjust;
+int I_SetTicAdjust(int a);
+int I_GetTicAdjust();
 
 static timeval s_startTicks;
 
+//==========================================================================
+//
+// I_SetTicAdjust
+//
+//==========================================================================
+
+int I_SetTicAdjust(int a)
+{
+	ticAdjust = abs(a);
+	return ticAdjust;
+}
+
+//==========================================================================
+//
+// I_GetTicAdjust
+//
+//==========================================================================
+
+int I_GetTicAdjust()
+{
+	return ticAdjust;
+}
 
 unsigned int I_MSTime()
 {
@@ -55,11 +81,11 @@ timespec GetNextTickTime()
 		gettimeofday(&tv, NULL);
 
 		ts.tv_sec = tv.tv_sec;
-		ts.tv_nsec = (tv.tv_usec + MICROSECONDS_IN_SECOND / TICRATE) * MILLISECONDS_IN_SECOND;
+		ts.tv_nsec = (tv.tv_usec + MICROSECONDS_IN_SECOND / (TICRATE + ticAdjust)) * MILLISECONDS_IN_SECOND;
 	}
 	else
 	{
-		ts.tv_nsec += (MICROSECONDS_IN_SECOND / TICRATE) * MILLISECONDS_IN_SECOND;
+		ts.tv_nsec += (MICROSECONDS_IN_SECOND / (TICRATE + ticAdjust)) * MILLISECONDS_IN_SECOND;
 	}
 
 	if (ts.tv_nsec >= NANOSECONDS_IN_SECOND)
@@ -159,12 +185,12 @@ fixed_t I_GetTimeFrac(uint32* ms)
 
 	if (NULL != ms)
 	{
-		*ms = s_ticStart + 1000 / TICRATE;
+		*ms = s_ticStart + 1000 / (TICRATE + ticAdjust);
 	}
 
 	return 0 == s_ticStart
 		? FRACUNIT
-		: clamp<fixed_t>( (now - s_ticStart) * FRACUNIT * TICRATE / 1000, 0, FRACUNIT);
+		: clamp<fixed_t>((now - s_ticStart) * FRACUNIT * (TICRATE + ticAdjust) / 1000, 0, FRACUNIT);
 }
 
 
