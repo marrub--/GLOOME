@@ -23,7 +23,35 @@ static Semaphore timerWait;
 static int tics;
 static DWORD sig_start;
 
+// [ZK] Variable ticrate
+static int ticAdjust;
+int I_SetTicAdjust(int a);
+int I_GetTicAdjust();
+
 void I_SelectTimer();
+
+//==========================================================================
+//
+// I_SetTicAdjust
+//
+//==========================================================================
+
+int I_SetTicAdjust(int a)
+{
+	ticAdjust = abs(a);
+	return ticAdjust;
+}
+
+//==========================================================================
+//
+// I_GetTicAdjust
+//
+//==========================================================================
+
+int I_GetTicAdjust()
+{
+	return ticAdjust;
+}
 
 // [RH] Returns time in milliseconds
 unsigned int I_MSTime (void)
@@ -61,7 +89,7 @@ int I_GetTimePolled (bool saveMS)
 	{
 		TicStart = tm;
 	}
-	return Scale(tm - BaseTime, TICRATE, 1000);
+	return Scale(tm - BaseTime, (TICRATE + ticAdjust), 1000);
 }
 
 int I_GetTimeSignaled (bool saveMS)
@@ -161,7 +189,7 @@ void I_SelectTimer()
 
 	struct itimerval itv;
 	itv.it_interval.tv_sec = itv.it_value.tv_sec = 0;
-	itv.it_interval.tv_usec = itv.it_value.tv_usec = 1000000/TICRATE;
+	itv.it_interval.tv_usec = itv.it_value.tv_usec = 1000000/(TICRATE + ticAdjust);
 
 	if (setitimer(ITIMER_REAL, &itv, NULL) != 0)
 	{
@@ -181,14 +209,14 @@ void I_SelectTimer()
 fixed_t I_GetTimeFrac (uint32 *ms)
 {
 	DWORD now = SDL_GetTicks ();
-	if (ms) *ms = TicStart + (1000 / TICRATE);
+	if (ms) *ms = TicStart + (1000 / (TICRATE + ticAdjust));
 	if (TicStart == 0)
 	{
 		return FRACUNIT;
 	}
 	else
 	{
-		fixed_t frac = clamp<fixed_t> ((now - TicStart)*FRACUNIT*TICRATE/1000, 0, FRACUNIT);
+		fixed_t frac = clamp<fixed_t> ((now - TicStart)*FRACUNIT*(TICRATE + ticAdjust)/1000, 0, FRACUNIT);
 		return frac;
 	}
 }
