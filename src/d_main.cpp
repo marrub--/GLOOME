@@ -1840,6 +1840,11 @@ static FString ParseGameInfo(TArray<FString> &pwads, const char *fn, const char 
 			sc.MustGetString();
 			DoomStartupInfo.Song = sc.String;
 		}
+		else if (!nextKey.CompareNoCase("TICRATE")) // [ZK] Variable ticrate
+		{
+			sc.MustGetNumber();
+			I_SetTicAdjust(sc.Number - TICRATE);
+		}
 		else
 		{
 			// Silently ignore unknown properties

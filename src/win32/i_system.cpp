@@ -86,6 +86,9 @@
 #include "textures/bitmap.h"
 #include "textures/textures.h"
 
+// [ZK] Variable ticrate
+#include "r_main.h"
+
 // MACROS ------------------------------------------------------------------
 
 #ifdef _MSC_VER
@@ -148,8 +151,15 @@ int (*I_GetTime) (bool saveMS);
 int (*I_WaitForTic) (int);
 void (*I_FreezeTime) (bool frozen);
 
+// [ZK] Variable ticrate
+int I_SetTicAdjust(int a);
+int I_GetTicAdjust();
+
 os_t OSPlatform;
 bool gameisdead;
+
+// [ZK] Variable ticrate
+static int ticAdjust;
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
@@ -173,6 +183,29 @@ static int DefaultWad;
 static HCURSOR CustomCursor;
 
 // CODE --------------------------------------------------------------------
+
+//==========================================================================
+//
+// I_SetTicAdjust
+//
+//==========================================================================
+
+int I_SetTicAdjust(int a)
+{
+	ticAdjust = abs(a);
+	return ticAdjust;
+}
+
+//==========================================================================
+//
+// I_GetTicAdjust
+//
+//==========================================================================
+
+int I_GetTicAdjust()
+{
+	return ticAdjust;
+}
 
 //==========================================================================
 //
@@ -257,7 +290,8 @@ static void I_SelectTimer()
 		}
 		if (delay == 0)
 		{
-			delay = 1000/TICRATE;
+			// [ZK] Variable ticrate
+			delay = 1000/(TICRATE + ticAdjust);
 		}
 		MillisecondsPerTic = delay;
 		TimerEventID = timeSetEvent(delay, 0, TimerTicked, 0, TIME_PERIODIC);
@@ -336,10 +370,10 @@ static int I_GetTimePolled(bool saveMS)
 	if (saveMS)
 	{
 		TicStart = tm;
-		TicNext = (tm * TICRATE / 1000 + 1) * 1000 / TICRATE;
+		TicNext = Scale((Scale(tm, TICRATE + ticAdjust, 1000) + 1), 1000, TICRATE + ticAdjust);
 	}
 
-	return ((tm-basetime)*TICRATE)/1000;
+	return Scale(tm - basetime, TICRATE + ticAdjust, 1000);
 }
 
 //==========================================================================
@@ -471,9 +505,9 @@ fixed_t I_GetTimeFrac(uint32 *ms)
 	DWORD now = timeGetTime();
 	if (ms != NULL)
 	{
-		*ms = TicNext;
+		*ms = TicNext + ticAdjust;
 	}
-	DWORD step = TicNext - TicStart;
+	DWORD step = (TicNext + ticAdjust) - TicStart;
 	if (step == 0)
 	{
 		return FRACUNIT;

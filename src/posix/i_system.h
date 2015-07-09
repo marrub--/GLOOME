@@ -54,6 +54,10 @@ void I_Init (void);
 // returns current time in tics.
 extern int (*I_GetTime) (bool saveMS);
 
+// [ZK] Variable ticrate
+extern int I_SetTicAdjust(int a);
+extern int I_GetTicAdjust();
+
 // like I_GetTime, except it waits for a new tic before returning
 extern int (*I_WaitForTic) (int);
 
