@@ -6,3 +6,12 @@ addcheat "give backpack; give weapons; give ammo; give keys; give armor; echoloc
 addcheat "give backpack; give weapons; give ammo; give armor; echolocal STSTR_FAADDED" idfa doom
 addcheat "toggle idmypos quiet" idmypos doom
 addcheat "test \"automapactive\" \"setcheat am_cheat 0 3\"" iddt doom
+addcheat "idclev &1&2" "idclev.." doom
+addcheat "idmus &1&2" "idmus.." doom
+addcheat "echolocal STSTR_BEHOLD" idbehold doom
+addcheat "give InvulnerabilitySphere" idbeholdv doom
+addcheat "give Berserk" idbeholds doom
+addcheat "give BlurSphere" idbeholdi doom
+addcheat "give RadSuit" idbeholdr doom
+addcheat "give Allmap" idbeholda doom
+addcheat "give Infared" idbeholdl doom
