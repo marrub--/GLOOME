@@ -3640,49 +3640,51 @@ static AActor *SingleActorFromTID (int tid, AActor *defactor)
 enum
 {
 	APROP_Health		= 0,
-	APROP_Speed			= 1,
-	APROP_Damage		= 2,
-	APROP_Alpha			= 3,
-	APROP_RenderStyle	= 4,
-	APROP_SeeSound		= 5,	// Sounds can only be set, not gotten
-	APROP_AttackSound	= 6,
-	APROP_PainSound		= 7,
-	APROP_DeathSound	= 8,
-	APROP_ActiveSound	= 9,
-	APROP_Ambush		= 10,
-	APROP_Invulnerable	= 11,
-	APROP_JumpZ			= 12,	// [GRB]
-	APROP_ChaseGoal		= 13,
-	APROP_Frightened	= 14,
-	APROP_Gravity		= 15,
-	APROP_Friendly		= 16,
-	APROP_SpawnHealth   = 17,
-	APROP_Dropped		= 18,
-	APROP_Notarget		= 19,
-	APROP_Species		= 20,
-	APROP_NameTag		= 21,
-	APROP_Score			= 22,
-	APROP_Notrigger		= 23,
-	APROP_DamageFactor	= 24,
-	APROP_MasterTID     = 25,
-	APROP_TargetTID		= 26,
-	APROP_TracerTID		= 27,
-	APROP_WaterLevel	= 28,
-	APROP_ScaleX        = 29,
-	APROP_ScaleY        = 30,
-	APROP_Dormant		= 31,
-	APROP_Mass			= 32,
-	APROP_Accuracy      = 33,
-	APROP_Stamina       = 34,
-	APROP_Height		= 35,
-	APROP_Radius		= 36,
-	APROP_ReactionTime  = 37,
-	APROP_MeleeRange	= 38,
-	APROP_ViewHeight	= 39,
-	APROP_AttackZOffset	= 40,
-	APROP_StencilColor	= 41,
-	APROP_Friction		= 42,
-	APROP_DamageMultiplier=43,
+	APROP_Speed,
+	APROP_Damage,
+	APROP_Alpha,
+	APROP_RenderStyle,
+	APROP_SeeSound, // Sounds can only be set, not gotten
+	APROP_AttackSound,
+	APROP_PainSound,
+	APROP_DeathSound,
+	APROP_ActiveSound,
+	APROP_Ambush, // 10
+	APROP_Invulnerable,
+	APROP_JumpZ,	// [GRB]
+	APROP_ChaseGoal,
+	APROP_Frightened,
+	APROP_Gravity,
+	APROP_Friendly,
+	APROP_SpawnHealth,
+	APROP_Dropped,
+	APROP_Notarget,
+	APROP_Species,
+	APROP_NameTag,
+	APROP_Score,
+	APROP_Notrigger,
+	APROP_DamageFactor,
+	APROP_MasterTID,
+	APROP_TargetTID,
+	APROP_TracerTID,
+	APROP_WaterLevel,
+	APROP_ScaleX,
+	APROP_ScaleY,
+	APROP_Dormant,
+	APROP_Mass,
+	APROP_Accuracy,
+	APROP_Stamina,
+	APROP_Height,
+	APROP_Radius,
+	APROP_ReactionTime,
+	APROP_MeleeRange,
+	APROP_ViewHeight,
+	APROP_AttackZOffset,
+	APROP_StencilColor,
+	APROP_Friction,
+	APROP_DamageMultiplier,
+	APROP_MaxStepHeight,
+	APROP_MaxDropOffHeight,
 };
 
 // These are needed for ACS's APROP_RenderStyle
@@ -3932,6 +3934,15 @@ void DLevelScript::DoSetActorProperty (AActor *actor, int property, int value)
 
 	case APROP_Friction:
 		actor->Friction = value;
+		break;
+
+	case APROP_MaxStepHeight:
+		actor->MaxStepHeight = value;
+		break;
+
+	case APROP_MaxDropOffHeight:
+		actor->MaxDropOffHeight = value;
+		break;
 
 	default:
 		// do nothing.
@@ -4033,6 +4044,8 @@ int DLevelScript::GetActorProperty (int tid, int property, const SDWORD *stack, 
 	case APROP_NameTag:		return GlobalACSStrings.AddString(actor->GetTag(), stack, stackdepth);
 	case APROP_StencilColor:return actor->fillcolor;
 	case APROP_Friction:	return actor->Friction;
+	case APROP_MaxStepHeight: return actor->MaxStepHeight;
+	case APROP_MaxDropOffHeight: return actor->MaxDropOffHeight;
 
 	default:				return 0;
 	}
@@ -4080,6 +4093,8 @@ int DLevelScript::CheckActorProperty (int tid, int property, int value)
 		case APROP_ViewHeight:
 		case APROP_AttackZOffset:
 		case APROP_StencilColor:
+		case APROP_MaxStepHeight:
+		case APROP_MaxDropOffHeight:
 			return (GetActorProperty(tid, property, NULL, 0) == value);
 
 		// Boolean values need to compare to a binary version of value
