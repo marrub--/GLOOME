@@ -46,6 +46,7 @@
 #include "r_defs.h"
 #include "r_sky.h"
 #include "r_utility.h"
+#include "m_fixed.h"
 
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
@@ -253,16 +254,13 @@ void GLSprite::Draw(int pass)
 		                                   && (gl_billboard_mode == 1 || (actor && actor->renderflags & RF_FORCEXYBILLBOARD ))) );
 		gl_RenderState.Apply();
 
-		Vector v1;
-		Vector v2;
-		Vector v3;
-		Vector v4;
+		Vector v1(x1, z1, y1);
+		Vector v2(x2, z1, y2);
+		Vector v3(x1, z2, y1);
+		Vector v4(x2, z2, y2);
 
-		if (drawWithXYBillboard)
+		if (drawWithXYBillboard || (actor != NULL && (actor->renderflags & RF_ROLLSPRITE)))
 		{
-			// Rotate the sprite about the vector starting at the center of the sprite
-			// triangle strip and with direction orthogonal to where the player is looking
-			// in the x/y plane.
 			float xcenter = (x1 + x2)*0.5;
 			float ycenter = (y1 + y2)*0.5;
 			float zcenter = (z1 + z2)*0.5;
@@ -271,19 +269,21 @@ void GLSprite::Draw(int pass)
 			Matrix3x4 mat;
 			mat.MakeIdentity();
 			mat.Translate(xcenter, zcenter, ycenter);
-			mat.Rotate(-sin(angleRad), 0, cos(angleRad), -GLRenderer->mAngles.Pitch);
+			if(drawWithXYBillboard)
+			{ // [fgsfds] Rotate the sprite about a vector perpendicular to the sight vector
+				mat.Rotate(-sin(angleRad), 0, cos(angleRad), -GLRenderer->mAngles.Pitch);
+			}
+			if(actor != NULL && actor->renderflags & RF_ROLLSPRITE)
+			{
+				mat.Rotate(cos(angleRad), 0, sin(angleRad), 360. * (1. - FIXED2FLOAT(actor->roll)));
+			}
+
 			mat.Translate(-xcenter, -zcenter, -ycenter);
-			v1 = mat * Vector(x1, z1, y1);
-			v2 = mat * Vector(x2, z1, y2);
-			v3 = mat * Vector(x1, z2, y1);
-			v4 = mat * Vector(x2, z2, y2);
-		}
-		else
-		{
-			v1 = Vector(x1, z1, y1);
-			v2 = Vector(x2, z1, y2);
-			v3 = Vector(x1, z2, y1);
-			v4 = Vector(x2, z2, y2);
+
+			v1 = mat * v1;
+			v2 = mat * v2;
+			v3 = mat * v3;
+			v4 = mat * v4;
 		}
 
 		glBegin(GL_TRIANGLE_STRIP);

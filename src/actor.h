@@ -389,6 +389,8 @@ enum
 	RF_FORCEYBILLBOARD		= 0x10000,	// [BB] OpenGL only: draw with y axis billboard, i.e. anchored to the floor (overrides gl_billboard_mode setting)
 	RF_FORCEXYBILLBOARD		= 0x20000,	// [BB] OpenGL only: draw with xy axis billboard, i.e. unanchored (overrides gl_billboard_mode setting)
 
+	RF_ROLLSPRITE = 0x40000, // [marrub] roll the sprite billboard
+
 // --- dummies for unknown/unimplemented Strife flags ---
 
 	MF_STRIFEx8000000 = 0,		// seems related to MF_SHADOW
