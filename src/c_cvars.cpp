@@ -1576,7 +1576,7 @@ void FBaseCVar::CmdSet (const char *newval)
 	val.String = const_cast<char *>(newval);        
 	SetGenericRep (val, CVAR_String);
 
-	if (GetFlags() & CVAR_NOSET || GetFlags & CVAR_ACS)
+	if ((GetFlags() & CVAR_NOSET) || (GetFlags() & CVAR_ACS))
 		Printf ("%s is write protected.\n", GetName());
 	else if (GetFlags() & CVAR_LATCH)
 		Printf ("%s will be changed for next game.\n", GetName());
