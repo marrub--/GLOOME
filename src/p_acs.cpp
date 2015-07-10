@@ -4163,6 +4163,60 @@ bool DLevelScript::DoCheckActorTexture(int tid, AActor *activator, int string, b
 	return tex == TexMan[secpic];
 }
 
+FString DoActorGetTexture(int tid, AActor *activator, bool floor)
+{
+	AActor *actor = SingleActorFromTID(tid, activator);
+	if (actor == NULL)
+	{
+		return 0;
+	}
+	int i, numff;
+	FTextureID secpic;
+	sector_t *sec = actor->Sector;
+	numff = sec->e->XFloor.ffloors.Size();
+
+	if (floor)
+	{
+		// Looking through planes from top to bottom
+		for (i = 0; i < numff; ++i)
+		{
+			F3DFloor *ff = sec->e->XFloor.ffloors[i];
+
+			if ((ff->flags & (FF_EXISTS | FF_SOLID)) == (FF_EXISTS | FF_SOLID) &&
+				actor->z >= ff->top.plane->ZatPoint(actor->x, actor->y))
+			{ // This floor is beneath our feet.
+				secpic = *ff->top.texture;
+				break;
+			}
+		}
+		if (i == numff)
+		{ // Use sector's floor
+			secpic = sec->GetTexture(sector_t::floor);
+		}
+	}
+	else
+	{
+		fixed_t z = actor->z + actor->height;
+		// Looking through planes from bottom to top
+		for (i = numff-1; i >= 0; --i)
+		{
+			F3DFloor *ff = sec->e->XFloor.ffloors[i];
+
+			if ((ff->flags & (FF_EXISTS | FF_SOLID)) == (FF_EXISTS | FF_SOLID) &&
+				z <= ff->bottom.plane->ZatPoint(actor->x, actor->y))
+			{ // This floor is above our eyes.
+				secpic = *ff->bottom.texture;
+				break;
+			}
+		}
+		if (i < 0)
+		{ // Use sector's ceiling
+			secpic = sec->GetTexture(sector_t::ceiling);
+		}
+	}
+	return TexMan[secpic]->Name;
+}
+
 enum
 {
 	// These are the original inputs sent by the player.
@@ -4447,6 +4501,8 @@ enum EACSFunctions
 	ACSF_ChangeFlag = 11192,
 	// ACSF_SetTicrate,
 	ACSF_GetTicrate = 11194,
+	ACSF_GetActorFloorTexture,
+	ACSF_GetActorCeilingTexture,
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -5997,6 +6053,12 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 
 		case ACSF_GetTicrate:
 			return TICRATE + I_GetTicAdjust();
+
+		case ACSF_GetActorFloorTexture:
+			return GlobalACSStrings.AddString(DoActorGetTexture(args[0], activator, true), stack, stackdepth);
+
+		case ACSF_GetActorCeilingTexture:
+			return GlobalACSStrings.AddString(DoActorGetTexture(args[0], activator, false), stack, stackdepth);
 
 		default:
 			break;
