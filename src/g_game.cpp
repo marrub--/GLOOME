@@ -1955,6 +1955,14 @@ void G_DoLoadGame ()
 		NextSkill = next;
 	}
 
+	if(M_FindPNGChunk(png, MAKE_ID('g', 'p', 'R', 'p')) == (sizeof(int) * 24))
+	{
+		int props[24];
+		fread(props, sizeof(int) * 24, 1, stdfile);
+		ngameproperties.SetGameProperty(FGameProperties::GPROP_DeathRestarts, !!props[0]);
+		ngameproperties.SetGameProperty(FGameProperties::GPROP_SavesEnabled, !!props[1]);
+	}
+
 	if (level.info->snapshot != NULL)
 	{
 		delete level.info->snapshot;
@@ -2134,7 +2142,7 @@ static void PutSavePic (FILE *file, int width, int height)
 	}
 }
 
-void G_DoSaveGame (bool okForQuicksave, FString filename, const char *description)
+void G_DoSaveGame(bool okForQuicksave, FString filename, const char *description)
 {
 	char buf[100];
 
@@ -2202,6 +2210,14 @@ void G_DoSaveGame (bool okForQuicksave, FString filename, const char *descriptio
 	{
 		BYTE next = NextSkill;
 		M_AppendPNGChunk (stdfile, MAKE_ID('s','n','X','t'), &next, 1);
+	}
+
+	{
+		int props[24] = { 0 };
+		props[0] = ngameproperties.GetGameProperty(FGameProperties::GPROP_DeathRestarts);
+		props[1] = ngameproperties.GetGameProperty(FGameProperties::GPROP_SavesEnabled);
+
+		M_AppendPNGChunk(stdfile, MAKE_ID('g', 'p', 'R', 'p'), (BYTE *)props, sizeof(int) * 24);
 	}
 
 	M_FinishPNG (stdfile);
