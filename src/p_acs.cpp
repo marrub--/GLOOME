@@ -4163,12 +4163,12 @@ bool DLevelScript::DoCheckActorTexture(int tid, AActor *activator, int string, b
 	return tex == TexMan[secpic];
 }
 
-FString DoActorGetTexture(int tid, AActor *activator, bool floor)
+static FString DoActorGetTexture(int tid, AActor *activator, bool floor)
 {
 	AActor *actor = SingleActorFromTID(tid, activator);
 	if (actor == NULL)
 	{
-		return 0;
+		return FString("None");
 	}
 	int i, numff;
 	FTextureID secpic;

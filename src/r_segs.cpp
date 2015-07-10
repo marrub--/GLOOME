@@ -107,6 +107,7 @@ CVAR(Bool, r_fogboundary, true, 0)
 
 inline bool IsFogBoundary (sector_t *front, sector_t *back)
 {
+	return false;
 }
 
 CVAR(Bool, r_drawmirrors, true, 0)
