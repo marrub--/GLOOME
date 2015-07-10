@@ -383,22 +383,28 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_BasicAttack)
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_PlaySound)
 {
-	ACTION_PARAM_START(5);
+	ACTION_PARAM_START(6);
 	ACTION_PARAM_SOUND(soundid, 0);
 	ACTION_PARAM_INT(channel, 1);
 	ACTION_PARAM_FLOAT(volume, 2);
 	ACTION_PARAM_BOOL(looping, 3);
 	ACTION_PARAM_FLOAT(attenuation, 4);
+	ACTION_PARAM_FLOAT(pitch, 5);
+
+	if(pitch < 0.0 || pitch > 2.0)
+	{
+		pitch = 1.0;
+	}
 
 	if (!looping)
 	{
-		S_Sound (self, channel, soundid, volume, attenuation);
+		S_Sound (self, channel, soundid, volume, attenuation, pitch);
 	}
 	else
 	{
 		if (!S_IsActorPlayingSomething (self, channel&7, soundid))
 		{
-			S_Sound (self, channel | CHAN_LOOP, soundid, volume, attenuation);
+			S_Sound (self, channel | CHAN_LOOP, soundid, volume, attenuation, pitch);
 		}
 	}
 }

@@ -5513,6 +5513,11 @@ int DLevelScript::CallFunction(int argCount, int funcIndex, SDWORD *args, const 
 					float atten = argCount > 5 ? FIXED2FLOAT(args[5]) : ATTN_NORM;
 					float pitch = argCount > 6 ? FIXED2FLOAT(args[6]) : 1.0;
 
+					if(pitch < 0.0 || pitch > 2.0)
+					{
+						pitch = 1.0;
+					}
+
 					if (args[0] == 0)
 					{
 						spot = activator;
