@@ -165,6 +165,7 @@ enum
 	PPF_NOTHRUSTWHENINVUL = 1,	// Attacks do not thrust the player if they are invulnerable.
 	PPF_CANSUPERMORPH = 2,		// Being remorphed into this class can give you a Tome of Power
 	PPF_CROUCHABLEMORPH = 4,	// This morphed player can crouch
+	PPF_NOFALLDEATH = 8,       // [marrub] disables player falling on death
 };
 
 //

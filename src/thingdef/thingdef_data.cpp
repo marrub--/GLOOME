@@ -258,8 +258,6 @@ static FFlagDef ActorFlags[]=
 	DEFINE_FLAG(MF7, NODECAL, AActor, flags7),
 	DEFINE_FLAG(MF7, FORCEDECAL, AActor, flags7),
 
-	DEFINE_FLAG(MF7, NOFALLDEATH, AActor, flags7),
-
 	// Effect flags
 	DEFINE_FLAG(FX, VISIBILITYPULSE, AActor, effects),
 	DEFINE_FLAG2(FX_ROCKET, ROCKETTRAIL, AActor, effects),
@@ -367,6 +365,7 @@ static FFlagDef PlayerPawnFlags[] =
 	DEFINE_FLAG(PPF, NOTHRUSTWHENINVUL, APlayerPawn, PlayerFlags),
 	DEFINE_FLAG(PPF, CANSUPERMORPH, APlayerPawn, PlayerFlags),
 	DEFINE_FLAG(PPF, CROUCHABLEMORPH, APlayerPawn, PlayerFlags),
+	DEFINE_FLAG(PPF, NOFALLDEATH, APlayerPawn, PlayerFlags),
 };
 
 static FFlagDef PowerSpeedFlags[] =

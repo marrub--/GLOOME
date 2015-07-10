@@ -2061,7 +2061,7 @@ void P_DeathThink (player_t *player)
 			}
 		}
 	}
-	else if (!(player->mo->flags & MF_ICECORPSE) && !(player->mo->flags & MF7_NOFALLDEATH))
+	else if (!(player->mo->flags & MF_ICECORPSE) && !(player->mo->PlayerFlags & PPF_NOFALLDEATH))
 	{ // Fall to ground (if not frozen)
 		player->deltaviewheight = 0;
 		if (player->viewheight > 6*FRACUNIT)
