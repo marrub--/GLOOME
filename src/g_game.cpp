@@ -204,12 +204,12 @@ int				lookspeed[2] = {450, 512};
 
 CVAR (Bool,		cl_run,			false,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)		// Always run?
 CVAR (Bool,		invertmouse,	false,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)		// Invert mouse look down/up?
-CVAR (Bool,		freelook,		false,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)		// Always mlook?
+CVAR (Bool,		freelook,		true,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)		// Always mlook?
 CVAR (Bool,		lookstrafe,		false,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)		// Always strafe with mouse?
-CVAR (Float,	m_pitch,		1.f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)		// Mouse speeds
-CVAR (Float,	m_yaw,			1.f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
-CVAR (Float,	m_forward,		1.f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
-CVAR (Float,	m_side,			2.f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
+CVAR (Float,	m_pitch,		0.5f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)		// Mouse speeds
+CVAR (Float,	m_yaw,			0.5f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
+CVAR (Float,	m_forward,		0.0f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
+CVAR (Float,	m_side,			0.0f,	CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
  
 int 			turnheld;								// for accelerative turning 
  

@@ -69,20 +69,15 @@ static const FBinding DefBindings[] =
 	{ "enter", "invuse" },
 	{ "-", "sizedown" },
 	{ "=", "sizeup" },
-	{ "ctrl", "+attack" },
 	{ "alt", "+strafe" },
 	{ "shift", "+speed" },
-	{ "space", "+use" },
-	{ "rightarrow", "+right" },
-	{ "leftarrow", "+left" },
-	{ "uparrow", "+forward" },
-	{ "downarrow", "+back" },
-	{ ",", "+moveleft" },
-	{ ".", "+moveright" },
+	{ "e", "+use" },
+	{ "w", "+forward" },
+	{ "s", "+back" },
+	{ "a", "+moveleft" },
+	{ "d", "+moveright" },
 	{ "mouse1", "+attack" },
-	{ "mouse2", "+strafe" },
-	{ "mouse3", "+forward" },
-	{ "mouse4", "+speed" },
+	{ "mouse2", "+altattack" },
 	{ "capslock", "toggle cl_run" },
 	{ "f1", "menu_help" },
 	{ "f2", "menu_save" },
@@ -130,11 +125,8 @@ static const FBinding DefBindings[] =
 static const FBinding DefRavenBindings[] =
 {
 	{ "pgup", "+moveup" },
-	{ "insert", "+movedown" },
+	{ "pgdn", "+movedown" },
 	{ "home", "land" },
-	{ "pgdn", "+lookup" },
-	{ "del", "+lookdown" },
-	{ "end", "centerview" },
 	{ NULL, NULL }
 };
 
@@ -146,7 +138,7 @@ static const FBinding DefHereticBindings[] =
 
 static const FBinding DefHexenBindings[] =
 {
-	{ "/", "+jump" },
+	{ "space", "+jump" },
 	{ "backspace", "invuseall" },
 	{ "\\", "use ArtiHealth" },
 	{ "0", "useflechette" },
@@ -161,11 +153,11 @@ static const FBinding DefHexenBindings[] =
 
 static const FBinding DefStrifeBindings[] =
 {
-	{ "a", "+jump" },
-	{ "w", "showpop 1" },
+	{ "space", "+jump" },
+	{ "z", "showpop 1" },
 	{ "backspace", "invdrop" },
-	{ "z", "showpop 3" },
-	{ "k", "showpop 2" },
+	{ "x", "showpop 3" },
+	{ "c", "showpop 2" },
 	{ "q", "invquery" },
 	{ NULL, NULL }
 	// not done
