@@ -63,6 +63,7 @@ static TArray<FLatchedValue> LatchedValues;
 
 bool FBaseCVar::m_DoNoSet = false;
 bool FBaseCVar::m_UseCallback = false;
+bool FBaseCVar::ACSUnlock = false;
 
 FBaseCVar *CVars = NULL;
 
@@ -145,7 +146,7 @@ void FBaseCVar::ForceSet (UCVarValue value, ECVarType type, bool nouserinfosend)
 
 void FBaseCVar::SetGenericRep (UCVarValue value, ECVarType type)
 {
-	if ((Flags & CVAR_NOSET) && m_DoNoSet)
+	if(((Flags & CVAR_NOSET) && m_DoNoSet) || ((Flags & CVAR_ACS) && !ACSUnlock))
 	{
 		return;
 	}
@@ -1575,7 +1576,7 @@ void FBaseCVar::CmdSet (const char *newval)
 	val.String = const_cast<char *>(newval);        
 	SetGenericRep (val, CVAR_String);
 
-	if (GetFlags() & CVAR_NOSET)
+	if (GetFlags() & CVAR_NOSET || GetFlags & CVAR_ACS)
 		Printf ("%s is write protected.\n", GetName());
 	else if (GetFlags() & CVAR_LATCH)
 		Printf ("%s will be changed for next game.\n", GetName());
@@ -1695,7 +1696,7 @@ void FBaseCVar::ListVars (const char *filter, bool plain)
 			else
 			{
 				++count;
-				Printf ("%c%c%c%c%c %s = %s\n",
+				Printf ("%c%c%c%c%c%c %s = %s\n",
 					flags & CVAR_ARCHIVE ? 'A' : ' ',
 					flags & CVAR_USERINFO ? 'U' :
 						flags & CVAR_SERVERINFO ? 'S' :
@@ -1705,6 +1706,7 @@ void FBaseCVar::ListVars (const char *filter, bool plain)
 						flags & CVAR_UNSETTABLE ? '*' : ' ',
 					flags & CVAR_MOD ? 'M' : ' ',
 					flags & CVAR_IGNORE ? 'X' : ' ',
+					flags & CVAR_ACS ? '&' : ' ',
 					var->GetName(),
 					var->GetGenericRep (CVAR_String).String);
 			}

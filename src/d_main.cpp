@@ -1373,6 +1373,10 @@ void ParseCVarInfo()
 				{
 					cvarflags &= ~CVAR_ARCHIVE;
 				}
+				else if(stricmp(sc.String, "acsonly") == 0)
+				{
+					cvarflags |= CVAR_ACS;
+				}
 				else
 				{
 					sc.ScriptError("Unknown cvar attribute '%s'", sc.String);

@@ -63,6 +63,7 @@ enum
 	CVAR_NOSAVE			= 4096, // when used with CVAR_SERVERINFO, do not save var to savegame
 	CVAR_MOD			= 8192,	// cvar was defined by a mod
 	CVAR_IGNORE			= 16384,// do not send cvar across the network/inaccesible from ACS (dummy mod cvar)
+	CVAR_ACS          = 32768, // only settable by ACS
 };
 
 union UCVarValue
@@ -124,6 +125,8 @@ public:
 	static void ResetColors ();		// recalc color cvars' indices after screen change
 
 	static void ListVars (const char *filter, bool plain);
+
+	static bool ACSUnlock;
 
 protected:
 	FBaseCVar () {}

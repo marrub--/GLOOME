@@ -4750,6 +4750,7 @@ static int SetUserCVar(int playernum, const char *cvarname, int value, bool is_s
 	{
 		return 0;
 	}
+	FBaseCVar::ACSUnlock = true;
 	DoSetCVar(cvar, value, is_string);
 
 	// If we are this player, then also reflect this change in the local version of this cvar.
@@ -4763,6 +4764,7 @@ static int SetUserCVar(int playernum, const char *cvarname, int value, bool is_s
 			DoSetCVar(cvar, value, is_string, true);
 		}
 	}
+	FBaseCVar::ACSUnlock = false;
 
 	return 1;
 }
@@ -4775,6 +4777,7 @@ static int SetCVar(AActor *activator, const char *cvarname, int value, bool is_s
 	{
 		return 0;
 	}
+	FBaseCVar::ACSUnlock = true;
 	// For userinfo cvars, redirect to SetUserCVar
 	if (cvar->GetFlags() & CVAR_USERINFO)
 	{
@@ -4782,9 +4785,12 @@ static int SetCVar(AActor *activator, const char *cvarname, int value, bool is_s
 		{
 			return 0;
 		}
-		return SetUserCVar(int(activator->player - players), cvarname, value, is_string);
+		int ret = SetUserCVar(int(activator->player - players), cvarname, value, is_string);
+		FBaseCVar::ACSUnlock = false;
+		return ret;
 	}
 	DoSetCVar(cvar, value, is_string);
+	FBaseCVar::ACSUnlock = false;
 	return 1;
 }
 
