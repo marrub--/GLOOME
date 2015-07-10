@@ -83,6 +83,8 @@
 #include "r_data/colormaps.h"
 #include "farchive.h"
 #include "r_renderer.h"
+#include "g_gameproperties.h"
+#include <new>
 
 #include "gi.h"
 
@@ -371,6 +373,7 @@ void G_InitNew (const char *mapname, bool bTitleLevel)
 	bool wantFast;
 	int i;
 
+	new (&ngameproperties) FGameProperties;
 	G_ClearHubInfo();
 	if (!savegamerestore)
 	{

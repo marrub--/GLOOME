@@ -75,6 +75,7 @@
 #include "actorptrselect.h"
 #include "farchive.h"
 #include "decallib.h"
+#include "g_gameproperties.h"
 
 #include "g_shared/a_pickups.h"
 
@@ -4527,6 +4528,8 @@ enum EACSFunctions
 	ACSF_GetActorCeilingTexture,
 	ACSF_SetPlayerBobMul,
 	ACSF_GetPlayerBobMul,
+	ACSF_SetGameProperty,
+	ACSF_GetGameProperty, // 11200
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -4935,7 +4938,17 @@ static int SwapActorTeleFog(AActor *activator, int tid)
 	return count;
 }
 
+bool DoSetGameProperty(AActor *activator, SDWORD set, SDWORD value)
+{
+	// [marrub] TODO: until I start caring about networking, just set them
+	return ngameproperties.SetGameProperty(set, value);
+}
 
+int DoGetGameProperty(AActor *activator, SDWORD get)
+{
+	// [marrub] TODO: until I start caring about networking, just get them
+	return ngameproperties.GetGameProperty(get);
+}
 
 int DLevelScript::CallFunction(int argCount, int funcIndex, SDWORD *args, const SDWORD *stack, int stackdepth)
 {
@@ -6143,6 +6156,12 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 				return activator->player->stillbobmul;
 			}
 		}
+
+		case ACSF_SetGameProperty:
+			return DoSetGameProperty(activator, args[0], args[1]);
+
+		case ACSF_GetGameProperty:
+			return DoGetGameProperty(activator, args[0]);
 
 		default:
 			break;

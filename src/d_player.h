@@ -29,6 +29,7 @@
 // as commands per game tick.
 #include "d_ticcmd.h"
 #include "doomstat.h"
+#include "d_event.h"
 
 #include "a_artifacts.h"
 
@@ -44,6 +45,9 @@
 
 //Added by MC:
 #include "b_bot.h"
+
+//[marrub]
+#include "g_gameproperties.h"
 
 enum
 {
@@ -397,6 +401,19 @@ public:
 
 	bool		attackdown;
 	bool		usedown;
+	bool shouldrespawn()
+	{ // [marrub] Yeah, sorry for splitting this into 3 variables. I really dislike giant ifs.
+		bool usedown = cmd.ucmd.buttons & BT_USE;
+		bool mpallow = (((multiplayer || alwaysapplydmflags) && (dmflags & DF_FORCE_RESPAWN))) && !(dmflags2 & DF2_NO_RESPAWN);
+		bool allowed = ngameproperties.GetGameProperty(FGameProperties::GPROP_DeathRestarts);
+
+		if((usedown || mpallow) && allowed)
+		{
+			return true;
+		}
+
+		return false;
+	}
 	DWORD		oldbuttons;
 	int			health;					// only used between levels, mo->health
 										// is used during levels

@@ -685,6 +685,7 @@ add_executable( zdoom WIN32 MACOSX_BUNDLE
 	g_level.cpp
 	g_mapinfo.cpp
 	g_skill.cpp
+	g_gameproperties.cpp
 	gameconfigfile.cpp
 	gi.cpp
 	gitinfo.cpp

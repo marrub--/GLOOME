@@ -2127,8 +2127,7 @@ void P_DeathThink (player_t *player)
 		}
 	}		
 
-	if ((player->cmd.ucmd.buttons & BT_USE ||
-		((multiplayer || alwaysapplydmflags) && (dmflags & DF_FORCE_RESPAWN))) && !(dmflags2 & DF2_NO_RESPAWN))
+	if(player->shouldrespawn())
 	{
 		if (level.time >= player->respawn_time || ((player->cmd.ucmd.buttons & BT_USE) && player->Bot == NULL))
 		{

@@ -82,6 +82,7 @@
 #include "farchive.h"
 #include "r_renderer.h"
 #include "r_data/colormaps.h"
+#include "g_gameproperties.h"
 
 #include <zlib.h>
 
@@ -2137,9 +2138,9 @@ void G_DoSaveGame (bool okForQuicksave, FString filename, const char *descriptio
 {
 	char buf[100];
 
-	// Do not even try, if we're not in a level. (Can happen after
-	// a demo finishes playback.)
-	if (lines == NULL || sectors == NULL)
+	// Do not even try, if we're not in a level (or saves are disabled).
+	// (Can happen after a demo finishes playback.)
+	if (lines == NULL || sectors == NULL || !ngameproperties.GetGameProperty(FGameProperties::GPROP_SavesEnabled))
 	{
 		return;
 	}
