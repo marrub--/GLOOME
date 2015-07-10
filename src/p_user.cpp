@@ -65,6 +65,7 @@ static FRandom pr_skullpop ("SkullPop");
 CVAR (Bool, cl_noprediction, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, cl_predict_specials, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, cl_morphbob, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVAR(Int, cl_facekiller, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 CUSTOM_CVAR(Float, cl_predict_lerpscale, 0.05f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
@@ -2086,7 +2087,7 @@ void P_DeathThink (player_t *player)
 	}
 	P_CalcHeight (player);
 		
-	if (player->attacker && player->attacker != player->mo)
+	if (player->attacker && player->attacker != player->mo && cl_facekiller == true)
 	{ // Watch killer
 		dir = P_FaceMobj (player->mo, player->attacker, &delta);
 		if (delta < ANGLE_1*10)
