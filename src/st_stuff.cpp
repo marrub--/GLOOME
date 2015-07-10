@@ -1,4 +1,4 @@
-// Emacs style mode select	 -*- C++ -*- 
+// Emacs style mode select	 -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // $Id:$
@@ -34,9 +34,9 @@
 #include "st_stuff.h"
 #include "d_player.h"
 
-EXTERN_CVAR (Bool, ticker);
-EXTERN_CVAR (Bool, noisedebug);
-EXTERN_CVAR (Int, am_cheat);
+EXTERN_CVAR(Bool, ticker);
+EXTERN_CVAR(Bool, noisedebug);
+EXTERN_CVAR(Int, am_cheat);
 
 struct FCheatDef
 {
@@ -77,22 +77,22 @@ CCMD(addcheat)
 			Printf("Usage: addcheat <ccmd> <name> [<game>]\n");
 			return;
 		}
-		
+
 		char *ccmd = argv[1];
 		char *name = argv[2];
-		
+
 		// Limit the cheat ccmd to 512 chars
 		if(strlen(ccmd) > 512)
 		{
 			ccmd[512] = 0;
 		}
-		
+
 		// Limit the cheat name to 32 characters
 		if(strlen(name) > 32)
 		{
 			name[32] = 0;
 		}
-		
+
 		for(unsigned i = 0; i < SCheatDefsSize; i++)
 		{
 			if(SCheatDefs[i].mName.CompareNoCase(name) == 0)
@@ -101,14 +101,14 @@ CCMD(addcheat)
 				return;
 			}
 		}
-		
+
 		unsigned SCurCheatDef = SCheatDefs.Reserve(1);
 		SCheatDefsSize = SCheatDefs.Size();
 		SCheatDefs[SCurCheatDef].mName = name;
 		SCheatDefs[SCurCheatDef].mCCMD = ccmd;
 		SCheatDefs[SCurCheatDef].mGame = GAME_Any;
 		SCheatDefs[SCurCheatDef].mPos = 0;
-		
+
 		if(argv.argc() == 4)
 		{
 			const char *game = argv[3];
@@ -161,15 +161,26 @@ CCMD(setplayerhealth)
 	if(DoingSTCheat)
 	{
 		long health = deh.GodHealth;
-		
-		if(argv.argc() != 1)
+
+		if(argv.argc() > 1)
 		{
 			health = strtol(argv[1], NULL, 0);
 		}
-		
-		if(who)
+
+		if(who != NULL && who->player != NULL)
 		{
+			if(who->health <= 0 || who->player->playerstate == PST_DEAD)
+			{
+				return;
+			}
+
 			who->health = health;
+			who->player->health = health;
+
+			if(health <= 0)
+			{
+				who->Die(who, who, 0);
+			}
 		}
 	}
 }
@@ -248,11 +259,11 @@ static bool CheckCmdCheat(const char *cmd)
 		Printf("Invalid command for cheat: %s\n", beg);
 		return false;
 	}
-	
+
 	DoingSTCheat = true;
 	C_DoCommand(cmd);
 	DoingSTCheat = false;
-	
+
 	return true;
 }
 
@@ -267,11 +278,11 @@ static bool RunCmdCheat(FString a_ccmd)
 			{
 				return false;
 			}
-			
+
 			beg = i + 1;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -293,11 +304,11 @@ static bool RunCmdCheatArgs(FString a_ccmd, BYTE *a_args, unsigned a_argLen)
 			{
 				return false;
 			}
-			
+
 			beg = i + 1;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -313,12 +324,12 @@ bool ST_DoCmdCheat(const char *cmdcheat, bool fromccmd)
 			}
 		}
 	}
-	
+
 	if(fromccmd)
 	{
 		Printf("Couldn't find CmdCheat \"%s\"\n", cmdcheat);
 	}
-	
+
 	return false;
 }
 
@@ -331,7 +342,7 @@ bool ST_Responder (event_t *ev)
 	if(ev->type == EV_KeyDown)
 	{
 		BYTE key = (BYTE)ev->data2;
-		
+
 		for(unsigned i = 0; i < SCheatDefsSize; i++)
 		{
 			clear = false;
@@ -341,12 +352,12 @@ bool ST_Responder (event_t *ev)
 				if(key == SCheatDefs[i].mName[pos] || SCheatDefs[i].mName[pos] == '.')
 				{
 					eat = true;
-					
+
 					if(SCheatDefs[i].mName[pos] == '.' && SCheatArgsLen < 8)
 					{
 						SCheatArgs[SCheatArgsLen++] = key;
 					}
-					
+
 					if(pos < SCheatDefs[i].mName.Len() - 1)
 					{
 						SCheatDefs[i].mPos++;
@@ -355,7 +366,7 @@ bool ST_Responder (event_t *ev)
 					{
 						RunCmdCheatArgs(SCheatDefs[i].mCCMD, SCheatArgs, SCheatArgsLen);
 						SCheatArgsLen = 0;
-						for(int j = 0; j < countof(SCheatArgs); j++)
+						for(unsigned j = 0; j < countof(SCheatArgs); j++)
 						{
 							SCheatArgs[j] = 0;
 						}
@@ -367,7 +378,7 @@ bool ST_Responder (event_t *ev)
 					clear = true;
 				}
 			}
-			
+
 			if(clear)
 			{
 				SCheatDefs[i].mPos = 0;

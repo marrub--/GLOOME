@@ -259,7 +259,7 @@ void I_InitSound ()
 	}
 	else
 	{
-		Printf (TEXTCOLOR_RED "%s: OpenAL not present\n");
+		Printf (TEXTCOLOR_RED "I_InitSound: OpenAL not present\n");
 		GSnd = new NullSoundRenderer;
 	}
 
@@ -267,9 +267,9 @@ void I_InitSound ()
 	{
 		I_CloseSound();
 		GSnd = new NullSoundRenderer;
-		Printf(TEXTCOLOR_RED "Sound init failed. Using nosound.\n");
+		Printf(TEXTCOLOR_RED "I_InitSound: Sound init failed. Using nosound.\n");
 	}
-	
+
 	I_InitMusic();
 	snd_sfxvolume.Callback();
 }
