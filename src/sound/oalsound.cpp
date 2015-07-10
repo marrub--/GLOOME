@@ -931,11 +931,14 @@ void OpenALSoundRenderer::SetSfxVolume(float volume)
             ALuint source = GET_PTRID(schan->SysChannel);
             volume = SfxVolume;
 
+            alDeferUpdatesSOFT();
             alSourcef(source, AL_MAX_GAIN, volume);
             alSourcef(source, AL_GAIN, volume * schan->Volume);
         }
         schan = schan->NextChan;
     }
+
+    alProcessUpdatesSOFT();
 
     getALError();
 }
@@ -1430,6 +1433,8 @@ void OpenALSoundRenderer::ChannelVolume(FISoundChannel *chan, float volume)
     if(chan == NULL || chan->SysChannel == NULL)
         return;
 
+    alDeferUpdatesSOFT();
+
     ALuint source = GET_PTRID(chan->SysChannel);
     alSourcef(source, AL_GAIN, SfxVolume * volume);
 }
@@ -1554,6 +1559,8 @@ void OpenALSoundRenderer::UpdateSoundParams3D(SoundListener *listener, FISoundCh
     if(chan == NULL || chan->SysChannel == NULL)
         return;
 
+    alDeferUpdatesSOFT();
+
     FVector3 dir = pos - listener->position;
     chan->DistanceSqr = (float)dir.LengthSquared();
 
@@ -1590,6 +1597,8 @@ void OpenALSoundRenderer::UpdateListener(SoundListener *listener)
 {
     if(!listener->valid)
         return;
+
+    alDeferUpdatesSOFT();
 
     float angle = listener->angle;
     ALfloat orient[6];
