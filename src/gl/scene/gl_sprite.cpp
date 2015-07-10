@@ -629,7 +629,9 @@ void GLSprite::Process(AActor* thing,sector_t * sector)
 		{
 			if (!gl_FindModelFrame(RUNTIME_TYPE(thing), spritenum, thing->frame, false))
 			{
-				return;
+				const bool drawWithXYBillboard = ((particle && gl_billboard_particles) || (!(thing->renderflags & RF_FORCEYBILLBOARD)
+					&& (gl_billboard_mode == 1 || (thing->renderflags & RF_FORCEXYBILLBOARD))));
+				if(!drawWithXYBillboard) return;
 			}
 		}
 	}
