@@ -345,7 +345,7 @@ SDLGLFB::SDLGLFB (void *, int width, int height, int, int, bool fullscreen)
 	GLContext = SDL_GL_CreateContext(Screen);
 	if(GLContext == NULL)
 		return;
-	m_supportsGamma = SDL_GetWindowGammaRamp(Screen, m_origGamma[0], m_origGamma[1], m_origGamma[2] != -1;
+	m_supportsGamma = SDL_GetWindowGammaRamp(Screen, m_origGamma[0], m_origGamma[1], m_origGamma[2]) != -1;
 }
 
 SDLGLFB::~SDLGLFB ()

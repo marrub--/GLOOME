@@ -58,7 +58,7 @@ static int it_psm_process_sample(IT_SAMPLE * sample, const unsigned char * data,
 	int length = 0;
 	int loopstart = 0;
 	int loopend = 0;
-	int panpos;
+	/* int panpos; */
 	int defvol = 0;
 	int samplerate = 0;
 
@@ -74,7 +74,7 @@ static int it_psm_process_sample(IT_SAMPLE * sample, const unsigned char * data,
 		length = data[0x36] | (data[0x37] << 8) | (data[0x38] << 16) | (data[0x39] << 24);
 		loopstart = data[0x3A] | (data[0x3B] << 8) | (data[0x3C] << 16) | (data[0x3D] << 24);
 		loopend = data[0x3E] | (data[0x3F] << 8) | (data[0x40] << 16) | (data[0x41] << 24);
-		panpos = data[0x43];
+		/* panpos = data[0x43]; */
 		defvol = data[0x44];
 		samplerate = data[0x49] | (data[0x4A] << 8) | (data[0x4B] << 16) | (data[0x4C] << 24);
 	} else if (version == PSMV_NEW) {
@@ -85,7 +85,7 @@ static int it_psm_process_sample(IT_SAMPLE * sample, const unsigned char * data,
 		length = data[0x3A] | (data[0x3B] << 8) | (data[0x3C] << 16) | (data[0x3D] << 24);
 		loopstart = data[0x3E] | (data[0x3F] << 8) | (data[0x40] << 16) | (data[0x41] << 24);
 		loopend = data[0x42] | (data[0x43] << 8) | (data[0x44] << 16) | (data[0x45] << 24);
-		panpos = data[0x48];
+		/* panpos = data[0x48]; */
 		defvol = data[0x49];
 		samplerate = data[0x4E] | (data[0x4F] << 8) | (data[0x50] << 16) | (data[0x51] << 24);
 	}
@@ -96,7 +96,7 @@ static int it_psm_process_sample(IT_SAMPLE * sample, const unsigned char * data,
 		sample->flags &= ~IT_SAMPLE_EXISTS;
 		return 0;
 	}
-	
+
 	if ((length > len - 0x60) || ((flags & 0x7F) != 0)) return -1;
 
 	sample->flags = IT_SAMPLE_EXISTS;
@@ -472,7 +472,7 @@ static DUMB_IT_SIGDATA *it_psm_load_sigdata(DUMBFILE *f, int * ver, int subsong)
 	int n_patterns = 0;
 
 	int first_pattern_line = -1;
-	int first_pattern;
+	/* int first_pattern; */
 
 	int speed, bpm;
 	unsigned char pan[64];
@@ -508,7 +508,7 @@ static DUMB_IT_SIGDATA *it_psm_load_sigdata(DUMBFILE *f, int * ver, int subsong)
 	}
 
 	if (!n_chunks) goto error_fc;
-				
+
 	sigdata = malloc(sizeof(*sigdata));
 	if (!sigdata) goto error_fc;
 
@@ -801,7 +801,7 @@ static DUMB_IT_SIGDATA *it_psm_load_sigdata(DUMBFILE *f, int * ver, int subsong)
 							if (it_psm_process_pattern(&sigdata->pattern[n_patterns], ptr, length, speed, bpm, pan, vol, found)) goto error_ev;
 							if (first_pattern_line < 0) {
 								first_pattern_line = n;
-								first_pattern = o;
+								/* first_pattern = o; */
 							}
 							e->data[0] = n_patterns;
 							e->data[1] = n_patterns >> 8;
@@ -814,7 +814,7 @@ static DUMB_IT_SIGDATA *it_psm_load_sigdata(DUMBFILE *f, int * ver, int subsong)
 							if (it_psm_process_pattern(&sigdata->pattern[n_patterns], ptr, length, speed, bpm, pan, vol, found)) goto error_ev;
 							if (first_pattern_line < 0) {
 								first_pattern_line = n;
-								first_pattern = o;
+								/* first_pattern = o; */
 							}
 							e->data[0] = n_patterns;
 							e->data[1] = n_patterns >> 8;
@@ -1063,7 +1063,7 @@ static int it_pattern_compare(const IT_PATTERN * p1, const IT_PATTERN * p2) {
 
 	if (p1 == p2) return 1;
 	if (p1->n_entries != p2->n_entries) return 0;
-	
+
 	e1 = p1->entry; end = e1 + p1->n_entries;
 	e2 = p2->entry;
 
@@ -1180,7 +1180,7 @@ static void dumb_it_optimize_orders(DUMB_IT_SIGDATA * sigdata) {
 int DUMBEXPORT dumb_get_psm_subsong_count(DUMBFILE *f) {
 	int length, subsongs;
 	int32 l;
-	
+
 	if (dumbfile_mgetl(f) != DUMB_ID('P','S','M',' ')) return 0;
 
 	length = dumbfile_igetl(f);

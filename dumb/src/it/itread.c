@@ -95,7 +95,7 @@ static int it_seek(dumbfile_mem_status * s, int32 offset)
 		return -1;
 
 	s->offset = offset;
- 
+
 	return 0;
 }
 
@@ -997,7 +997,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 {
 	DUMB_IT_SIGDATA *sigdata;
 
-	int cwt, cmwt;
+	int /*cwt,*/ cmwt;
 	int special;
 	int message_length, message_offset;
 
@@ -1082,7 +1082,8 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 	sigdata->n_samples = dumbfile_igetw(f);
 	sigdata->n_patterns = dumbfile_igetw(f);
 
-	cwt = dumbfile_igetw(f);
+	/* cwt = dumbfile_igetw(f); */
+	dumbfile_igetw(f);
 	cmwt = dumbfile_igetw(f);
 
 	sigdata->flags = dumbfile_igetw(f);

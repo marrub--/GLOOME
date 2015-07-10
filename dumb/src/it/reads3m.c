@@ -251,7 +251,7 @@ static int it_s3m_read_pattern(IT_PATTERN *pattern, DUMBFILE *f, unsigned char *
 	/* Discard the length. */
 	/* read at most length bytes, in case of retarded crap */
 	length = dumbfile_igetw(f);
-	
+
 	if (maxlen)
 	{
 		maxlen -= 2;
@@ -461,7 +461,7 @@ static DUMB_IT_SIGDATA *it_s3m_load_sigdata(DUMBFILE *f, int * cwtv)
 {
 	DUMB_IT_SIGDATA *sigdata;
 
-	int flags, ffi;
+	int /*flags,*/ ffi;
 	int default_pan_present;
 
 	int master_volume;
@@ -539,7 +539,7 @@ static DUMB_IT_SIGDATA *it_s3m_load_sigdata(DUMBFILE *f, int * cwtv)
 			sigdata->pattern[n].entry = NULL;
 	}
 
-	flags = dumbfile_igetw(f);
+	/*flags =*/ dumbfile_igetw(f);
 
 	*cwtv = dumbfile_igetw(f);
 

@@ -242,7 +242,7 @@ DStoredCommand::DStoredCommand (FConsoleCommand *command, const char *args)
 {
 	Command = command;
 	Text = copystring (args);
-}		
+}
 
 DStoredCommand::~DStoredCommand ()
 {
@@ -288,8 +288,8 @@ static int ListActionCommands (const char *pattern)
 
 /* ======================================================================== */
 
-/* By Paul Hsieh (C) 2004, 2005.  Covered under the Paul Hsieh derivative 
-   license. See: 
+/* By Paul Hsieh (C) 2004, 2005.  Covered under the Paul Hsieh derivative
+   license. See:
    http://www.azillionmonkeys.com/qed/weblicense.html for license details.
 
    http://www.azillionmonkeys.com/qed/hash.html */
@@ -622,7 +622,7 @@ void C_DoCommand (const char *cmd, int keynum)
 			return;
 		}
 	}
-	
+
 	// Parse it as a normal command
 	// Checking for matching commands follows this search order:
 	//	1. Check the Commands[] hash table
@@ -697,7 +697,7 @@ void C_DoCommand (const char *cmd, int keynum)
 			}
 			else if(ST_DoCmdCheat(beg) == false)
 			{
-				Printf("Unknown command \"%.*s\"\n", len, beg);
+				Printf("Unknown command \"%.*s\"\n", (int)len, beg);
 			}
 		}
 	}
@@ -788,7 +788,7 @@ void AddCommandString (char *cmd, int keynum)
 //
 // Special processing:
 //   Inside quoted strings, \" becomes just "
-//                          \\ becomes just a single backslash          
+//                          \\ becomes just a single backslash
 //							\c becomes just TEXTCOLOR_ESCAPE
 //   $<cvar> is replaced by the contents of <cvar>
 

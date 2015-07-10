@@ -763,14 +763,14 @@ static int it_xm_read_sample_data(IT_SAMPLE *sample, unsigned char roguebytes, D
 {
 	int old;
 	int32 i;
-	int n_channels;
+	/* int n_channels; */
 	int32 datasizebytes;
 	void *ibuffer;
 
 	if (!(sample->flags & IT_SAMPLE_EXISTS))
 		return dumbfile_skip(f, roguebytes);
 
-	n_channels = sample->flags & IT_SAMPLE_STEREO ? 2 : 1;
+	/* n_channels = sample->flags & IT_SAMPLE_STEREO ? 2 : 1; */
 	datasizebytes = sample->length;
 
 	sample->data = malloc(datasizebytes);
