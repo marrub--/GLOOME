@@ -783,11 +783,11 @@ CCMD (warp)
 
 CCMD (load)
 {
-    if (argv.argc() != 2)
+	if (argv.argc() != 2)
 	{
-        Printf ("usage: load <filename>\n");
-        return;
-    }
+		Printf ("usage: load <filename>\n");
+		return;
+	}
 	if (netgame)
 	{
 		Printf ("cannot load during a network game\n");
@@ -795,7 +795,7 @@ CCMD (load)
 	}
 	FString fname = argv[1];
 	DefaultExtension (fname, ".zds");
-    G_LoadGame (fname);
+	G_LoadGame (fname);
 }
 
 //==========================================================================
