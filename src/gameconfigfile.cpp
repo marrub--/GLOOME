@@ -109,7 +109,7 @@ FGameConfigFile::FGameConfigFile ()
 #ifdef __APPLE__
 		char cpath[PATH_MAX];
 		FSRef folder;
-		
+
 		if (noErr == FSFindFolder(kUserDomain, kDocumentsFolderType, kCreateFolder, &folder) &&
 			noErr == FSRefMakePath(&folder, (UInt8*)cpath, PATH_MAX))
 		{
@@ -139,6 +139,7 @@ FGameConfigFile::FGameConfigFile ()
 #else
 		SetValueForKey ("Path", "~/" GAME_DIR, true);
 		SetValueForKey ("Path", SHARE_DIR, true);
+		SetValueForKey ("Path", "/usr/share/doom", true);
 #endif
 	}
 
@@ -311,7 +312,7 @@ void FGameConfigFile::DoGlobalSetup ()
 				while (more)
 				{
 					name = GetCurrentSection();
-					if (name != NULL && 
+					if (name != NULL &&
 						(namelen = strlen(name)) > 12 &&
 						strcmp(name + namelen - 12, ".WeaponSlots") == 0)
 					{
@@ -357,7 +358,7 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 	sublen = countof(section) - 1 - mysnprintf (section, countof(section), "%s.", gamename);
 	subsection = section + countof(section) - sublen - 1;
 	section[countof(section) - 1] = '\0';
-	
+
 	strncpy (subsection, "UnknownConsoleVariables", sublen);
 	if (SetSection (section))
 	{

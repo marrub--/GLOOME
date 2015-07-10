@@ -33,14 +33,13 @@ class SDLGLVideo : public IVideo
 private:
 	int IteratorMode;
 	int IteratorBits;
-	bool IteratorFS;
 };
 class SDLGLFB : public DFrameBuffer
 {
 	DECLARE_CLASS(SDLGLFB, DFrameBuffer)
 public:
 	// this must have the same parameters as the Windows version, even if they are not used!
-	SDLGLFB (void *hMonitor, int width, int height, int, int, bool fullscreen); 
+	SDLGLFB (void *hMonitor, int width, int height, int, int, bool fullscreen);
 	~SDLGLFB ();
 
 	void ForceBuffering (bool force);
@@ -54,7 +53,7 @@ public:
 
 	virtual void SetVSync( bool vsync );
 	void SwapBuffers();
-	
+
 	void NewRefreshRate ();
 
 	friend class SDLGLVideo;
@@ -70,9 +69,11 @@ protected:
 	SDLGLFB () {}
 	BYTE GammaTable[3][256];
 	bool UpdatePending;
-	
-	SDL_Surface *Screen;
-	
+
+	SDL_Window *Screen;
+
+	SDL_GLContext GLContext;
+
 	void UpdateColors ();
 
 	int m_Lock;

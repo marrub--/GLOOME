@@ -55,9 +55,9 @@ if( WIN32 )
 		set( WIN_TYPE Win32 )
 		set( XBITS x86 )
 	endif( X64 )
-	
+
 	add_definitions( -D_WIN32 )
-	
+
 	find_path( D3D_INCLUDE_DIR d3d9.h
 		PATHS ENV DXSDK_DIR
 		PATH_SUFFIXES Include )
@@ -66,7 +66,7 @@ if( WIN32 )
 	else( NOT D3D_INCLUDE_DIR )
 		include_directories( ${D3D_INCLUDE_DIR} )
 	endif( NOT D3D_INCLUDE_DIR )
-	
+
 	find_path( XINPUT_INCLUDE_DIR xinput.h
 		PATHS ENV DXSDK_DIR
 		PATH_SUFFIXES Include )
@@ -108,7 +108,7 @@ if( WIN32 )
 		comdlg32
 		ws2_32
 		setupapi
-		oleaut32 
+		oleaut32
 		DelayImp )
 else( WIN32 )
 	if( APPLE )
@@ -128,11 +128,11 @@ else( WIN32 )
 			endif( GTK2_FOUND )
 		endif( NOT NO_GTK )
 	endif( APPLE )
-	
+
 	if( NO_GTK )
 		add_definitions( -DNO_GTK=1 )
 	endif( NO_GTK )
-	
+
 	# Non-Windows version also needs SDL except native OS X backend
 	if( NOT APPLE OR NOT OSX_COCOA_BACKEND )
 		find_package( SDL2 REQUIRED )
@@ -183,7 +183,7 @@ endif( NOT WIN32 OR APPLE )
 if( NOT GLEW_LIBRARY )
 	message( SEND_ERROR "Could not find GLEW library files" )
 endif( NOT GLEW_LIBRARY )
-	
+
 set( ZDOOM_LIBS ${ZDOOM_LIBS} ${GLEW_LIBRARY} )
 
 find_package( OpenAL )
@@ -254,7 +254,7 @@ if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		set( CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -pg" )
 		set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -pg" )
 	endif( PROFILE )
-	
+
 	set( REL_CXX_FLAGS "-fno-rtti" )
 	if( NOT PROFILE AND NOT APPLE )
 		# On OS X frame pointers are required for exception handling, at least with Clang
@@ -408,7 +408,8 @@ set( PLAT_SDL_SOURCES
 	posix/sdl/i_joystick.cpp
 	posix/sdl/i_main.cpp
 	posix/sdl/i_timer.cpp
-	posix/sdl/sdlvideo.cpp )
+	posix/sdl/sdlvideo.cpp
+	posix/sdl/sdlglvideo.cpp)
 set( PLAT_OSX_SOURCES
 	posix/osx/iwadpicker_cocoa.mm
 	posix/osx/zdoom.icns )
@@ -430,7 +431,7 @@ if( WIN32 )
 	set( SYSTEM_SOURCES_DIR win32 )
 	set( SYSTEM_SOURCES ${PLAT_WIN32_SOURCES} )
 	set( OTHER_SYSTEM_SOURCES ${PLAT_POSIX_SOURCES} ${PLAT_SDL_SOURCES} ${PLAT_OSX_SOURCES} ${PLAT_COCOA_SOURCES} )
-	
+
 	if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 		# CMake is not set up to compile and link rc files with GCC. :(
 		add_custom_command( OUTPUT zdoom-rc.o

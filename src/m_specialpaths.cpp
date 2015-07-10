@@ -147,7 +147,7 @@ FString M_GetCachePath(bool create)
 	}
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
-	path += "/zdoom/cache";
+	path += "/gloome/cache";
 	return path;
 }
 
@@ -323,7 +323,7 @@ FString M_GetCachePath(bool create)
 	{
 		path = progdir;
 	}
-	path += "/zdoom/cache";
+	path += "/gloome/cache";
 	return path;
 }
 
@@ -341,7 +341,7 @@ FString M_GetAutoexecPath()
 
 	char cpath[PATH_MAX];
 	FSRef folder;
-	
+
 	if (noErr == FSFindFolder(kUserDomain, kDocumentsFolderType, kCreateFolder, &folder) &&
 		noErr == FSRefMakePath(&folder, (UInt8*)cpath, PATH_MAX))
 	{
@@ -385,7 +385,7 @@ FString M_GetConfigPath(bool for_reading)
 {
 	char cpath[PATH_MAX];
 	FSRef folder;
-	
+
 	if (noErr == FSFindFolder(kUserDomain, kPreferencesFolderType, kCreateFolder, &folder) &&
 		noErr == FSRefMakePath(&folder, (UInt8*)cpath, PATH_MAX))
 	{
@@ -410,7 +410,7 @@ FString M_GetScreenshotsPath()
 	FString path;
 	char cpath[PATH_MAX];
 	FSRef folder;
-	
+
 	if (noErr == FSFindFolder(kUserDomain, kDocumentsFolderType, kCreateFolder, &folder) &&
 		noErr == FSRefMakePath(&folder, (UInt8*)cpath, PATH_MAX))
 	{
@@ -517,7 +517,9 @@ FString M_GetCachePath(bool create)
 {
 	// Don't use GAME_DIR and such so that ZDoom and its child ports can
 	// share the node cache.
-	FString path = NicePath("~/.config/zdoom/cache");
+	// [marrub] changed this to ~/.config/gloome since zdoom and this shouldn't
+	//          be sharing nodes with eachother
+	FString path = NicePath("~/.config/gloome/cache");
 	if (create)
 	{
 		CreatePath(path);

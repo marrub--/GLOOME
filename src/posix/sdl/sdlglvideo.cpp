@@ -1,8 +1,6 @@
 
 // HEADER FILES ------------------------------------------------------------
 
-#include <iostream>
-
 #include "doomtype.h"
 
 #include "templates.h"
@@ -47,6 +45,7 @@ struct MiniModeInfo
 extern IVideo *Video;
 
 EXTERN_CVAR (Float, Gamma)
+EXTERN_CVAR (Int, vid_adapter)
 EXTERN_CVAR (Int, vid_displaybits)
 
 
@@ -76,6 +75,7 @@ static MiniModeInfo WinModes[] =
 	{ 720, 480 },	// 16:10
 	{ 720, 540 },
 	{ 800, 450 },	// 16:9
+	{ 800, 480 },
 	{ 800, 500 },	// 16:10
 	{ 800, 600 },
 	{ 848, 480 },	// 16:9
@@ -90,23 +90,34 @@ static MiniModeInfo WinModes[] =
 	{ 1152, 720 },	// 16:10
 	{ 1152, 864 },
 	{ 1280, 720 },	// 16:9
+	{ 1280, 854 },
 	{ 1280, 800 },	// 16:10
 	{ 1280, 960 },
-	{ 1344, 756 },  // 16:9
+	{ 1280, 1024 },
 	{ 1360, 768 },	// 16:9
+	{ 1366, 768 },
 	{ 1400, 787 },	// 16:9
 	{ 1400, 875 },	// 16:10
-	{ 1440, 900 },
 	{ 1400, 1050 },
+	{ 1440, 900 },
+	{ 1440, 960 },
+	{ 1440, 1080 },
 	{ 1600, 900 },	// 16:9
 	{ 1600, 1000 },	// 16:10
 	{ 1600, 1200 },
-	{ 1680, 1050 }, // 16:10
-	{ 1920, 1080 }, // 16:9
-	{ 1920, 1200 }, // 16:10
-	{ 2054, 1536 },
-	{ 2560, 1440 },  // 16:9
-	{ 2880, 1800 }  // 16:10
+	{ 1920, 1080 },
+	{ 1920, 1200 },
+	{ 2048, 1536 },
+	{ 2560, 1440 },
+	{ 2560, 1600 },
+	{ 2560, 2048 },
+	{ 2880, 1800 },
+	{ 3200, 1800 },
+	{ 3840, 2160 },
+	{ 3840, 2400 },
+	{ 4096, 2160 },
+	{ 5120, 2880 }
+
 };
 
 // CODE --------------------------------------------------------------------
@@ -114,7 +125,6 @@ static MiniModeInfo WinModes[] =
 SDLGLVideo::SDLGLVideo (int parm)
 {
 	IteratorBits = 0;
-	IteratorFS = false;
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
         fprintf( stderr, "Video initialization failed: %s\n",
              SDL_GetError( ) );
@@ -134,35 +144,21 @@ void SDLGLVideo::StartModeIterator (int bits, bool fs)
 {
 	IteratorMode = 0;
 	IteratorBits = bits;
-	IteratorFS = fs;
 }
 
 bool SDLGLVideo::NextMode (int *width, int *height, bool *letterbox)
 {
 	if (IteratorBits != 8)
 		return false;
-	
-	if (!IteratorFS)
+
+	if((unsigned)IteratorMode < (sizeof(WinModes) / sizeof(WinModes[0])))
 	{
-		if ((unsigned)IteratorMode < sizeof(WinModes)/sizeof(WinModes[0]))
-		{
-			*width = WinModes[IteratorMode].Width;
-			*height = WinModes[IteratorMode].Height;
-			++IteratorMode;
-			return true;
-		}
+		*width = WinModes[IteratorMode].Width;
+		*height = WinModes[IteratorMode].Height;
+		++IteratorMode;
+		return true;
 	}
-	else
-	{
-		SDL_Rect **modes = SDL_ListModes (NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
-		if (modes != NULL && modes[IteratorMode] != NULL)
-		{
-			*width = modes[IteratorMode]->w;
-			*height = modes[IteratorMode]->h;
-			++IteratorMode;
-			return true;
-		}
-	}
+
 	return false;
 }
 
@@ -170,7 +166,7 @@ DFrameBuffer *SDLGLVideo::CreateFrameBuffer (int width, int height, bool fullscr
 {
 	static int retry = 0;
 	static int owidth, oheight;
-	
+
 	PalEntry flashColor;
 //	int flashAmount;
 
@@ -180,11 +176,11 @@ DFrameBuffer *SDLGLVideo::CreateFrameBuffer (int width, int height, bool fullscr
 		if (fb->Width == width &&
 			fb->Height == height)
 		{
-			bool fsnow = (fb->Screen->flags & SDL_FULLSCREEN) != 0;
-	
+			bool fsnow = (SDL_GetWindowFlags (fb->Screen) & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
+
 			if (fsnow != fullscreen)
 			{
-				SDL_WM_ToggleFullScreen (fb->Screen);
+				SDL_SetWindowFullscreen (fb->Screen, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 			}
 			return old;
 		}
@@ -196,10 +192,10 @@ DFrameBuffer *SDLGLVideo::CreateFrameBuffer (int width, int height, bool fullscr
 		flashColor = 0;
 //		flashAmount = 0;
 	}
-	
+
 	SDLGLFB *fb = new OpenGLFrameBuffer (0, width, height, 32, 60, fullscreen);
 	retry = 0;
-	
+
 	// If we could not create the framebuffer, try again with slightly
 	// different parameters in this order:
 	// 1. Try with the closest size
@@ -268,7 +264,7 @@ bool SDLGLVideo::SetResolution (int width, int height, int bits)
 #else
 	bits=24;
 #endif
-	
+
 	V_DoModeSetup(width, height, bits);
 #endif
 	return true;	// We must return true because the old video context no longer exists.
@@ -276,20 +272,21 @@ bool SDLGLVideo::SetResolution (int width, int height, int bits)
 
 //==========================================================================
 //
-// 
+//
 //
 //==========================================================================
 
 bool SDLGLVideo::SetupPixelFormat(bool allowsoftware, int multisample)
 {
-	SDL_GL_SetAttribute( SDL_GL_RED_SIZE,  8 );
-	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE,  8 );
-	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,  8 );
-	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE,  8 );
-	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE,  24 );
-	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE,  8 );
-//		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER,  1 );
-	if (multisample > 0) {
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,      8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,    8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,     8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE,    8);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,    24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,  8);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,  1);
+	if (multisample > 0)
+	{
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, 1 );
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, multisample );
 	}
@@ -298,7 +295,7 @@ bool SDLGLVideo::SetupPixelFormat(bool allowsoftware, int multisample)
 
 //==========================================================================
 //
-// 
+//
 //
 //==========================================================================
 
@@ -323,47 +320,56 @@ SDLGLFB::SDLGLFB (void *, int width, int height, int, int, bool fullscreen)
 	if (localmultisample<0) localmultisample=gl_vid_multisample;
 
 	int i;
-	
+
 	m_Lock=0;
 
 	UpdatePending = false;
-	
+
 	if (!static_cast<SDLGLVideo*>(Video)->InitHardware(false, localmultisample))
 	{
 		return;
 	}
 
-		
-	Screen = SDL_SetVideoMode (width, height,
-		32,
-		SDL_HWSURFACE|SDL_HWPALETTE|SDL_OPENGL | SDL_GL_DOUBLEBUFFER|SDL_ANYFORMAT|
-		(fullscreen ? SDL_FULLSCREEN : 0));
+
+	FString caption;
+	caption.Format(GAMESIG " %s", GetVersionString());
+	Screen = SDL_CreateWindow(caption.GetChars(),
+		SDL_WINDOWPOS_UNDEFINED_DISPLAY(vid_adapter),
+		SDL_WINDOWPOS_UNDEFINED_DISPLAY(vid_adapter),
+		width, height, (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) | SDL_WINDOW_OPENGL
+	);
 
 	if (Screen == NULL)
 		return;
 
-	m_supportsGamma = -1 != SDL_GetGammaRamp(m_origGamma[0], m_origGamma[1], m_origGamma[2]);
-	
-#if defined(__APPLE__)
-	// Need to set title here because a window is not created yet when calling the same function from main()
-	char caption[100];
-	mysnprintf(caption, countof(caption), GAMESIG " %s", GetVersionString());
-	SDL_WM_SetCaption(caption, NULL);
-#endif // __APPLE__
+	GLContext = SDL_GL_CreateContext(Screen);
+	if(GLContext == NULL)
+		return;
+	m_supportsGamma = SDL_GetWindowGammaRamp(Screen, m_origGamma[0], m_origGamma[1], m_origGamma[2] != -1;
 }
 
 SDLGLFB::~SDLGLFB ()
 {
-	if (m_supportsGamma) 
+	if(Screen)
 	{
-		SDL_SetGammaRamp(m_origGamma[0], m_origGamma[1], m_origGamma[2]);
+		if(m_supportsGamma)
+		{
+			SDL_SetWindowGammaRamp(Screen, m_origGamma[0], m_origGamma[1], m_origGamma[2]);
+		}
+
+		if(GLContext)
+		{
+			SDL_GL_DeleteContext(GLContext);
+		}
+
+		SDL_DestroyWindow(Screen);
 	}
 }
 
 
 
 
-void SDLGLFB::InitializeState() 
+void SDLGLFB::InitializeState()
 {
 }
 
@@ -383,7 +389,7 @@ bool SDLGLFB::CanUpdate ()
 
 void SDLGLFB::SetGammaTable(WORD *tbl)
 {
-	SDL_SetGammaRamp(&tbl[0], &tbl[256], &tbl[512]);
+	SDL_SetWindowGammaRamp(Screen, &tbl[0], &tbl[256], &tbl[512]);
 }
 
 bool SDLGLFB::Lock(bool buffered)
@@ -393,13 +399,13 @@ bool SDLGLFB::Lock(bool buffered)
 	return true;
 }
 
-bool SDLGLFB::Lock () 
-{ 	
-	return Lock(false); 
+bool SDLGLFB::Lock ()
+{
+	return Lock(false);
 }
 
-void SDLGLFB::Unlock () 	
-{ 
+void SDLGLFB::Unlock ()
+{
 	if (UpdatePending && m_Lock == 1)
 	{
 		Update ();
@@ -410,14 +416,14 @@ void SDLGLFB::Unlock ()
 	}
 }
 
-bool SDLGLFB::IsLocked () 
-{ 
+bool SDLGLFB::IsLocked ()
+{
 	return m_Lock>0;// true;
 }
 
 bool SDLGLFB::IsFullscreen ()
 {
-	return (Screen->flags & SDL_FULLSCREEN) != 0;
+	return (SDL_GetWindowFlags (Screen) & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
 }
 
 
@@ -440,6 +446,6 @@ void SDLGLFB::NewRefreshRate ()
 
 void SDLGLFB::SwapBuffers()
 {
-	SDL_GL_SwapBuffers ();
+	SDL_GL_SwapWindow (Screen);
 }
 

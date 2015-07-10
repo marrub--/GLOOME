@@ -1,4 +1,5 @@
 /Debug
+*.kdev*
 *.ncb
 *.suo
 *.pdb
