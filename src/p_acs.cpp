@@ -132,6 +132,13 @@ enum
 	ARMORINFO_ACTUALSAVEAMOUNT,
 };
 
+// PickActor
+enum
+{
+	PAF_FORCETID,
+	PAF_RETURNTID
+};
+
 struct CallReturn
 {
 	CallReturn(int pc, ScriptFunction *func, FBehavior *module, SDWORD *locals, ACSLocalArrays *arrays, bool discard, unsigned int runaway)
@@ -5859,11 +5866,10 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 					wallMask = args[6];
 				}
 
-				bool forceTID = 0;
+				int flags = 0;
 				if (argCount >= 8)
 				{
-					if (args[7] != 0)
-						forceTID = 1;
+					flags = args[7];
 				}
 
 				AActor* pickedActor = P_LinePickActor(actor, args[1] << 16, args[3], args[2] << 16, actorMask, wallMask);
@@ -5871,14 +5877,18 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 					return 0;
 				}
 
-				if (!(forceTID) && (args[4] == 0) && (pickedActor->tid == 0))
+				if (!(flags & PAF_FORCETID) && (args[4] == 0) && (pickedActor->tid == 0))
 					return 0;
 
-				if ((pickedActor->tid == 0) || (forceTID))
+				if ((pickedActor->tid == 0) || (flags & PAF_FORCETID))
 				{
 					pickedActor->RemoveFromHash();
 					pickedActor->tid = args[4];
 					pickedActor->AddToHash();
+				}
+				if(flags & PAF_RETURNTID)
+				{
+					return pickedActor->tid;
 				}
 				return 1;
 			}
