@@ -137,7 +137,6 @@ void I_BuildALDeviceList(FOptionValues *opt)
 EXTERN_CVAR (Int, snd_channels)
 EXTERN_CVAR (Int, snd_samplerate)
 EXTERN_CVAR (Bool, snd_waterreverb)
-EXTERN_CVAR (Bool, snd_pitched)
 
 #define MAKE_PTRID(x)  ((void*)(uintptr_t)(x))
 #define GET_PTRID(x)  ((uint32)(uintptr_t)(x))
@@ -616,7 +615,7 @@ extern ReverbContainer *ForcedEnvironment;
 
 #define PITCH_MULT (0.7937005f) /* Approx. 4 semitones lower; what Nash suggested */
 
-#define PITCH(pitch) (snd_pitched ? (pitch)/128.f : 1.f)
+#define PITCH(pitch) ((pitch)/128.f)
 
 
 static float GetRolloff(const FRolloffInfo *rolloff, float distance)
