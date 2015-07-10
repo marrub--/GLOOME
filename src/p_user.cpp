@@ -64,6 +64,7 @@ static FRandom pr_skullpop ("SkullPop");
 // Variables for prediction
 CVAR (Bool, cl_noprediction, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, cl_predict_specials, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVAR(Bool, cl_morphbob, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 CUSTOM_CVAR(Float, cl_predict_lerpscale, 0.05f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
@@ -254,6 +255,8 @@ player_t::player_t()
   viewheight(0),
   deltaviewheight(0),
   bob(0),
+  bobmul(16384), // MAGIC! (it's 0.25)
+  stillbobmul(0),
   velx(0),
   vely(0),
   centering(0),
@@ -332,6 +335,8 @@ player_t &player_t::operator=(const player_t &p)
 	viewheight = p.viewheight;
 	deltaviewheight = p.deltaviewheight;
 	bob = p.bob;
+	bobmul = p.bobmul;
+	stillbobmul = p.stillbobmul;
 	velx = p.velx;
 	vely = p.vely;
 	centering = p.centering;
@@ -1730,17 +1735,19 @@ void P_CalcHeight (player_t *player)
 	}
 	else
 	{
-		player->bob = DMulScale16 (player->velx, player->velx, player->vely, player->vely);
+		player->bob = DMulScale16(player->velx, player->velx, player->vely, player->vely);
 		if (player->bob == 0)
 		{
 			still = true;
 		}
 		else
 		{
-			player->bob = FixedMul (player->bob, player->userinfo.GetMoveBob());
+			player->bob = FixedMul(player->bob, FixedMul(player->userinfo.GetMoveBob(), player->bobmul));
 
 			if (player->bob > MAXBOB)
+			{
 				player->bob = MAXBOB;
+			}
 		}
 	}
 
@@ -1760,8 +1767,8 @@ void P_CalcHeight (player_t *player)
 	{
 		if (player->health > 0)
 		{
-			angle = DivScale13 (level.time, 120*TICRATE/35) & FINEMASK;
-			bob = FixedMul (player->userinfo.GetStillBob(), finesine[angle]);
+			angle = DivScale13(level.time, 120*TICRATE/35) & FINEMASK;
+			bob = FixedMul(FixedMul(player->userinfo.GetStillBob(), player->stillbobmul), finesine[angle]);
 		}
 		else
 		{
@@ -1771,8 +1778,8 @@ void P_CalcHeight (player_t *player)
 	else
 	{
 		// DivScale 13 because FINEANGLES == (1<<13)
-		angle = DivScale13 (level.time, 20*TICRATE/35) & FINEMASK;
-		bob = FixedMul (player->bob>>(player->mo->waterlevel > 1 ? 2 : 1), finesine[angle]);
+		angle = DivScale13(level.time, 20*TICRATE/35) & FINEMASK;
+		bob = FixedMul(player->bob>>(player->mo->waterlevel > 1 ? 2 : 1), finesine[angle]);
 	}
 
 	// move viewheight
@@ -1800,10 +1807,11 @@ void P_CalcHeight (player_t *player)
 		}
 	}
 
-	if (player->morphTics)
+	if(player->morphTics && cl_morphbob == false)
 	{
 		bob = 0;
 	}
+
 	player->viewz = player->mo->z + player->viewheight + bob;
 	if (player->mo->floorclip && player->playerstate != PST_DEAD
 		&& player->mo->z <= player->mo->floorz)

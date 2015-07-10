@@ -381,6 +381,8 @@ public:
 	fixed_t		viewheight;				// base height above floor for viewz
 	fixed_t		deltaviewheight;		// squat speed.
 	fixed_t		bob;					// bounded/scaled total velocity
+	fixed_t bobmul; // multiplier set by acs
+	fixed_t stillbobmul; // multiplier set by acs
 
 	// killough 10/98: used for realistic bobbing (i.e. not simply overall speed)
 	// mo->velx and mo->vely represent true velocity experienced by player.

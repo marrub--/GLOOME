@@ -4503,6 +4503,8 @@ enum EACSFunctions
 	ACSF_GetTicrate = 11194,
 	ACSF_GetActorFloorTexture,
 	ACSF_GetActorCeilingTexture,
+	ACSF_SetPlayerBobMul,
+	ACSF_GetPlayerBobMul,
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -6059,6 +6061,57 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 
 		case ACSF_GetActorCeilingTexture:
 			return GlobalACSStrings.AddString(DoActorGetTexture(args[0], activator, false), stack, stackdepth);
+
+		case ACSF_SetPlayerBobMul:
+		{
+			fixed_t mul = FLOAT2FIXED(0.25);
+			bool move = true;
+
+			if(argCount >= 1)
+			{
+				mul = args[0];
+			}
+
+			if(argCount >= 2)
+			{
+				move = !!args[1];
+			}
+
+			if(activator->player == NULL)
+			{
+				return 0;
+			}
+
+			if(move)
+			{
+				activator->player->bobmul = mul;
+			}
+			else
+			{
+				activator->player->stillbobmul = mul;
+			}
+
+			break;
+		}
+
+		case ACSF_GetPlayerBobMul:
+		{
+			bool move = !!args[0];
+
+			if(activator->player == NULL)
+			{
+				return 0;
+			}
+
+			if(move)
+			{
+				return activator->player->bobmul;
+			}
+			else
+			{
+				return activator->player->stillbobmul;
+			}
+		}
 
 		default:
 			break;
