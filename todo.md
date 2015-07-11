@@ -1,6 +1,8 @@
 top priority shit
 ===
 ```
+add automap to texture rendering (SetAutomapToTexture? heh)
+add full button input getting, maybe even an event system to acs
 fix cameratextures, in software you can see the player's weapon sprite (but you can't in ogl)
 add a parm to SetCameraToTexture that disables/enables weapon sprite viewing
 fix the menus with variadic ticrates
@@ -16,6 +18,7 @@ add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-do
 second priority stuff
 ===
 ```
+orthogonal cameras
 A_Warp in ACS
 pufftid parm for LineAttack
 frame tics as expression in decorate
@@ -27,6 +30,10 @@ add offsetx and offsety expressions to decorate
 add menu backgrounds to menudef
 make modeldef support more than 4 pieces per actor
 merge ryan's checkweapon changes
+probably merge these:
+viewtopic.php?f=34&t=31497
+viewtopic.php?f=34&t=31516
+viewtopic.php?f=34&t=46380
 ```
 
 "eventually"
