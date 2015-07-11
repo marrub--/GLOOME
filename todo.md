@@ -32,6 +32,7 @@ merge ryan's checkweapon changes
 "eventually"
 ===
 ```
+redo vid_renderer to switch opengl versions (between 1.8.10 and 2.x renderers)
 lua to either replace decorate/acs or just add it as an extra language
 ttf fonts
 ```
