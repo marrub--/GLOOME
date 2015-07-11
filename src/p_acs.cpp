@@ -5496,27 +5496,28 @@ int DLevelScript::CallFunction(int argCount, int funcIndex, SDWORD *args, const 
 				fixed_t	angle		= args[1] << FRACBITS;
 				fixed_t	pitch		= args[2] << FRACBITS;
 				int	damage			= args[3];
-				FName pufftype		= argCount > 4 && args[4]? FName(FBehavior::StaticLookupString(args[4])) : NAME_BulletPuff;
-				FName damagetype	= argCount > 5 && args[5]? FName(FBehavior::StaticLookupString(args[5])) : NAME_None;
-				fixed_t	range		= argCount > 6 && args[6]? args[6] : MISSILERANGE;
-				int flags			= argCount > 7 && args[7]? args[7] : 0;
+				FName pufftype		= (argCount > 4 && args[4]) ? FName(FBehavior::StaticLookupString(args[4])) : NAME_BulletPuff;
+				FName damagetype	= (argCount > 5 && args[5]) ? FName(FBehavior::StaticLookupString(args[5])) : NAME_None;
+				fixed_t	range		= (argCount > 6 && args[6]) ? args[6] : MISSILERANGE;
+				int flags			= (argCount > 7 && args[7]) ? args[7] : 0;
+				int pufftid = argCount > 8 ? args[8] : 0;
 
 				int fhflags = 0;
-				if (flags & FHF_NORANDOMPUFFZ) fhflags |= LAF_NORANDOMPUFFZ;
-				if (flags & FHF_NOIMPACTDECAL) fhflags |= LAF_NOIMPACTDECAL;
+				if(flags & FHF_NORANDOMPUFFZ) fhflags |= LAF_NORANDOMPUFFZ;
+				if(flags & FHF_NOIMPACTDECAL) fhflags |= LAF_NOIMPACTDECAL;
 
-				if (args[0] == 0)
+				if(args[0] == 0)
 				{
-					P_LineAttack(activator, angle, range, pitch, damage, damagetype, pufftype, fhflags);
+					P_LineAttack(activator, angle, range, pitch, damage, damagetype, pufftype, fhflags, NULL, NULL, pufftid);
 				}
 				else
 				{
 					AActor *source;
 					FActorIterator it(args[0]);
 
-					while ((source = it.Next()) != NULL)
+					while((source = it.Next()) != NULL)
 					{
-						P_LineAttack(source, angle, range, pitch, damage, damagetype, pufftype, fhflags);
+						P_LineAttack(source, angle, range, pitch, damage, damagetype, pufftype, fhflags, NULL, NULL, pufftid);
 					}
 				}
 			}

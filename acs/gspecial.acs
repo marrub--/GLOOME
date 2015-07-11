@@ -302,8 +302,8 @@ special
 	-57:SetCVarString(2),
 	-58:GetUserCVarString(2),
 	-59:SetUserCVarString(3),
-	-60:LineAttack(4,8),
-	-61:PlaySound(2,8),
+	-60:LineAttack(4,9), // [marrub] (opt.) pufftid parameter
+	-61:PlaySound(2,8),  // [marrub] (opt.) pitch parameter
 	-62:StopSound(1,2),
 	-63:strcmp(2,3),
 	-64:stricmp(2,3),

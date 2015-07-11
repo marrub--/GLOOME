@@ -8,7 +8,6 @@ add a parm to SetCameraToTexture that disables/enables weapon sprite viewing
 fix the menus with variadic ticrates
 add if statements to menudefs (for cvars and shit)
 screenspace shaders
-pixelratio in mapinfo/gameinfo
 change weapon sprite offsets via ACS (APROP_?) viewtopic.php?f=34&t=29910
 rectangular collision boxes (will require a "force" parm for SetActorAngle)
 add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-does-one-jump-to-a-particular-offset-more-than-once )
