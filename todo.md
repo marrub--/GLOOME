@@ -9,8 +9,6 @@ screenspace shaders
 pixelratio in mapinfo/gameinfo
 add zcommon.acs and friends to the project for the custom definitions
 change weapon sprite offsets via ACS (APROP_?) viewtopic.php?f=34&t=29910
-https://github.com/Kitware/CMake/blob/master/Modules/FindOpenAL.cmake
-https://github.com/tlorach/OpenGLText/blob/master/cmake/FindGLEW.cmake
 rectangular collision boxes (will require a "force" parm for SetActorAngle)
 add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-does-one-jump-to-a-particular-offset-more-than-once )
 ```

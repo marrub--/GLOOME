@@ -249,9 +249,9 @@ void GLSprite::Draw(int pass)
 	if (!modelframe)
 	{
 		// [BB] Billboard stuff
-		const bool drawWithXYBillboard = ( (particle && gl_billboard_particles) || (!(actor && actor->renderflags & RF_FORCEYBILLBOARD)
+		const bool drawWithXYBillboard = ( (particle && gl_billboard_particles) || (!(actor && (actor->renderflags & RF_FORCEYBILLBOARD))
 		                                   //&& GLRenderer->mViewActor != NULL
-		                                   && (gl_billboard_mode == 1 || (actor && actor->renderflags & RF_FORCEXYBILLBOARD ))) );
+		                                   && (gl_billboard_mode == 1 || (actor && (actor->renderflags & RF_FORCEXYBILLBOARD) ))) );
 		gl_RenderState.Apply();
 
 		Vector v1(x1, z1, y1);
@@ -273,9 +273,9 @@ void GLSprite::Draw(int pass)
 			{ // [fgsfds] Rotate the sprite about a vector perpendicular to the sight vector
 				mat.Rotate(-sin(angleRad), 0, cos(angleRad), -GLRenderer->mAngles.Pitch);
 			}
-			if(actor != NULL && actor->renderflags & RF_ROLLSPRITE)
+			if(actor != NULL && (actor->renderflags & RF_ROLLSPRITE))
 			{
-				mat.Rotate(cos(angleRad), 0, sin(angleRad), 360. * (1. - FIXED2FLOAT(actor->roll)));
+				mat.Rotate(cos(angleRad), 0, sin(angleRad), 360.0 * (1.0 - ((actor->roll >> 16) / (float)(65536))));
 			}
 
 			mat.Translate(-xcenter, -zcenter, -ycenter);
@@ -909,7 +909,7 @@ void GLSprite::Process(AActor* thing,sector_t * sector)
 	const bool drawWithXYBillboard = ( !(actor->renderflags & RF_FORCEYBILLBOARD)
 									   && (actor->renderflags & RF_SPRITETYPEMASK) == RF_FACESPRITE
 									   && players[consoleplayer].camera
-									   && (gl_billboard_mode == 1 || actor->renderflags & RF_FORCEXYBILLBOARD ) );
+									   && (gl_billboard_mode == 1 || (actor->renderflags & RF_FORCEXYBILLBOARD) ) );
 
 
 	if (drawWithXYBillboard || modelframe)
