@@ -16,7 +16,6 @@ add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-do
 second priority stuff
 ===
 ```
-remove the model squish with ogl models
 A_Warp in ACS
 pufftid parm for LineAttack
 frame tics as expression in decorate

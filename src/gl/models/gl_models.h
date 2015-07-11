@@ -9,8 +9,6 @@
 
 enum { VX, VZ, VY };
 
-static const float rModelAspectMod = 1 / 1.2f;	//.833334f;
-
 #define MD2_MAGIC			0x32504449
 #define DMD_MAGIC			0x4D444D44
 #define MD3_MAGIC			0x33504449
