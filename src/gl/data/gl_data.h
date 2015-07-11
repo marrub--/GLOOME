@@ -19,8 +19,6 @@ struct GLRenderSettings
 
 	FVector3 skyrotatevector;
 	FVector3 skyrotatevector2;
-
-	float pixelstretch;
 };
 
 extern GLRenderSettings glset;

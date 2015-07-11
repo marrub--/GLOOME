@@ -174,6 +174,7 @@ struct gameinfo_t
 	FGIFont mStatscreenFinishedFont;
 	FGIFont mStatscreenEnteringFont;
 	bool norandomplayerclass;
+	float pixelstretch;
 
 	const char *GetFinalePage(unsigned int num) const;
 };
