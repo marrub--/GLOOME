@@ -1,5 +1,5 @@
 #nowadauthor
 
-#include "zspecial.acs"
-#include "zdefs.acs"
+#include "gspecial.acs"
+#include "gdefs.acs"
 
