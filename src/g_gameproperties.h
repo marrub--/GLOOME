@@ -46,10 +46,10 @@ public:
 		GPROP_SavesEnabled,
 	};
 
-	FGameProperties() :
-		m_DeathRestarts(true),
-		m_SavesEnabled(true)
+	FGameProperties()
 	{
+		m_DeathRestarts = true;
+		m_SavesEnabled = true;
 	}
 
 	~FGameProperties()

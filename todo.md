@@ -11,11 +11,16 @@ add zcommon.acs and friends to the project for the custom definitions
 change weapon sprite offsets via ACS (APROP_?) viewtopic.php?f=34&t=29910
 https://github.com/Kitware/CMake/blob/master/Modules/FindOpenAL.cmake
 https://github.com/tlorach/OpenGLText/blob/master/cmake/FindGLEW.cmake
+rectangular collision boxes (will require a "force" parm for SetActorAngle)
+add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-does-one-jump-to-a-particular-offset-more-than-once )
 ```
 
 second priority stuff
 ===
 ```
+remove the model squish with ogl models
+A_Warp in ACS
+pufftid parm for LineAttack
 frame tics as expression in decorate
 add flags to offset
 - OFF_NEUTRAL = 1 // default offsets to 0,0
@@ -31,5 +36,6 @@ merge ryan's checkweapon changes
 ===
 ```
 lua to either replace decorate/acs or just add it as an extra language
+ttf fonts
 ```
 
