@@ -9,7 +9,6 @@ fix the menus with variadic ticrates
 add if statements to menudefs (for cvars and shit)
 screenspace shaders
 pixelratio in mapinfo/gameinfo
-add zcommon.acs and friends to the project for the custom definitions
 change weapon sprite offsets via ACS (APROP_?) viewtopic.php?f=34&t=29910
 rectangular collision boxes (will require a "force" parm for SetActorAngle)
 add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-does-one-jump-to-a-particular-offset-more-than-once )
@@ -42,5 +41,11 @@ viewtopic.php?f=34&t=46380
 redo vid_renderer to switch opengl versions (between 1.8.10 and 2.x renderers)
 lua to either replace decorate/acs or just add it as an extra language
 ttf fonts
+```
+
+when cybernetic koalas have taken over the earth
+===
+```
+zandronum MP. hell yeah client/server
 ```
 
