@@ -636,7 +636,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	xlat_parser.h
 )
 
-add_executable( zdoom WIN32 MACOSX_BUNDLE
+add_executable( gloome WIN32 MACOSX_BUNDLE
 	${HEADER_FILES}
 	${NOT_COMPILED_SOURCE_FILES}
 	__autostart.cpp
@@ -1002,7 +1002,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
 	set( ZDOOM_LIBS ${ZDOOM_LIBS} nsl socket)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
 
-target_link_libraries( zdoom ${ZDOOM_LIBS} gdtoa dumb lzma )
+target_link_libraries( gloome ${ZDOOM_LIBS} gdtoa dumb lzma )
 include_directories( .
 	g_doom
 	g_heretic
@@ -1020,16 +1020,16 @@ include_directories( .
 	${CMAKE_BINARY_DIR}/gdtoa
 	${SYSTEM_SOURCES_DIR} )
 
-add_dependencies( zdoom revision_check )
+add_dependencies( gloome revision_check )
 
 # Due to some quirks, we need to do this in this order
 if( NOT ZDOOM_OUTPUT_OLDSTYLE OR NO_GENERATOR_EXPRESSIONS )
 	# RUNTIME_OUTPUT_DIRECTORY does not exist in CMake 2.4.
 	# Linux distributions are slow to adopt 2.6. :(
-	set_target_properties( zdoom PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ZDOOM_OUTPUT_DIR} )
-	set_target_properties( zdoom PROPERTIES OUTPUT_NAME ${ZDOOM_EXE_NAME} )
+	set_target_properties( gloome PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ZDOOM_OUTPUT_DIR} )
+	set_target_properties( gloome PROPERTIES OUTPUT_NAME ${ZDOOM_EXE_NAME} )
 else( NOT ZDOOM_OUTPUT_OLDSTYLE OR NO_GENERATOR_EXPRESSIONS )
-	set_target_properties( zdoom PROPERTIES
+	set_target_properties( gloome PROPERTIES
 		RUNTIME_OUTPUT_NAME ${ZDOOM_EXE_NAME}
 		RUNTIME_OUTPUT_DIRECTORY_RELEASE ${ZDOOM_OUTPUT_DIR}
 		RUNTIME_OUTPUT_NAME_DEBUG ${ZDOOM_EXE_NAME}d
@@ -1066,7 +1066,7 @@ endif( NOT ZDOOM_OUTPUT_OLDSTYLE OR NO_GENERATOR_EXPRESSIONS )
 
 if( NOT WIN32 )
 	FILE( WRITE ${CMAKE_CURRENT_BINARY_DIR}/link-make "if [ ! -e ${ZDOOM_OUTPUT_DIR}/${ZDOOM_EXE_NAME} ]; then ln -sf ${CMAKE_CURRENT_BINARY_DIR}/${ZDOOM_EXE_NAME} ${ZDOOM_OUTPUT_DIR}/${ZDOOM_EXE_NAME}; fi" )
-	add_custom_command( TARGET zdoom POST_BUILD
+	add_custom_command( TARGET gloome POST_BUILD
 		COMMAND chmod +x ${CMAKE_CURRENT_BINARY_DIR}/link-make
 		COMMAND /bin/sh -c ${CMAKE_CURRENT_BINARY_DIR}/link-make )
 endif( NOT WIN32 )
@@ -1078,7 +1078,7 @@ if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 endif( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 
 if( APPLE )
-	set_target_properties(zdoom PROPERTIES
+	set_target_properties(gloome PROPERTIES
 		LINK_FLAGS "-framework Carbon -framework Cocoa -framework IOKit -framework OpenGL"
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/posix/osx/zdoom-info.plist" )
 endif( APPLE )

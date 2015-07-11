@@ -19,7 +19,6 @@ second priority stuff
 ask david about adding an internal acs compiler
 orthogonal cameras
 A_Warp in ACS
-pufftid parm for LineAttack
 frame tics as expression in decorate
 add flags to offset
 - OFF_NEUTRAL = 1 // default offsets to 0,0
@@ -39,7 +38,7 @@ viewtopic.php?f=34&t=46380
 ===
 ```
 redo vid_renderer to switch opengl versions (between 1.8.10 and 2.x renderers)
-lua to either replace decorate/acs or just add it as an extra language
+probably angelscript to replace decorate and acs
 ttf fonts
 ```
 
