@@ -154,5 +154,11 @@ JP LeBreton
 marrub
 - Did pretty much everything else.
 
+TheZombieKiller
+- Many contributions, help finding bugs, and pointing out things to add.
+
+fgsfds
+- Being better at math than I am. Implementing tricky renderer features.
+
 TerminusEst13
 - Project director.

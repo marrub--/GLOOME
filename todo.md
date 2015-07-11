@@ -17,6 +17,7 @@ add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-do
 second priority stuff
 ===
 ```
+ask david about adding an internal acs compiler
 orthogonal cameras
 A_Warp in ACS
 pufftid parm for LineAttack

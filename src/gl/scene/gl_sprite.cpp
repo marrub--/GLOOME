@@ -270,11 +270,11 @@ void GLSprite::Draw(int pass)
 			mat.MakeIdentity();
 			mat.Translate(xcenter, zcenter, ycenter);
 			if(drawWithXYBillboard)
-			{ // [fgsfds] Rotate the sprite about a vector perpendicular to the sight vector
+			{ // Rotate the sprite about a vector perpendicular to the sight vector
 				mat.Rotate(-sin(angleRad), 0, cos(angleRad), -GLRenderer->mAngles.Pitch);
 			}
 			if(actor != NULL && (actor->renderflags & RF_ROLLSPRITE))
-			{
+			{ // [fgsfds] Rotate the sprite about the sight vector (roll)
 				mat.Rotate(cos(angleRad), 0, sin(angleRad), 360.0 * (1.0 - ((actor->roll >> 16) / (float)(65536))));
 			}
 
