@@ -123,6 +123,8 @@ if( MSVC )
 	# Perform identical COMDAT folding
 	set( REL_LINKER_FLAGS "/opt:ref /opt:icf /nodefaultlib:msvcrt /TSAWARE" )
 
+	set(ALL_LINKER_FLAGS "/SAFESH:NO")
+
 	# String pooling
 	# Function-level linking
 	# Disable run-time type information
@@ -170,12 +172,14 @@ if( MSVC )
 	string(REPLACE "/MDd " " " CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG} )
 	string(REPLACE " /GR" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
 else( MSVC )
+	set(ALL_LINKER_FLAGS "")
 	set( REL_LINKER_FLAGS "" )
 	set( ALL_C_FLAGS "" )
 	set( REL_C_FLAGS "" )
 	set( DEB_C_FLAGS "" )
 endif( MSVC )
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ALL_LINKER_FLAGS}")
 set( CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} ${REL_LINKER_FLAGS}" )
 set( CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} ${REL_LINKER_FLAGS}" )
 set( CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} ${REL_LINKER_FLAGS}" )
