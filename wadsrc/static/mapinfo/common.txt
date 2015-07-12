@@ -2,7 +2,7 @@ Gameinfo
 {
 	CheatKey = "maparrows/key.txt"
 	EasyKey = "maparrows/ravenkey.txt"
-	pixelstretch = 0.833
+	pixelratio = 1.2
 }
 
 Intermission Inter_Titlescreen

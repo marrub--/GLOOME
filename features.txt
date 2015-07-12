@@ -1,0 +1,30 @@
+commercially viable because of GPL-compatible only code
+inis are much easier to distribute as "defaults" as they don't vary as much by platform (not that I endorse doing this)
+keyconf now handles cheat codes
+has a cooler icon than zdoom
+GAMEINFO now has a ticrate property
+more sane key and cvar defaults ;)
+cl_morphbob to allow player sprites to bob while morphed
+cl_facekiller enables/disables facing the thing that killed you
+cvarinfo now has an "acsonly" flag
+
+thingdef:
+A_GiveScoreToTarget([int score = (actor's Score property)])
+Score actor property as the default of A_GiveScoreToTarget, will probably change this a bit later
+the best sounds and placeholder graphics for any zdoom.pk3 ever distributed by terminusest13
++PLAYER.NOFALLDEATH flag that makes the player view not fall to the ground when they die
+A_PlaySound can now pitch shift
++ROLLSPRITE allows roll to be applied to actors that use sprites
+const expressions added
+
+acs:
+ChangeFlag function
+GetTicrate function
+GetActorFloorTexture/GetActorCeilingTexture functions
+SetPlayerBobMul/GetPlayerBobMul functions
+PickActor's last argument is now a bitflag (PAF_FORCETID / PAF_RETURNTID)
+PlaySound can now pitch shift
+APROP_MaxStepHeight / APROP_MaxDropOffHeight
+GetGameProperty/SetGameProperty allow you to disable/enable saving and disable/enable respawning
+LineAttack has an optional pufftid parameter
+

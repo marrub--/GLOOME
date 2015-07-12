@@ -44,6 +44,7 @@
 #include "doomstat.h"
 #include "d_player.h"
 #include "g_level.h"
+#include "gi.h"
 
 #include "gl/system/gl_interface.h"
 #include "gl/system/gl_cvars.h"
@@ -102,6 +103,7 @@ void FGLRenderer::DrawPSprite (player_t * player,pspdef_t *psp,fixed_t sx, fixed
 
 	// calculate edges of the shape
 	scalex = xratio[WidescreenRatio] * vw / 320;
+	scalex /= gameinfo.pixelstretch;
 
 	tx = sx - ((160 + tex->GetScaledLeftOffset(GLUSE_PATCH))<<FRACBITS);
 	x1 = (FixedMul(tx, scalex)>>FRACBITS) + (vw>>1);
