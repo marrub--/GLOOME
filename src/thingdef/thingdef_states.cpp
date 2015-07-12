@@ -258,8 +258,7 @@ do_stop:
 			}
 			else
 			{
-				sc.MustGetNumber();
-				state.Tics = clamp<int>(sc.Number, -1, SHRT_MAX);
+				state.Tics = clamp<int>(ParseEvalNumeric(sc, bag.Info->Class, VAL_Int).GetInt(), -1, SHRT_MAX);
 				state.TicRange = 0;
 			}
 
@@ -296,11 +295,9 @@ do_stop:
 				{
 					// specify a weapon offset
 					sc.MustGetStringName("(");
-					sc.MustGetNumber();
-					state.Misc1 = sc.Number;
+					state.Misc1 = ParseEvalNumeric(sc, bag.Info->Class, VAL_Int).GetInt();
 					sc.MustGetStringName (",");
-					sc.MustGetNumber();
-					state.Misc2 = sc.Number;
+					state.Misc2 = ParseEvalNumeric(sc, bag.Info->Class, VAL_Int).GetInt();
 					sc.MustGetStringName(")");
 					continue;
 				}

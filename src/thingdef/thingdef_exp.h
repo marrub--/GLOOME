@@ -822,9 +822,14 @@ public:
 	ExpVal EvalExpression (AActor *self);
 };
 
-
-
 FxExpression *ParseExpression (FScanner &sc, PClass *cls);
 
+struct FParseValue
+{
+	const char *Name;
+	int Flag;
+};
+
+ExpVal ParseEvalNumeric(FScanner &sc, PClass *cls, ExpValType type, const FParseValue *flags = NULL);
 
 #endif

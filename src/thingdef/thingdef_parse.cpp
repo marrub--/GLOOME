@@ -475,43 +475,82 @@ void HandleActorFlag(FScanner &sc, Baggage &bag, const char *part1, const char *
 //
 //==========================================================================
 
-struct FParseValue
+ExpVal ParseEvalNumeric(FScanner &sc, PClass *cls, ExpValType type, const FParseValue *flags)
 {
-	const char *Name;
-	int Flag;
-};
+	assert(flags ? type == VAL_Int : type == VAL_Int || type == VAL_Float);
+	// The (FParseValue *flags) parameter exists solely for compatiblity with older decorate syntax
 
-int ParseFlagExpressionString(FScanner &sc, const FParseValue *vals)
-{
-	// May be given flags by number...
-	if (sc.CheckNumber())
+	ExpVal r;
+
+	if(type == VAL_Int && sc.CheckNumber())
 	{
-		sc.MustGetNumber();
-		return sc.Number;
+		r.Int = sc.Number;
+		r.Type = VAL_Int;
+		return r;
+	}
+	else if(sc.CheckFloat())
+	{
+		r.Float = sc.Float;
+		r.Type = VAL_Float;
+		return r;
 	}
 
-	// ... else should be flags by name.
-	// NOTE: Later this should be removed and a normal expression used.
-	// The current DECORATE parser can't handle this though.
-	bool gotparen = sc.CheckString("(");
-	int style = 0;
-	do
+	// No simple literal was found.
+	// We must look for an expression.
+	if(sc.CheckToken(TK_Const))
 	{
-		sc.MustGetString();
-		style |= vals[sc.MustMatchString(&vals->Name, sizeof (*vals))].Flag;
+		sc.MustGetToken('(');
+
+		FCompileContext ctx(cls);
+		FxExpression *x = ParseExpression(sc, cls)->Resolve(ctx);
+
+		{
+			bool xIsConstant = x->isConstant();
+			if(xIsConstant) r = x->EvalExpression(NULL);
+			delete x;
+			if(!xIsConstant)
+			{
+				sc.ScriptError("const(expression): Expression must be constant.");
+			}
+		}
+
+		switch(r.Type)
+		{
+		case VAL_Float: if(type == VAL_Int) r.Int = r.GetInt(); break;
+		case VAL_Int:   if(type == VAL_Float) r.Float = r.GetFloat(); break;
+		default:        sc.ScriptError("const(expression): Expected a number."); break;
+		}
+
+		sc.MustGetToken(')');
 	}
-	while (sc.CheckString("|"));
-	if (gotparen)
+	else if(flags)
 	{
-		sc.MustGetStringName(")");
+		bool gotparen = sc.CheckString("(");
+		r.Int = 0;
+
+		do
+		{
+			sc.MustGetString();
+			r.Int |= flags[sc.MustMatchString(&flags->Name, sizeof (*flags))].Flag;
+		} while(sc.CheckString("|"));
+
+		if(gotparen)
+		{
+			sc.MustGetStringName(")");
+		}
+	}
+	else
+	{
+		sc.ScriptError("Expected numeric literal or const(expression), not '%s'", sc.String);
 	}
 
-	return style;
+	r.Type = type;
+	return r;
 }
 
 
 
-static int ParseMorphStyle (FScanner &sc)
+static int ParseMorphStyle (FScanner &sc, PClass *cls)
 {
  	static const FParseValue morphstyles[]={
 		{ "MRF_ADDSTAMINA",			MORPH_ADDSTAMINA},
@@ -529,10 +568,10 @@ static int ParseMorphStyle (FScanner &sc)
 		{ NULL, 0 }
 	};
 
-	return ParseFlagExpressionString(sc, morphstyles);
+	return ParseEvalNumeric(sc, cls, VAL_Int, morphstyles).GetInt();
 }
 
-static int ParseThingActivation (FScanner &sc)
+static int ParseThingActivation (FScanner &sc, PClass *cls)
 {
  	static const FParseValue activationstyles[]={
 
@@ -551,7 +590,7 @@ static int ParseThingActivation (FScanner &sc)
 		{ NULL, 0 }
 	};
 
-	return ParseFlagExpressionString(sc, activationstyles);
+	return ParseEvalNumeric(sc, cls, VAL_Int, activationstyles).GetInt();
 }
 
 //==========================================================================
@@ -658,13 +697,11 @@ static bool ParsePropertyParams(FScanner &sc, FPropertyInfo *prop, AActor *defau
 				// fall through
 
 			case 'I':
-				sc.MustGetNumber();
-				conv.i = sc.Number;
+				conv.i = ParseEvalNumeric(sc, bag.Info->Class, VAL_Int).GetInt();
 				break;
 
 			case 'F':
-				sc.MustGetFloat();
-				conv.f = float(sc.Float);
+				conv.f = float(ParseEvalNumeric(sc, bag.Info->Class, VAL_Float).GetFloat());
 				break;
 
 			case 'Z':	// an optional string. Does not allow any numerical value.
@@ -709,11 +746,11 @@ static bool ParsePropertyParams(FScanner &sc, FPropertyInfo *prop, AActor *defau
 				break;
 
 			case 'M':	// special case. An expression-aware parser will not need this.
-				conv.i = ParseMorphStyle(sc);
+				conv.i = ParseMorphStyle(sc, bag.Info->Class);
 				break;
 				
 			case 'N':	// special case. An expression-aware parser will not need this.
-				conv.i = ParseThingActivation(sc);
+				conv.i = ParseThingActivation(sc, bag.Info->Class);
 				break;
 
 			case 'L':	// Either a number or a list of strings
