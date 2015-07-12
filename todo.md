@@ -30,7 +30,6 @@ make modeldef support more than 4 pieces per actor
 merge ryan's checkweapon changes
 probably merge these:
 viewtopic.php?f=34&t=31497
-viewtopic.php?f=34&t=31516
 viewtopic.php?f=34&t=46380
 ```
 
