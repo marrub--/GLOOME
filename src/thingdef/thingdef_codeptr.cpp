@@ -2693,7 +2693,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_CheckSightOrRange)
 		if (playeringame[i])
 		{
 			// Always check from each player.
-			if (DoCheckSightOrRange(self, players[i].mo, range), twodi)
+			if (DoCheckSightOrRange(self, players[i].mo, range, twodi))
 			{
 				return;
 			}
