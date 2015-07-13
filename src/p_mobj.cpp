@@ -4943,7 +4943,6 @@ AActor *P_SpawnPuff (AActor *source, const PClass *pufftype, fixed_t x, fixed_t 
 	if (puff == NULL) return NULL;
 	if(pufftid != 0)
 	{
-		puff->RemoveFromHash();
 		puff->tid = pufftid;
 		puff->AddToHash();
 	}
