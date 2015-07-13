@@ -5715,6 +5715,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Remove)
 // Takes a name of the classes for te source and destination. 
 // Can set both at the same time. Use "" to retain the previous fog without
 // changing it.
+//
 //===========================================================================
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetTeleFog)
@@ -5746,6 +5747,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetTeleFog)
 // A_SwapTeleFog
 //
 // Switches the source and dest telefogs around. 
+//
 //===========================================================================
 
 DEFINE_ACTION_FUNCTION(AActor, A_SwapTeleFog)
@@ -5755,5 +5757,65 @@ DEFINE_ACTION_FUNCTION(AActor, A_SwapTeleFog)
 		const PClass *temp = self->TeleFogSourceType;
 		self->TeleFogSourceType = self->TeleFogDestType;
 		self->TeleFogDestType = temp;
+	}
+}
+
+//===========================================================================
+//
+// A_SetFloatBobPhase
+//
+// Changes the FloatBobPhase of the actor.
+//
+//===========================================================================
+
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetFloatBobPhase)
+{
+	ACTION_PARAM_START(1);
+	ACTION_PARAM_INT(bob, 0);
+
+	//Respect float bob phase limits.
+	if((self != NULL) && (bob >= 0 && bob <= 63))
+	{
+		self->FloatBobPhase = bob;
+	}
+}
+
+//===========================================================================
+//
+// A_SetHealth
+//
+// Changes the health of the actor.
+// Takes a pointer as well.
+//
+//===========================================================================
+
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetHealth)
+{
+	ACTION_PARAM_START(2);
+	ACTION_PARAM_INT(health, 0);
+	ACTION_PARAM_INT(ptr, 1);
+
+	AActor *mobj = COPY_AAPTR(self, ptr);
+
+	if(mobj == NULL)
+	{
+		ACTION_SET_RESULT(false);
+		return;
+	}
+
+	player_t *player = mobj->player;
+	if (player)
+	{
+		if (health <= 0)
+			player->mo->health = mobj->health = player->health = 1; //Copied from the buddha cheat.
+		else
+			player->mo->health = mobj->health = player->health = health;
+	}
+	else if (mobj)
+	{
+		if (health <= 0)
+			mobj->health = 1;
+		else
+			mobj->health = health;
 	}
 }

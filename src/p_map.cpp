@@ -3680,6 +3680,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 			puff = P_SpawnPuff(t1, pufftype, trace.X, trace.Y, trace.Z, angle - ANG180, 2, puffFlags);
 			if(pufftid != 0 && puff != NULL)
 			{
+				puff->RemoveFromHash();
 				puff->tid = pufftid;
 				puff->AddToHash();
 			}
@@ -3704,6 +3705,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 					shootz + FixedMul(vz, closer), angle - ANG90, 0, puffFlags);
 				if(pufftid != 0 && puff != NULL)
 				{
+					puff->RemoveFromHash();
 					puff->tid = pufftid;
 					puff->AddToHash();
 				}
@@ -3779,6 +3781,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING);
 				if(pufftid != 0 && puff != NULL)
 				{
+					puff->RemoveFromHash();
 					puff->tid = pufftid;
 					puff->AddToHash();
 				}
@@ -3817,6 +3820,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 					puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY);
 					if(pufftid != 0 && puff != NULL)
 					{
+						puff->RemoveFromHash();
 						puff->tid = pufftid;
 						puff->AddToHash();
 					}
@@ -3872,6 +3876,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY);
 				if(pufftid != 0 && puff != NULL)
 				{
+					puff->RemoveFromHash();
 					puff->tid = pufftid;
 					puff->AddToHash();
 				}
