@@ -123,7 +123,7 @@ if( MSVC )
 	# Perform identical COMDAT folding
 	set( REL_LINKER_FLAGS "/opt:ref /opt:icf /nodefaultlib:msvcrt /TSAWARE" )
 
-	set(ALL_LINKER_FLAGS "/SAFESH:NO")
+	set(ALL_LINKER_FLAGS "/SAFESEH:NO")
 
 	# String pooling
 	# Function-level linking
