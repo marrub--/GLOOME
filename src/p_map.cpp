@@ -3677,7 +3677,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 		}
 		if (puffDefaults != NULL && puffDefaults->flags3 & MF3_ALWAYSPUFF)
 		{ // Spawn the puff anyway
-			puff = P_SpawnPuff(t1, pufftype, trace.X, trace.Y, trace.Z, angle - ANG180, 2, puffFlags);
+			puff = P_SpawnPuff(t1, pufftype, trace.X, trace.Y, trace.Z, angle - ANG180, 2, puffFlags, pufftid);
 		}
 		else
 		{
@@ -3696,7 +3696,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 				fixed_t closer = trace.Distance - 4 * FRACUNIT;
 				puff = P_SpawnPuff(t1, pufftype, t1->x + FixedMul(vx, closer),
 					t1->y + FixedMul(vy, closer),
-					shootz + FixedMul(vz, closer), angle - ANG90, 0, puffFlags);
+					shootz + FixedMul(vz, closer), angle - ANG90, 0, puffFlags, pufftid);
 			}
 
 			// [RH] Spawn a decal
@@ -3766,7 +3766,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 					puffFlags |= PF_HITTHINGBLEED;
 
 				// We must pass the unreplaced puff type here 
-				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING);
+				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING, pufftid);
 			}
 
 			if (puffDefaults != NULL && trace.Actor != NULL && puff != NULL)
@@ -3799,7 +3799,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 				{
 					// Since the puff is the damage inflictor we need it here 
 					// regardless of whether it is displayed or not.
-					puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY);
+					puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY, pufftid);
 					killPuff = true;
 				}
 				newdam = P_DamageMobj(trace.Actor, puff ? puff : t1, t1, damage, damageType, dmgflags);
@@ -3849,7 +3849,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 
 			if (puff == NULL)
 			{ // Spawn puff just to get a mass for the splash
-				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY);
+				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY, pufftid);
 				killPuff = true;
 			}
 			SpawnDeepSplash(t1, trace, puff, vx, vy, vz, shootz, trace.Crossed3DWater != NULL);
