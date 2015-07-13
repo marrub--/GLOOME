@@ -3678,7 +3678,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 		if (puffDefaults != NULL && puffDefaults->flags3 & MF3_ALWAYSPUFF)
 		{ // Spawn the puff anyway
 			puff = P_SpawnPuff(t1, pufftype, trace.X, trace.Y, trace.Z, angle - ANG180, 2, puffFlags);
-			if(pufftid != 0) puff->tid = pufftid;
+			if(pufftid != 0 && puff != NULL) puff->tid = pufftid;
 		}
 		else
 		{
@@ -3698,7 +3698,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 				puff = P_SpawnPuff(t1, pufftype, t1->x + FixedMul(vx, closer),
 					t1->y + FixedMul(vy, closer),
 					shootz + FixedMul(vz, closer), angle - ANG90, 0, puffFlags);
-				if(pufftid != 0) puff->tid = pufftid;
+				if(pufftid != 0 && puff != NULL) puff->tid = pufftid;
 			}
 
 			// [RH] Spawn a decal
@@ -3769,7 +3769,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 
 				// We must pass the unreplaced puff type here 
 				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING);
-				if(pufftid != 0) puff->tid = pufftid;
+				if(pufftid != 0 && puff != NULL) puff->tid = pufftid;
 			}
 
 			if (puffDefaults != NULL && trace.Actor != NULL && puff != NULL)
@@ -3803,7 +3803,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 					// Since the puff is the damage inflictor we need it here 
 					// regardless of whether it is displayed or not.
 					puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY);
-					if(pufftid != 0) puff->tid = pufftid;
+					if(pufftid != 0 && puff != NULL) puff->tid = pufftid;
 					killPuff = true;
 				}
 				newdam = P_DamageMobj(trace.Actor, puff ? puff : t1, t1, damage, damageType, dmgflags);
@@ -3854,7 +3854,7 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 			if (puff == NULL)
 			{ // Spawn puff just to get a mass for the splash
 				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING | PF_TEMPORARY);
-				if(pufftid != 0) puff->tid = pufftid;
+				if(pufftid != 0 && puff != NULL) puff->tid = pufftid;
 				killPuff = true;
 			}
 			SpawnDeepSplash(t1, trace, puff, vx, vy, vz, shootz, trace.Crossed3DWater != NULL);
