@@ -223,6 +223,7 @@ PalEntry averageColor(const DWORD *data, int size, fixed_t maxout_factor)
 
 FTexture::MiscGLInfo::MiscGLInfo() throw()
 {
+	bGlowSubtract = false;
 	bGlowing = false;
 	GlowColor = 0;
 	GlowHeight = 128;
@@ -230,6 +231,7 @@ FTexture::MiscGLInfo::MiscGLInfo() throw()
 	FloorSkyColor = 0;
 	CeilingSkyColor = 0;
 	bFullbright = false;
+	bFullblack = false;
 	bSkyColorDone = false;
 	bBrightmapChecked = false;
 	bBrightmap = false;

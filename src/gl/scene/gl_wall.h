@@ -123,6 +123,7 @@ public:
 	BYTE flags;
 	short rellight;
 
+	bool glowsubtracttop, glowsubtractbottom;
 	float topglowcolor[4];
 	float bottomglowcolor[4];
 

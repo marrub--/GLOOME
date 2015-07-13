@@ -11,13 +11,20 @@ screenspace shaders
 change weapon sprite offsets via ACS (APROP_?) viewtopic.php?f=34&t=29910
 rectangular collision boxes (will require a "force" parm for SetActorAngle)
 add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-does-one-jump-to-a-particular-offset-more-than-once )
+scaling on hudmessages
 ```
 
 second priority stuff
 ===
 ```
+model transparency. might look odd in some cases but that's the fault of the person who made the model
 ask david about adding an internal acs compiler
 orthogonal cameras
+voxel/model lighting maybe
+prebaked lights? maybe using strive VE's lightmap system? mite b cool
+hitbox maps?
+dynamically overlayable sprites. hell yeah.
+more psprite layers
 A_Warp in ACS
 frame tics as expression in decorate
 add flags to offset

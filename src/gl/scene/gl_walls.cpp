@@ -71,6 +71,7 @@
 void GLWall::CheckGlowing()
 {
 	bottomglowcolor[3] = topglowcolor[3] = 0;
+	glowsubtracttop = glowsubtractbottom = false;
 	if (!gl_isFullbright(Colormap.LightColor, lightlevel) && gl_GlowActive())
 	{
 		FTexture *tex = TexMan[topflat];
@@ -79,6 +80,7 @@ void GLWall::CheckGlowing()
 			flags |= GLWall::GLWF_GLOW;
 			tex->GetGlowColor(topglowcolor);
 			topglowcolor[3] = tex->gl_info.GlowHeight;
+			glowsubtracttop = tex->gl_info.bGlowSubtract;
 		}
 
 		tex = TexMan[bottomflat];
@@ -87,6 +89,7 @@ void GLWall::CheckGlowing()
 			flags |= GLWall::GLWF_GLOW;
 			tex->GetGlowColor(bottomglowcolor);
 			bottomglowcolor[3] = tex->gl_info.GlowHeight;
+			glowsubtractbottom = tex->gl_info.bGlowSubtract;
 		}
 	}
 }

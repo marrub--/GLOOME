@@ -235,6 +235,7 @@ void GLWall::RenderWall(int textured, float * color2, ADynamicLight * light)
 		{
 			gl_RenderState.SetGlowPlanes(topplane, bottomplane);
 			gl_RenderState.SetGlowParams(topglowcolor, bottomglowcolor);
+			gl_RenderState.SetGlowSub(glowsubtracttop, glowsubtractbottom);
 		}
 
 	}

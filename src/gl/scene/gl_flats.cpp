@@ -514,6 +514,11 @@ void GLFlat::Process(sector_t * model, int whichplane, bool fog)
 			Colormap.LightColor.r = Colormap.LightColor.g = Colormap.LightColor.b = 0xff;
 			lightlevel=255;
 		}
+		if(gltexture->tex->isFullblack())
+		{
+			Colormap.LightColor.r = Colormap.LightColor.g = Colormap.LightColor.b = 0x00;
+			lightlevel=0;
+		}
 	}
 	else 
 	{

@@ -1059,6 +1059,11 @@ void FDrawInfo::DrawFloodedPlane(wallseg * ws, float planez, sector_t * sec, boo
 			Colormap.LightColor.r = Colormap.LightColor.g = Colormap.LightColor.b = 0xff;
 			lightlevel=255;
 		}
+		else if(gltexture->tex->isFullblack())
+		{
+			Colormap.LightColor.r = Colormap.LightColor.g = Colormap.LightColor.b = 0x00;
+			lightlevel=0;
+		}
 		else lightlevel=abs(ceiling? sec->GetCeilingLight() : sec->GetFloorLight());
 	}
 

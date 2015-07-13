@@ -235,6 +235,8 @@ bool FRenderState::ApplyShader()
 		}
 		if (mGlowEnabled)
 		{
+			glUniform1iv(activeShader->glowsubtracttop_index, 1, &mGlowSubtractTop);
+			glUniform1iv(activeShader->glowsubtractbottom_index, 1, &mGlowSubtractBottom);
 			glUniform4fv(activeShader->glowtopcolor_index, 1, mGlowTop.vec);
 			glUniform4fv(activeShader->glowbottomcolor_index, 1, mGlowBottom.vec);
 			glUniform4fv(activeShader->glowtopplane_index, 1, mGlowTopPlane.vec);

@@ -924,7 +924,7 @@ int GLMirrorPortal::ClipPoint(fixed_t x, fixed_t y)
 // are 2 problems with it:
 //
 // 1. Setting this up completely negates any performance gains.
-// 2. It doesn't work with a 360° field of view (as when you are looking up.)
+// 2. It doesn't work with a 360deg field of view (as when you are looking up.)
 //
 //
 // So the brute force mechanism is just as good.
@@ -964,6 +964,12 @@ void GLHorizonPortal::DrawContents()
 		// glowing textures are always drawn full bright without color
 		gl_SetColor(255, 0, NULL, 1.f);
 		gl_SetFog(255, 0, &origin->colormap, false);
+	}
+	else if(gltexture && gltexture->tex->isFullblack())
+	{
+		// [marrub] subtractive glowing textures are always drawn full black without color
+		gl_SetColor(0, 0, NULL, 1.f);
+		gl_SetFog(0, 0, &origin->colormap, false);
 	}
 	else 
 	{

@@ -30,6 +30,8 @@ varying vec4 fogparm;
 //uniform vec2 lightparms;
 uniform float desaturation_factor;
 
+uniform bool glowsubtracttop;
+uniform bool glowsubtractbottom;
 uniform vec4 topglowcolor;
 uniform vec4 bottomglowcolor;
 varying vec2 glowdist;
@@ -119,13 +121,29 @@ vec4 getLightColor(float fogdist, float fogfactor)
 	//
 	// handle glowing walls
 	//
+
+	// [marrub] also handle subtractive ones (request by kodi)
 	if (topglowcolor.a > 0.0 && glowdist.x < topglowcolor.a)
 	{
-		color.rgb += desaturate(topglowcolor * (1.0 - glowdist.x / topglowcolor.a)).rgb;
+		if(glowsubtracttop)
+		{
+			color.rgb -= desaturate(topglowcolor * (1.0 - glowdist.x / topglowcolor.a)).rgb;
+		}
+		else
+		{
+			color.rgb += desaturate(topglowcolor * (1.0 - glowdist.x / topglowcolor.a)).rgb;
+		}
 	}
 	if (bottomglowcolor.a > 0.0 && glowdist.y < bottomglowcolor.a)
 	{
-		color.rgb += desaturate(bottomglowcolor * (1.0 - glowdist.y / bottomglowcolor.a)).rgb;
+		if(glowsubtractbottom)
+		{
+			color.rgb -= desaturate(bottomglowcolor * (1.0 - glowdist.y / bottomglowcolor.a)).rgb;
+		}
+		else
+		{
+			color.rgb += desaturate(bottomglowcolor * (1.0 - glowdist.y / bottomglowcolor.a)).rgb;
+		}
 	}
 	color = min(color, 1.0);
 	#endif

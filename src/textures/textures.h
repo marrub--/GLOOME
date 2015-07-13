@@ -342,8 +342,10 @@ public:
 		int shaderindex;
 		float shaderspeed;
 		int mIsTransparent:2;
+		bool bGlowSubtract:1; // [marrub] texture glows subtractively
 		bool bGlowing:1;						// Texture glows
 		bool bFullbright:1;						// always draw fullbright
+		bool bFullblack:1; // [marrub] always draw fully black
 		bool bSkybox:1;							// This is a skybox
 		bool bSkyColorDone:1;					// Fill color for sky
 		char bBrightmapChecked:1;				// Set to 1 if brightmap has been checked
@@ -363,7 +365,9 @@ public:
 	void GetGlowColor(float *data);
 	PalEntry GetSkyCapColor(bool bottom);
 	bool isGlowing() { return gl_info.bGlowing; }
+	bool isSubGlowing() { return gl_info.bGlowSubtract; }
 	bool isFullbright() { return gl_info.bFullbright; }
+	bool isFullblack() { return gl_info.bFullblack; }
 	void CreateDefaultBrightmap();
 	bool FindHoles(const unsigned char * buffer, int w, int h);
 	static bool SmoothEdges(unsigned char * buffer,int w, int h);

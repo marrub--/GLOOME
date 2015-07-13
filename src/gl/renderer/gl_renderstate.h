@@ -105,6 +105,7 @@ class FRenderState
 	bool m2D;
 
 	FStateVec3 mCameraPos;
+	int mGlowSubtractTop, mGlowSubtractBottom;
 	FStateVec4 mGlowTop, mGlowBottom;
 	FStateVec4 mGlowTopPlane, mGlowBottomPlane;
 	PalEntry mFogColor;
@@ -184,6 +185,12 @@ public:
 	{
 		mGlowTop.Set(t[0], t[1], t[2], t[3]);
 		mGlowBottom.Set(b[0], b[1], b[2], b[3]);
+	}
+
+	void SetGlowSub(bool t, bool b)
+	{
+		mGlowSubtractTop = t;
+		mGlowSubtractBottom = b;
 	}
 
 	void SetGlowPlanes(const secplane_t &top, const secplane_t &bottom)

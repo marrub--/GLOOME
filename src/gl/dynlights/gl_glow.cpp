@@ -65,7 +65,12 @@ void gl_InitGlow(FScanner &sc)
 				sc.MustGetString();
 				FTextureID flump=TexMan.CheckForTexture(sc.String, FTexture::TEX_Flat,FTextureManager::TEXMAN_TryAny);
 				FTexture *tex = TexMan[flump];
-				if (tex) tex->gl_info.bGlowing = tex->gl_info.bFullbright = true;
+
+				if(tex)
+				{
+					tex->gl_info.bGlowing = true;
+					tex->gl_info.bFullbright = true;
+				}
 			}
 		}
 		else if (sc.Compare("WALLS"))
@@ -76,7 +81,48 @@ void gl_InitGlow(FScanner &sc)
 				sc.MustGetString();
 				FTextureID flump=TexMan.CheckForTexture(sc.String, FTexture::TEX_Wall,FTextureManager::TEXMAN_TryAny);
 				FTexture *tex = TexMan[flump];
-				if (tex) tex->gl_info.bGlowing = tex->gl_info.bFullbright = true;
+
+				if(tex)
+				{
+					tex->gl_info.bGlowing = true;
+					tex->gl_info.bFullbright = true;
+				}
+			}
+		}
+		else if(sc.Compare("SUBFLATS"))
+		{
+			sc.MustGetStringName("{");
+			while (!sc.CheckString("}"))
+			{
+				sc.MustGetString();
+				FTextureID flump=TexMan.CheckForTexture(sc.String, FTexture::TEX_Wall,FTextureManager::TEXMAN_TryAny);
+				FTexture *tex = TexMan[flump];
+
+				if(tex)
+				{
+					tex->gl_info.bGlowing = true;
+					tex->gl_info.bFullbright = false;
+					tex->gl_info.bFullblack = true;
+					tex->gl_info.bGlowSubtract = true;
+				}
+			}
+		}
+		else if (sc.Compare("SUBWALLS"))
+		{
+			sc.MustGetStringName("{");
+			while (!sc.CheckString("}"))
+			{
+				sc.MustGetString();
+				FTextureID flump=TexMan.CheckForTexture(sc.String, FTexture::TEX_Wall,FTextureManager::TEXMAN_TryAny);
+				FTexture *tex = TexMan[flump];
+
+				if(tex)
+				{
+					tex->gl_info.bGlowing = true;
+					tex->gl_info.bFullbright = false;
+					tex->gl_info.bFullblack = true;
+					tex->gl_info.bGlowSubtract = true;
+				}
 			}
 		}
 		else if (sc.Compare("TEXTURE"))
@@ -98,14 +144,52 @@ void gl_InitGlow(FScanner &sc)
 					if (!sc.CheckString(",")) goto skip_fb;
 				}
 
-				sc.MustGetStringName("fullbright");
-				if (tex) tex->gl_info.bFullbright = true;
+				if(sc.CheckString("fullbright") && tex)
+				{
+					tex->gl_info.bFullbright = true;
+				}
+				else if(sc.CheckString("fullblack") && tex)
+				{
+					tex->gl_info.bFullblack = true;
+				}
 			}
 		skip_fb:
 			sc.SetCMode(false);
 
 			if (tex && color != 0)
 			{
+				tex->gl_info.bGlowing = true;
+				tex->gl_info.GlowColor = color;
+			}
+		}
+		else if (sc.Compare("SUBTEXTURE"))
+		{
+			sc.SetCMode(true);
+			sc.MustGetString();
+			FTextureID flump=TexMan.CheckForTexture(sc.String, FTexture::TEX_Flat,FTextureManager::TEXMAN_TryAny);
+			FTexture *tex = TexMan[flump];
+			sc.MustGetStringName(",");
+			sc.MustGetString();
+			PalEntry color = V_GetColor(NULL, sc.String);
+			//sc.MustGetStringName(",");
+			//sc.MustGetNumber();
+			if (sc.CheckString(","))
+			{
+				if (sc.CheckNumber())
+				{
+					if (tex) tex->gl_info.GlowHeight = sc.Number;
+					if (!sc.CheckString(",")) goto sub_skip_fb;
+				}
+
+				sc.MustGetStringName("fullbright");
+				if (tex) tex->gl_info.bFullbright = true;
+			}
+		sub_skip_fb:
+			sc.SetCMode(false);
+
+			if (tex && color != 0)
+			{
+				tex->gl_info.bGlowSubtract = true;
 				tex->gl_info.bGlowing = true;
 				tex->gl_info.GlowColor = color;
 			}
