@@ -374,6 +374,7 @@ special
 	-11198:GetPlayerBobMul(1),   // void GetPlayerBobMul(bool movebob)
 	-11199:SetGameProperty(2),   // bool SetGameProperty(int set, int value)
 	-11200:GetGameProperty(1),   // bool GetGameProperty(int get)
+	-11201:Warp(6,9),            // bool Warp(int tid_dest, fixed xofs, fixed yofs, fixed zofs, angle angle, int flags[, int ptr_dest, str success_state, bool exact])
 
 	// ZDaemon's
 	-19620:GetTeamScore(1),
