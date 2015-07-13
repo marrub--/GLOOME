@@ -157,7 +157,9 @@ enum
 	WARPF_TOFLOOR = 0x100,
 	WARPF_TESTONLY = 0x200,
 	WARPF_ABSOLUTEPOSITION = 0x400,
-	WARPF_USEPTR = 0x800,
+	WARPF_BOB				= 0x800,
+	WARPF_MOVEPTR = 0x1000,
+	WARPF_USEPTR = 0x2000,
 };
 
 struct CallReturn
@@ -6213,15 +6215,27 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			else
 				reference = SingleActorFromTID(tid_dest, activator);
 
+			//If there is no actor to warp to, fail.
 			if (!reference)
 				return false;
 
-			fixed_t oldx = activator->x;
-			fixed_t oldy = activator->y;
-			fixed_t oldz = activator->z;
+			AActor *caller = activator;
+
+			if (flags & WARPF_MOVEPTR)
+			{
+				AActor *temp = reference;
+				reference = caller;
+				caller = temp;
+			}
+
+			fixed_t	oldx = caller->x;
+			fixed_t	oldy = caller->y;
+			fixed_t	oldz = caller->z;
 
 			if (!(flags & WARPF_ABSOLUTEANGLE))
-				angle += (flags & WARPF_USECALLERANGLE) ? activator->angle : reference->angle;
+			{
+				angle += (flags & WARPF_USECALLERANGLE) ? caller->angle : reference->angle;
+			}
 			if (!(flags & WARPF_ABSOLUTEPOSITION))
 			{
 				if (!(flags & WARPF_ABSOLUTEOFFSET))
@@ -6241,7 +6255,7 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 				{
 					// set correct xy
 
-					activator->SetOrigin(
+					caller->SetOrigin(
 						reference->x + xofs,
 						reference->y + yofs,
 						reference->z);
@@ -6252,22 +6266,22 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 					if (zofs)
 					{
 						// extra unlink, link and environment calculation
-						activator->SetOrigin(
-							activator->x,
-							activator->y,
-							activator->floorz + zofs);
+						caller->SetOrigin(
+							caller->x,
+							caller->y,
+							caller->floorz + zofs);
 					}
 					else
 					{
 						// if there is no offset, there should be no ill effect from moving down to the already defined floor
 
 						// A_Teleport does the same thing anyway
-						activator->z = activator->floorz;
+						caller->z = caller->floorz;
 					}
 				}
 				else
 				{
-					activator->SetOrigin(
+					caller->SetOrigin(
 						reference->x + xofs,
 						reference->y + yofs,
 						reference->z + zofs);
@@ -6277,61 +6291,61 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			{
 				if (flags & WARPF_TOFLOOR)
 				{
-					activator->SetOrigin(xofs, yofs, activator->floorz + zofs);
+					caller->SetOrigin(xofs, yofs, caller->floorz + zofs);
 				}
 				else
 				{
-					activator->SetOrigin(xofs, yofs, zofs);
+					caller->SetOrigin(xofs, yofs, zofs);
 				}
 			}
 
-			if ((flags & WARPF_NOCHECKPOSITION) || P_TestMobjLocation(activator))
+			if ((flags & WARPF_NOCHECKPOSITION) || P_TestMobjLocation(caller))
 			{
 				if (flags & WARPF_TESTONLY)
 				{
-					activator->SetOrigin(oldx, oldy, oldz);
+					caller->SetOrigin(oldx, oldy, oldz);
 				}
 				else
 				{
-					activator->angle = angle;
+					caller->angle = angle;
 
 					if (flags & WARPF_STOP)
 					{
-						activator->velx = 0;
-						activator->vely = 0;
-						activator->velz = 0;
+						caller->velx = 0;
+						caller->vely = 0;
+						caller->velz = 0;
 					}
 
 					if (flags & WARPF_WARPINTERPOLATION)
 					{
-						activator->PrevX += activator->x - oldx;
-						activator->PrevY += activator->y - oldy;
-						activator->PrevZ += activator->z - oldz;
+						caller->PrevX += caller->x - oldx;
+						caller->PrevY += caller->y - oldy;
+						caller->PrevZ += caller->z - oldz;
 					}
 					else if (flags & WARPF_COPYINTERPOLATION)
 					{
-						activator->PrevX = activator->x + reference->PrevX - reference->x;
-						activator->PrevY = activator->y + reference->PrevY - reference->y;
-						activator->PrevZ = activator->z + reference->PrevZ - reference->z;
+						caller->PrevX = caller->x + reference->PrevX - reference->x;
+						caller->PrevY = caller->y + reference->PrevY - reference->y;
+						caller->PrevZ = caller->z + reference->PrevZ - reference->z;
 					}
 					else if (flags & WARPF_INTERPOLATE)
 					{
-						activator->PrevX = activator->x;
-						activator->PrevY = activator->y;
-						activator->PrevZ = activator->z;
+						caller->PrevX = caller->x;
+						caller->PrevY = caller->y;
+						caller->PrevZ = caller->z;
 					}
 				}
 
 				if (state)
 				{
-					activator->SetState(state);
+					caller->SetState(state);
 				}
 
 				return true;
 			}
 			else
 			{
-				activator->SetOrigin(oldx, oldy, oldz);
+				caller->SetOrigin(oldx, oldy, oldz);
 				return false;
 			}
 		}
