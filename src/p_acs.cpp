@@ -140,6 +140,26 @@ enum
 	PAF_RETURNTID
 };
 
+// [ZK] Warp
+enum
+{
+	WARPF_ABSOLUTEOFFSET = 0x1,
+	WARPF_ABSOLUTEANGLE = 0x2,
+	WARPF_USECALLERANGLE = 0x4,
+
+	WARPF_NOCHECKPOSITION = 0x8,
+
+	WARPF_INTERPOLATE = 0x10,
+	WARPF_WARPINTERPOLATION = 0x20,
+	WARPF_COPYINTERPOLATION = 0x40,
+
+	WARPF_STOP = 0x80,
+	WARPF_TOFLOOR = 0x100,
+	WARPF_TESTONLY = 0x200,
+	WARPF_ABSOLUTEPOSITION = 0x400,
+	WARPF_USEPTR = 0x800,
+};
+
 struct CallReturn
 {
 	CallReturn(int pc, ScriptFunction *func, FBehavior *module, SDWORD *locals, ACSLocalArrays *arrays, bool discard, unsigned int runaway)
@@ -4530,6 +4550,7 @@ enum EACSFunctions
 	ACSF_GetPlayerBobMul,
 	ACSF_SetGameProperty,
 	ACSF_GetGameProperty, // 11200
+	ACSF_Warp,
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -6169,6 +6190,151 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 
 		case ACSF_GetGameProperty:
 			return DoGetGameProperty(activator, args[0]);
+
+		// [ZK] A_Warp in ACS
+		// bool Warp(int tid_dest, fixed xofs, fixed yofs, fixed zofs, angle angle, int flags[, int ptr_dest, str success_state, bool exact])
+		case ACSF_Warp:
+		{
+			int tid_dest = args[1];
+			fixed_t xofs = (argCount > 1) ? args[2] : 0;
+			fixed_t yofs = (argCount > 2) ? args[3] : 0;
+			fixed_t zofs = (argCount > 3) ? args[4] : 0;
+			angle_t angle = (argCount > 4) ? args[5] : 0;
+			int flags = (argCount > 5) ? args[6] : 0;
+			int ptr_dest = (argCount > 6) ? args[7] : 0;
+			const char *statename = (argCount > 7) ? FBehavior::StaticLookupString(args[8]) : "";
+			bool exact = (argCount > 8) ? args[9] : false;
+
+			FState *state = (argCount > 7) ? activator->GetClass()->ActorInfo->FindStateByString(statename, exact) : 0;
+
+			AActor *reference;
+			if ((flags & WARPF_USEPTR) && ptr_dest != AAPTR_DEFAULT)
+				reference = COPY_AAPTR(activator, ptr_dest);
+			else
+				reference = SingleActorFromTID(tid_dest, activator);
+
+			if (!reference)
+				return false;
+
+			fixed_t oldx = activator->x;
+			fixed_t oldy = activator->y;
+			fixed_t oldz = activator->z;
+
+			if (!(flags & WARPF_ABSOLUTEANGLE))
+				angle += (flags & WARPF_USECALLERANGLE) ? activator->angle : reference->angle;
+			if (!(flags & WARPF_ABSOLUTEPOSITION))
+			{
+				if (!(flags & WARPF_ABSOLUTEOFFSET))
+				{
+					angle_t fineangle = angle >> ANGLETOFINESHIFT;
+					fixed_t xofs1 = xofs;
+
+					// (borrowed from A_SpawnItemEx, assumed workable)
+					// in relative mode negative y values mean 'left' and positive ones mean 'right'
+					// This is the inverse orientation of the absolute mode!
+
+					xofs = FixedMul(xofs1, finecosine[fineangle]) + FixedMul(yofs, finesine[fineangle]);
+					yofs = FixedMul(xofs1, finesine[fineangle]) - FixedMul(yofs, finecosine[fineangle]);
+				}
+
+				if (flags & WARPF_TOFLOOR)
+				{
+					// set correct xy
+
+					activator->SetOrigin(
+						reference->x + xofs,
+						reference->y + yofs,
+						reference->z);
+
+					// now the caller's floorz should be appropriate for the assigned xy-position
+					// assigning position again with
+
+					if (zofs)
+					{
+						// extra unlink, link and environment calculation
+						activator->SetOrigin(
+							activator->x,
+							activator->y,
+							activator->floorz + zofs);
+					}
+					else
+					{
+						// if there is no offset, there should be no ill effect from moving down to the already defined floor
+
+						// A_Teleport does the same thing anyway
+						activator->z = activator->floorz;
+					}
+				}
+				else
+				{
+					activator->SetOrigin(
+						reference->x + xofs,
+						reference->y + yofs,
+						reference->z + zofs);
+				}
+			}
+			else // [MC] The idea behind "absolute" is meant to be "absolute". Override everything, just like A_SpawnItemEx's.
+			{
+				if (flags & WARPF_TOFLOOR)
+				{
+					activator->SetOrigin(xofs, yofs, activator->floorz + zofs);
+				}
+				else
+				{
+					activator->SetOrigin(xofs, yofs, zofs);
+				}
+			}
+
+			if ((flags & WARPF_NOCHECKPOSITION) || P_TestMobjLocation(activator))
+			{
+				if (flags & WARPF_TESTONLY)
+				{
+					activator->SetOrigin(oldx, oldy, oldz);
+				}
+				else
+				{
+					activator->angle = angle;
+
+					if (flags & WARPF_STOP)
+					{
+						activator->velx = 0;
+						activator->vely = 0;
+						activator->velz = 0;
+					}
+
+					if (flags & WARPF_WARPINTERPOLATION)
+					{
+						activator->PrevX += activator->x - oldx;
+						activator->PrevY += activator->y - oldy;
+						activator->PrevZ += activator->z - oldz;
+					}
+					else if (flags & WARPF_COPYINTERPOLATION)
+					{
+						activator->PrevX = activator->x + reference->PrevX - reference->x;
+						activator->PrevY = activator->y + reference->PrevY - reference->y;
+						activator->PrevZ = activator->z + reference->PrevZ - reference->z;
+					}
+					else if (flags & WARPF_INTERPOLATE)
+					{
+						activator->PrevX = activator->x;
+						activator->PrevY = activator->y;
+						activator->PrevZ = activator->z;
+					}
+				}
+
+				if (state)
+				{
+					activator->SetState(state);
+				}
+
+				return true;
+			}
+			else
+			{
+				activator->SetOrigin(oldx, oldy, oldz);
+				return false;
+			}
+		}
 
 		default:
 			break;
