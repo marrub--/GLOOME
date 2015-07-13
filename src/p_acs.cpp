@@ -5500,7 +5500,7 @@ int DLevelScript::CallFunction(int argCount, int funcIndex, SDWORD *args, const 
 				FName damagetype	= (argCount > 5 && args[5]) ? FName(FBehavior::StaticLookupString(args[5])) : NAME_None;
 				fixed_t	range		= (argCount > 6 && args[6]) ? args[6] : MISSILERANGE;
 				int flags			= (argCount > 7 && args[7]) ? args[7] : 0;
-				int pufftid = argCount >= 8 ? args[8] : 0;
+				int pufftid = argCount > 8 ? args[8] : 0;
 
 				int fhflags = 0;
 				if(flags & FHF_NORANDOMPUFFZ) fhflags |= LAF_NORANDOMPUFFZ;
