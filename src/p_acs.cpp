@@ -6197,17 +6197,17 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 		// bool Warp(int tid_dest, fixed xofs, fixed yofs, fixed zofs, angle angle, int flags[, int ptr_dest, str success_state, bool exact])
 		case ACSF_Warp:
 		{
-			int tid_dest = args[1];
-			fixed_t xofs = (argCount > 1) ? args[2] : 0;
-			fixed_t yofs = (argCount > 2) ? args[3] : 0;
-			fixed_t zofs = (argCount > 3) ? args[4] : 0;
-			angle_t angle = (argCount > 4) ? args[5] : 0;
-			int flags = (argCount > 5) ? args[6] : 0;
-			int ptr_dest = (argCount > 6) ? args[7] : 0;
-			const char *statename = (argCount > 7) ? FBehavior::StaticLookupString(args[8]) : "";
-			bool exact = (argCount > 8) ? args[9] : false;
+			int tid_dest = args[0];
+			fixed_t xofs = args[1];
+			fixed_t yofs = args[2];
+			fixed_t zofs = args[3];
+			angle_t angle = args[4];
+			int flags = args[5];
+			int ptr_dest = argCount > 6 ? args[6] : 0;
+			const char *statename = argCount > 7 ? FBehavior::StaticLookupString(args[7]) : "";
+			bool exact = argCount > 8 ? args[8] : false;
 
-			FState *state = (argCount > 7) ? activator->GetClass()->ActorInfo->FindStateByString(statename, exact) : 0;
+			FState *state = argCount > 7 ? activator->GetClass()->ActorInfo->FindStateByString(statename, exact) : 0;
 
 			AActor *reference;
 			if ((flags & WARPF_USEPTR) && ptr_dest != AAPTR_DEFAULT)
@@ -6215,7 +6215,7 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			else
 				reference = SingleActorFromTID(tid_dest, activator);
 
-			//If there is no actor to warp to, fail.
+			// If there is no actor to warp to, fail.
 			if (!reference)
 				return false;
 
@@ -6336,9 +6336,9 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 					}
 				}
 
-				if (state)
+				if (state && argCount > 7)
 				{
-					caller->SetState(state);
+					activator->SetState(state);
 				}
 
 				return true;
