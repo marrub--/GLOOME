@@ -55,6 +55,7 @@
 #include "r_utility.h"
 #include "menu/menu.h"
 #include "textures/textures.h"
+#include "i_system.h"
 
 //
 // Todo: Move these elsewhere
@@ -82,8 +83,8 @@ fixed_t			BackbuttonAlpha;
 static bool		MenuEnabled = true;
 
 
-#define KEY_REPEAT_DELAY	(TICRATE*5/12)
-#define KEY_REPEAT_RATE		(3)
+#define KEY_REPEAT_DELAY	((TICRATE+I_GetTicAdjust())*5/12)
+#define KEY_REPEAT_RATE		(3 + (I_GetTicAdjust()/TICRATE))
 
 //============================================================================
 //

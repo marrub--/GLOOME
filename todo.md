@@ -5,13 +5,13 @@ add automap to texture rendering (SetAutomapToTexture? heh)
 add full button input getting, maybe even an event system to acs
 fix cameratextures, in software you can see the player's weapon sprite (but you can't in ogl)
 add a parm to SetCameraToTexture that disables/enables weapon sprite viewing
-fix the menus with variadic ticrates
 add if statements to menudefs (for cvars and shit)
 screenspace shaders
 change weapon sprite offsets via ACS (APROP_?) viewtopic.php?f=34&t=29910
 rectangular collision boxes (will require a "force" parm for SetActorAngle)
 add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-does-one-jump-to-a-particular-offset-more-than-once )
 scaling on hudmessages
+decals on floors/ceilings
 ```
 
 second priority stuff
@@ -25,7 +25,6 @@ prebaked lights? maybe using strive VE's lightmap system? mite b cool
 hitbox maps?
 dynamically overlayable sprites. hell yeah.
 more psprite layers
-A_Warp in ACS
 frame tics as expression in decorate
 add flags to offset
 - OFF_NEUTRAL = 1 // default offsets to 0,0
