@@ -617,7 +617,11 @@ static void OuterScript(void)
 			TK_Undo();
 			do
 			{
-				TK_NextTokenMustBe(TK_INT, ERR_BAD_VAR_TYPE);
+				tokenType_t ntk = TK_NextToken();
+				if(ntk != TK_INT && ntk != TK_STR && ntk != TK_BOOL)
+				{
+					ERR_Error(ERR_BAD_VAR_TYPE, YES);
+				}
 				TK_NextTokenMustBe(TK_IDENTIFIER, ERR_INVALID_IDENTIFIER);
 				if(ScriptVarCount == 4)
 				{
