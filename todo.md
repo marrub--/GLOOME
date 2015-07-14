@@ -26,10 +26,12 @@ hitbox maps?
 dynamically overlayable sprites. hell yeah.
 more psprite layers
 frame tics as expression in decorate
+
 add flags to offset
 - OFF_NEUTRAL = 1 // default offsets to 0,0
 - OFF_RELATIVE = 2 // obvious
 - OFF_FORCEADD = 4 // will force adding to the offset if bobbing
+
 add offsetx and offsety expressions to decorate
 add menu backgrounds to menudef
 make modeldef support more than 4 pieces per actor

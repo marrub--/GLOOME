@@ -370,11 +370,13 @@ special
 	-11194:GetTicrate(0),   // int GetTicrate(void)
 	-11195:GetActorFloorTexture(1),   // str GetActorFloorTexture(int tid)
 	-11196:GetActorCeilingTexture(1), // str GetActorCeilingTexture(int tid)
-	-11197:SetPlayerBobMul(0,2), // void SetPlayerBobMul([fixed mul], [bool movebob])
+	-11197:SetPlayerBobMul(0,2), // void SetPlayerBobMul([fixed mul, bool movebob])
 	-11198:GetPlayerBobMul(1),   // void GetPlayerBobMul(bool movebob)
 	-11199:SetGameProperty(2),   // bool SetGameProperty(int set, int value)
 	-11200:GetGameProperty(1),   // bool GetGameProperty(int get)
 	-11201:Warp(6,9),            // bool Warp(int tid_dest, fixed xofs, fixed yofs, fixed zofs, angle angle, int flags[, int ptr_dest, str success_state, bool exact])
+	-11202:SetInputLock(1),      // void SetInputLock(bool lock)
+	-12203:GetInputLock(0),      // bool GetInputLock(void)
 
 	// ZDaemon's
 	-19620:GetTeamScore(1),

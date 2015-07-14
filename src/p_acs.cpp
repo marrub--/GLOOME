@@ -76,6 +76,7 @@
 #include "farchive.h"
 #include "decallib.h"
 #include "g_gameproperties.h"
+#include "g_acsresponder.h"
 
 #include "g_shared/a_pickups.h"
 
@@ -161,6 +162,8 @@ enum
 	WARPF_MOVEPTR = 0x1000,
 	WARPF_USEPTR = 0x2000,
 };
+
+bool FBehavior::ACSKeyLock = false;
 
 struct CallReturn
 {
@@ -2789,7 +2792,9 @@ void FBehavior::StaticStartTypedScripts (WORD type, AActor *activator, bool alwa
 		"Lightning",
 		"Unloading",
 		"Disconnect",
-		"Return"
+		"Return",
+		"Unknown",
+		"Input" // [marrub] acs input handling
 	};
 	DPrintf("Starting all scripts of type %d (%s)\n", type,
 		type < countof(TypeNames) ? TypeNames[type] : TypeNames[SCRIPT_Lightning - 1]);
@@ -4553,6 +4558,8 @@ enum EACSFunctions
 	ACSF_SetGameProperty,
 	ACSF_GetGameProperty, // 11200
 	ACSF_Warp,
+	ACSF_SetInputLock,
+	ACSF_GetInputLock,
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -6348,6 +6355,19 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 				caller->SetOrigin(oldx, oldy, oldz);
 				return false;
 			}
+			break;
+		}
+
+		case ACSF_SetInputLock:
+		{
+			bool lock = !!args[0];
+			FBehavior::ACSKeyLock = lock;
+			break;
+		}
+
+		case ACSF_GetInputLock:
+		{
+			return FBehavior::ACSKeyLock;
 		}
 
 		default:
@@ -9261,7 +9281,14 @@ scriptwait:
 			break;
 
 		case PCD_GETPLAYERINPUT:
-			STACK(2) = GetPlayerInput (STACK(2), STACK(1));
+			if(FBehavior::ACSKeyLock == false)
+			{
+				STACK(2) = GetPlayerInput(STACK(2), STACK(1));
+			}
+			else
+			{
+				STACK(2) = 0;
+			}
 			sp -= 1;
 			break;
 

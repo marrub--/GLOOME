@@ -270,6 +270,7 @@ enum
 	SCRIPT_Unloading	= 13,
 	SCRIPT_Disconnect	= 14,
 	SCRIPT_Return		= 15,
+	SCRIPT_Input      = 17, // [marrub]
 };
 
 // Script flags
@@ -285,6 +286,8 @@ class FBehavior
 public:
 	FBehavior (int lumpnum, FileReader * fr=NULL, int len=0);
 	~FBehavior ();
+
+	static bool ACSKeyLock;
 
 	bool IsGood ();
 	BYTE *FindChunk (DWORD id) const;

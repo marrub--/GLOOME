@@ -108,6 +108,7 @@
 #include "resourcefiles/resourcefile.h"
 #include "r_renderer.h"
 #include "p_local.h"
+#include "g_acsresponder.h"
 
 EXTERN_CVAR(Bool, hud_althud)
 void DrawHUD();
@@ -276,6 +277,8 @@ void D_ProcessEvents (void)
 			continue;				// console ate the event
 		if (M_Responder (ev))
 			continue;				// menu ate the event
+		if(ACS_Responder(ev))
+			continue; // [marrub] acs ate the event
 		G_Responder (ev);
 	}
 }

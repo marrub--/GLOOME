@@ -681,6 +681,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	farchive.cpp
 	files.cpp
 	g_game.cpp
+	g_acsresponder.cpp
 	g_hub.cpp
 	g_level.cpp
 	g_mapinfo.cpp
