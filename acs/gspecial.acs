@@ -376,7 +376,8 @@ special
 	-11200:GetGameProperty(1),   // bool GetGameProperty(int get)
 	-11201:Warp(6,9),            // bool Warp(int tid_dest, fixed xofs, fixed yofs, fixed zofs, angle angle, int flags[, int ptr_dest, str success_state, bool exact])
 	-11202:SetInputLock(1),      // void SetInputLock(bool lock)
-	-12203:GetInputLock(0),      // bool GetInputLock(void)
+	-11203:GetInputLock(0),      // bool GetInputLock(void)
+	-11204:KeyIsBoundSym(2),     // bool KeyIsBoundSym(int key, str cmd)
 
 	// ZDaemon's
 	-19620:GetTeamScore(1),

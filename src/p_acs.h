@@ -287,8 +287,6 @@ public:
 	FBehavior (int lumpnum, FileReader * fr=NULL, int len=0);
 	~FBehavior ();
 
-	static bool ACSKeyLock;
-
 	bool IsGood ();
 	BYTE *FindChunk (DWORD id) const;
 	BYTE *NextChunk (BYTE *chunk) const;

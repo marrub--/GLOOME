@@ -163,8 +163,6 @@ enum
 	WARPF_USEPTR = 0x2000,
 };
 
-bool FBehavior::ACSKeyLock = false;
-
 struct CallReturn
 {
 	CallReturn(int pc, ScriptFunction *func, FBehavior *module, SDWORD *locals, ACSLocalArrays *arrays, bool discard, unsigned int runaway)
@@ -4560,6 +4558,7 @@ enum EACSFunctions
 	ACSF_Warp,
 	ACSF_SetInputLock,
 	ACSF_GetInputLock,
+	ACSF_KeyIsBoundSym, // 11204
 
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
@@ -6360,14 +6359,18 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 
 		case ACSF_SetInputLock:
 		{
-			bool lock = !!args[0];
-			FBehavior::ACSKeyLock = lock;
+			ngameproperties.SetGameProperty(FGameProperties::GPROP_ACSKeyLock, args[0]);
 			break;
 		}
 
 		case ACSF_GetInputLock:
 		{
-			return FBehavior::ACSKeyLock;
+			return ngameproperties.GetGameProperty(FGameProperties::GPROP_ACSKeyLock);;
+		}
+
+		case ACSF_KeyIsBoundSym:
+		{
+			return !(Bindings.GetBinding(args[0]).CompareNoCase(FBehavior::StaticLookupString(args[1])));
 		}
 
 		default:
@@ -9281,7 +9284,7 @@ scriptwait:
 			break;
 
 		case PCD_GETPLAYERINPUT:
-			if(FBehavior::ACSKeyLock == false)
+			if(ngameproperties.GetGameProperty(FGameProperties::GPROP_ACSKeyLock) == false)
 			{
 				STACK(2) = GetPlayerInput(STACK(2), STACK(1));
 			}

@@ -1960,7 +1960,8 @@ void G_DoLoadGame ()
 		int props[24];
 		fread(props, sizeof(int) * 24, 1, stdfile);
 		ngameproperties.SetGameProperty(FGameProperties::GPROP_DeathRestarts, !!props[0]);
-		ngameproperties.SetGameProperty(FGameProperties::GPROP_SavesEnabled, !!props[1]);
+		ngameproperties.SetGameProperty(FGameProperties::GPROP_SavesEnabled,  !!props[1]);
+		ngameproperties.SetGameProperty(FGameProperties::GPROP_ACSKeyLock,    !!props[2]);
 	}
 
 	if (level.info->snapshot != NULL)
@@ -2216,6 +2217,7 @@ void G_DoSaveGame(bool okForQuicksave, FString filename, const char *description
 		int props[24] = { 0 };
 		props[0] = ngameproperties.GetGameProperty(FGameProperties::GPROP_DeathRestarts);
 		props[1] = ngameproperties.GetGameProperty(FGameProperties::GPROP_SavesEnabled);
+		props[2] = ngameproperties.GetGameProperty(FGameProperties::GPROP_ACSKeyLock);
 
 		M_AppendPNGChunk(stdfile, MAKE_ID('g', 'p', 'R', 'p'), (BYTE *)props, sizeof(int) * 24);
 	}

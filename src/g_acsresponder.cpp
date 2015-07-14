@@ -40,6 +40,7 @@
 #include "doomstat.h"
 #include "d_player.h"
 #include "c_bind.h"
+#include "g_gameproperties.h"
 
 bool ACS_Responder(event_t *ev)
 {
@@ -48,7 +49,7 @@ bool ACS_Responder(event_t *ev)
 		return false;
 	}
 
-	if(ev->type == EV_KeyDown && FBehavior::ACSKeyLock)
+	if(ev->type == EV_KeyDown && ngameproperties.GetGameProperty(FGameProperties::GPROP_ACSKeyLock))
 	{
 		if(!Bindings.GetBinding(ev->data1).CompareNoCase("toggleconsole"))
 		{
@@ -59,5 +60,5 @@ bool ACS_Responder(event_t *ev)
 		return true;
 	}
 
-	return FBehavior::ACSKeyLock;
+	return ngameproperties.GetGameProperty(FGameProperties::GPROP_ACSKeyLock);
 }

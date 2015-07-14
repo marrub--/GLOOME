@@ -37,23 +37,22 @@
 
 class FGameProperties
 {
-	bool m_DeathRestarts;
-	bool m_SavesEnabled;
+	bool m_DeathRestarts : 1;
+	bool m_SavesEnabled  : 1;
+	bool m_ACSKeyLock    : 1;
 public:
 	enum EGameProperty
 	{
 		GPROP_DeathRestarts,
 		GPROP_SavesEnabled,
+		GPROP_ACSKeyLock,
 	};
 
 	FGameProperties()
 	{
 		m_DeathRestarts = true;
 		m_SavesEnabled = true;
-	}
-
-	~FGameProperties()
-	{
+		m_ACSKeyLock = false;
 	}
 
 	// returns: success
@@ -63,7 +62,8 @@ public:
 		switch(gp)
 		{
 			case FGameProperties::GPROP_DeathRestarts: m_DeathRestarts = !!value; return true;
-			case FGameProperties::GPROP_SavesEnabled: m_SavesEnabled = !!value; return true;
+			case FGameProperties::GPROP_SavesEnabled:  m_SavesEnabled = !!value; return true;
+			case FGameProperties::GPROP_ACSKeyLock:    m_ACSKeyLock = !!value; return true;
 		}
 
 		return false;
@@ -76,7 +76,8 @@ public:
 		switch(gp)
 		{
 			case FGameProperties::GPROP_DeathRestarts: return m_DeathRestarts;
-			case FGameProperties::GPROP_SavesEnabled: return m_SavesEnabled;
+			case FGameProperties::GPROP_SavesEnabled:  return m_SavesEnabled;
+			case FGameProperties::GPROP_ACSKeyLock:    return m_ACSKeyLock;
 		}
 
 		return -1;
