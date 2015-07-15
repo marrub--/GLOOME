@@ -7,6 +7,7 @@ more sane key and cvar defaults ;)
 cl_morphbob to allow player sprites to bob while morphed
 cl_facekiller enables/disables facing the thing that killed you
 cvarinfo now has an "acsonly" flag
+subtractive glowing flats in GLDEFS, via FLATSUB and friends
 
 thingdef:
 A_GiveScoreToTarget([int score = (actor's Score property)])
@@ -27,4 +28,8 @@ PlaySound can now pitch shift
 APROP_MaxStepHeight / APROP_MaxDropOffHeight
 GetGameProperty/SetGameProperty allow you to disable/enable saving and disable/enable respawning
 LineAttack has an optional pufftid parameter
-
+Warp function to mimick A_Warp
+SetInputLock / GetInputLock will lock input for the following
+INPUT scripts to handle all key input while it is locked
+acc now allows scripts like this (it was an oversight): script 1 (str a, bool b, int c)
+KeyIsBoundSym function to get if a key is bound to a symbol (for INPUT scripts)
