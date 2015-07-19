@@ -5575,7 +5575,7 @@ int DLevelScript::CallFunction(int argCount, int funcIndex, SDWORD *args, const 
 					float vol = argCount > 3 ? FIXED2FLOAT(args[3]) : 1.f;
 					INTBOOL looping = argCount > 4 ? args[4] : false;
 					float atten = argCount > 5 ? FIXED2FLOAT(args[5]) : ATTN_NORM;
-					float pitch = argCount > 6 ? FIXED2FLOAT(args[6]) : 1.0;
+					float pitch = argCount > 6 ? FIXED2FLOAT(args[6]) : 1.0f;
 
 					if(pitch < 0.0 || pitch > 2.0)
 					{
@@ -6211,7 +6211,7 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			int flags = args[5];
 			int ptr_dest = argCount > 6 ? args[6] : 0;
 			const char *statename = argCount > 7 ? FBehavior::StaticLookupString(args[7]) : "";
-			bool exact = argCount > 8 ? args[8] : false;
+			bool exact = argCount > 8 ? !!args[8] : false;
 
 			FState *state = argCount > 7 ? activator->GetClass()->ActorInfo->FindStateByString(statename, exact) : 0;
 

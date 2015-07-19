@@ -60,5 +60,5 @@ bool ACS_Responder(event_t *ev)
 		return true;
 	}
 
-	return ngameproperties.GetGameProperty(FGameProperties::GPROP_ACSKeyLock);
+	return !!ngameproperties.GetGameProperty(FGameProperties::GPROP_ACSKeyLock);
 }
