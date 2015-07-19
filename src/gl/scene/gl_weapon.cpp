@@ -177,7 +177,7 @@ EXTERN_CVAR(Bool, gl_brightfog)
 
 void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 {
-	bool statebright[2] = {false, false};
+	bool statebright[NUMPSPRITES] = { 0 };
 	unsigned int i;
 	pspdef_t *psp;
 	int lightlevel=0;
@@ -209,19 +209,26 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 	// check for fullbright
 	if (player->fixedcolormap==NOFIXEDCOLORMAP)
 	{
-		for (i=0, psp=player->psprites; i<=ps_flash; i++,psp++)
-		{
-			if (psp->state != NULL)
+		for(unsigned j = 0; j < NUMPSPRITES; j++)
+		{ // [marrub] GO EAT A DICK, STRIFE.
+			pspdef_t *pspr = (player->psprites + j);
+			
+			if(pspr->state != NULL)
 			{
 				bool disablefullbright = false;
-				FTextureID lump = gl_GetSpriteFrame(psp->sprite, psp->frame, 0, 0, NULL);
-				if (lump.isValid() && gl_BrightmapsActive())
+				FTextureID lump = gl_GetSpriteFrame(pspr->sprite, pspr->frame, 0, 0, NULL);
+				
+				if(lump.isValid() && gl_BrightmapsActive())
 				{
-					FMaterial * tex=FMaterial::ValidateTexture(lump, false);
-					if (tex)
-						disablefullbright = tex->tex->gl_info.bBrightmapDisablesFullbright;
+					FMaterial *tex = FMaterial::ValidateTexture(lump, false);
+					
+					if(tex)
+					{
+						disablefullbright = (tex->tex->gl_info.bBrightmapDisablesFullbright);
+					}
 				}
-				statebright[i] = !!psp->state->GetFullbright() && !disablefullbright;
+				
+				statebright[j] = !!pspr->state->GetFullbright() && !disablefullbright;
 			}
 		}
 	}
@@ -230,7 +237,12 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 	{
 		lightlevel=255;
 		cm.GetFixedColormap();
-		statebright[0] = statebright[1] = true;
+		
+		for(unsigned j = 0; j < NUMPSPRITES; j++)
+		{
+			statebright[j] = true;
+		}
+		
 		fakesec = viewsector;
 	}
 	else
@@ -291,7 +303,11 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 	if (glset.brightfog && ((level.flags&LEVEL_HASFADETABLE) || cm.FadeColor != 0))
 	{
 		lightlevel = 255;
-		statebright[0] = statebright[1] = true;
+		
+		for(unsigned j = 0; j < NUMPSPRITES; j++)
+		{
+			statebright[j] = true;
+		}
 	}
 
 	PalEntry ThingColor = playermo->fillcolor;
@@ -333,7 +349,11 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 				vis.RenderStyle.BlendOp = STYLEOP_Shadow;
 			}
 		}
-		statebright[0] = statebright[1] = false;
+		
+		for(unsigned j = 0; j < NUMPSPRITES; j++)
+		{
+			statebright[j] = false;
+		}
 	}
 
 	gl_SetRenderStyle(vis.RenderStyle, false, false);
@@ -353,11 +373,16 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 
 	// now draw the different layers of the weapon
 	gl_RenderState.EnableBrightmap(true);
-	if (statebright[0] || statebright[1])
+	
+	for(unsigned j = 0; j < NUMPSPRITES; j++)
 	{
-		// brighten the weapon to reduce the difference between
-		// normal sprite and fullbright flash.
-		if (glset.lightmode != 8) lightlevel = (2*lightlevel+255)/3;
+		if(statebright[j] && glset.lightmode != 8)
+		{
+			// brighten the weapon to reduce the difference between
+			// normal sprite and fullbright flash.
+			lightlevel = (2*lightlevel+255)/3;
+			break;
+		}
 	}
 	
 	// hack alert! Rather than changing everything in the underlying lighting code let's just temporarily change
@@ -365,7 +390,7 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 	int oldlightmode = glset.lightmode;
 	if (glset.lightmode == 8) glset.lightmode = 2;
 	
-	for (i=0, psp=player->psprites; i<=ps_flash; i++,psp++)
+	for (i=0, psp=player->psprites; i<=NUMPSPRITES; i++,psp++)
 	{
 		if (psp->state) 
 		{
@@ -420,6 +445,6 @@ void FGLRenderer::DrawTargeterSprites()
 	gl_RenderState.SetTextureMode(TM_MODULATE);
 
 	// The Targeter's sprites are always drawn normally.
-	for (i=ps_targetcenter, psp = &player->psprites[ps_targetcenter]; i<NUMPSPRITES; i++,psp++)
+	for (i=ps_targetcenter, psp = &player->psprites[ps_targetcenter]; i<ps_user1; i++,psp++)
 		if (psp->state) DrawPSprite (player,psp,psp->sx, psp->sy, CM_DEFAULT, false, 0);
 }

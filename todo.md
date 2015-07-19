@@ -15,6 +15,7 @@ add DEFLTDEF lump to specify defaults for keys/cvars/etc (only for engine.pk3)
 [23:46] <nax> marrub:  add "todo:  deez nuts"
 [23:49] <TehFakeSalt> I've noticed from messing around with a build I compiled that GLOOME still generates a place in its .ini file for ZDoom's supported games. Not suggesting removing compatibility, but could it only, say, generate controls for Doom if Doom is run once, instead of as soon as the .ini is created? It just kinda creates clutter for games that are likely not even going to ran at all.
 A_WeaponAltReady? allowing the user to use the custom psprite layers for TRUE dual weapons
+make the hexen armors not hardcoded
 ```
 
 second priority stuff
