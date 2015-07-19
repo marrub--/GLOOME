@@ -197,6 +197,9 @@ bool FShader::Load(const char * name, const char * vert_prog_lump, const char * 
 		glUseProgram(0);
 		return !!linked;
 	}
+	
+	Printf("FShader::Load: pls upgrade toaster i am in pain\n");
+	
 	return false;
 }
 

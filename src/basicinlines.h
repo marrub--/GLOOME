@@ -223,7 +223,8 @@ DivScaleN(32)
 static __forceinline void clearbuf(void *bf, unsigned int count, SDWORD clear)
 {
 	SDWORD *bufp = (SDWORD *)bf;
-	for (unsigned int i = 0; i != count; ++i)
+	
+	for(unsigned int i = 0; i != count; ++i)
 	{
 		bufp[i] = clear;
 	}
@@ -232,7 +233,8 @@ static __forceinline void clearbuf(void *bf, unsigned int count, SDWORD clear)
 static __forceinline void clearbufshort(void *bf, unsigned int count, WORD clear)
 {
 	SWORD *bufp = (SWORD *)bf;
-	for (unsigned int i = 0; i != count; ++i)
+	
+	for(unsigned int i = 0; i != count; ++i)
 	{
 		bufp[i] = clear;
 	}
