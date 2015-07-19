@@ -403,9 +403,9 @@ public:
 	bool		usedown;
 	bool shouldrespawn()
 	{ // [marrub] Yeah, sorry for splitting this into 3 variables. I really dislike giant ifs.
-		bool usedown = cmd.ucmd.buttons & BT_USE;
+		bool usedown = !!(cmd.ucmd.buttons & BT_USE);
 		bool mpallow = (((multiplayer || alwaysapplydmflags) && (dmflags & DF_FORCE_RESPAWN))) && !(dmflags2 & DF2_NO_RESPAWN);
-		bool allowed = ngameproperties.GetGameProperty(FGameProperties::GPROP_DeathRestarts);
+		bool allowed = !!(ngameproperties.GetGameProperty(FGameProperties::GPROP_DeathRestarts));
 
 		if((usedown || mpallow) && allowed)
 		{
