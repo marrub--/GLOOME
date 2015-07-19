@@ -201,7 +201,7 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 
 	P_BobWeapon (player, &player->psprites[ps_weapon], &ofsx, &ofsy);
 	
-	for(unsigned j = ps_user1; j <= ps_user8; j++)
+	for(unsigned j = ps_user1; j <= NUMUSERPSPRITES; j++)
 	{
 		P_BobWeapon(player, &player->psprites[j], &ofsx, &ofsy);
 	}

@@ -841,7 +841,7 @@ void AActor::ClearInventory()
 		player->PendingWeapon = WP_NOCHANGE;
 		player->psprites[ps_weapon].state = NULL;
 		player->psprites[ps_flash].state = NULL;
-		for(unsigned j = ps_user1; j <= ps_user8; j++)
+		for(unsigned j = ps_user1; j <= NUMUSERPSPRITES; j++)
 		{
 			player->psprites[j].state = NULL;
 		}

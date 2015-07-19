@@ -57,9 +57,19 @@ typedef enum
 	ps_user6,
 	ps_user7,
 	ps_user8,
+	ps_user9,
+	ps_user10,
+	ps_user11,
+	ps_user12,
+	ps_user13,
+	ps_user14,
+	ps_user15,
+	ps_user16,
 	NUMPSPRITES
 
 } psprnum_t;
+
+#define NUMUSERPSPRITES ps_user16
 
 /*
 inline FArchive &operator<< (FArchive &arc, psprnum_t &i)
