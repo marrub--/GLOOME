@@ -211,6 +211,10 @@ void P_BringUpWeapon (player_t *player)
 	// make sure that the previous weapon's flash state is terminated.
 	// When coming here from a weapon drop it may still be active.
 	P_SetPsprite(player, ps_flash, NULL);
+	for(unsigned j = ps_user1; j <= ps_user8; j++)
+	{
+		P_SetPsprite(player, j, NULL);
+	}
 	player->mo->weaponspecial = 0;
 }
 
@@ -923,7 +927,70 @@ DEFINE_ACTION_FUNCTION_PARAMS(AInventory, A_GunFlash)
 	P_SetPsprite (player, ps_flash, flash);
 }
 
+//
+// A_UserPSprite
+//
 
+DEFINE_ACTION_FUNCTION_PARAMS(AInventory, A_UserPSprite)
+{
+	ACTION_PARAM_START(2)
+	ACTION_PARAM_INT(layer, 0);
+	ACTION_PARAM_STATE(pspState, 1);
+	
+	player_t *ply = self->player;
+	
+	if(ply == NULL)
+	{
+		return;
+	}
+	
+	if(layer < 1 || layer > 8)
+	{
+		layer = 1;
+	}
+	
+	if(pspState == NULL)
+	{
+		switch(layer)
+		{
+		default:
+		case 1: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP1); break;
+		case 2: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP2); break;
+		case 3: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP3); break;
+		case 4: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP4); break;
+		case 5: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP5); break;
+		case 6: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP6); break;
+		case 7: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP7); break;
+		case 8: pspState = ply->ReadyWeapon->FindState(NAME_UserPSP8); break;
+		}
+	}
+	
+	P_SetPsprite(ply, ps_user1 + (layer - 1), pspState);
+}
+
+//
+// A_ClearUserPSprite
+//
+
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_ClearUserPSprite)
+{
+	ACTION_PARAM_START(1)
+	ACTION_PARAM_INT(layer, 0);
+	
+	player_t *ply = self->player;
+	
+	if(ply == NULL)
+	{
+		return;
+	}
+	
+	if(layer < 1 || layer > 8)
+	{
+		layer = 1;
+	}
+	
+	P_SetPsprite(ply, ps_user1 + (layer - 1), NULL);
+}
 
 //
 // WEAPON ATTACKS
@@ -1060,6 +1127,10 @@ void P_MovePsprites (player_t *player)
 	{
 		P_SetPsprite (player, ps_weapon, NULL);
 		P_SetPsprite (player, ps_flash, NULL);
+		for(unsigned j = ps_user1; j <= ps_user8; j++)
+		{
+			P_SetPsprite(player, j, NULL);
+		}
 		if (player->PendingWeapon != WP_NOCHANGE)
 		{
 			P_BringUpWeapon (player);
@@ -1087,6 +1158,11 @@ void P_MovePsprites (player_t *player)
 					}
 				}
 			}
+		}
+		for(unsigned j = ps_user1; j <= ps_user8; j++)
+		{
+			player->psprites[j].sx = player->psprites[ps_weapon].sx;
+			player->psprites[j].sy = player->psprites[ps_weapon].sy;
 		}
 		player->psprites[ps_flash].sx = player->psprites[ps_weapon].sx;
 		player->psprites[ps_flash].sy = player->psprites[ps_weapon].sy;

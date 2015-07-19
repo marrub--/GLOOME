@@ -7,7 +7,6 @@ add sound offsets ( see https://stackoverflow.com/questions/434599/openal-how-do
 decals on floors/ceilings, ask fgsfds for help maybe
 redo hudmessages entirely, add a new function that allows you to print sprites as well
 dynamically overlayable sprites. hell yeah.
-more psprite layers
 merge ryan's getweapon changes (~/Downloads/GetWeapon changes.diff)
 probably merge these:
 viewtopic.php?f=34&t=31497
@@ -15,6 +14,7 @@ viewtopic.php?f=34&t=46380
 add DEFLTDEF lump to specify defaults for keys/cvars/etc (only for engine.pk3)
 [23:46] <nax> marrub:  add "todo:  deez nuts"
 [23:49] <TehFakeSalt> I've noticed from messing around with a build I compiled that GLOOME still generates a place in its .ini file for ZDoom's supported games. Not suggesting removing compatibility, but could it only, say, generate controls for Doom if Doom is run once, instead of as soon as the .ini is created? It just kinda creates clutter for games that are likely not even going to ran at all.
+A_WeaponAltReady? allowing the user to use the custom psprite layers for TRUE dual weapons
 ```
 
 second priority stuff

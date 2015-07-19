@@ -49,6 +49,14 @@ typedef enum
 	ps_targetcenter,
 	ps_targetleft,
 	ps_targetright,
+	ps_user1,
+	ps_user2,
+	ps_user3,
+	ps_user4,
+	ps_user5,
+	ps_user6,
+	ps_user7,
+	ps_user8,
 	NUMPSPRITES
 
 } psprnum_t;

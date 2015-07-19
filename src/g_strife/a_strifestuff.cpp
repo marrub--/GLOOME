@@ -672,6 +672,10 @@ DEFINE_ACTION_FUNCTION(AActor, A_ItBurnsItBurns)
 	{
 		P_SetPsprite (self->player, ps_weapon, self->FindState("FireHands"));
 		P_SetPsprite (self->player, ps_flash, NULL);
+		for(unsigned j = ps_user1; j <= ps_user8; j++)
+		{
+			P_SetPsprite(self->player, j, NULL);
+		}
 		self->player->ReadyWeapon = NULL;
 		self->player->PendingWeapon = WP_NOCHANGE;
 		self->player->playerstate = PST_LIVE;

@@ -200,11 +200,17 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 	*/
 
 	P_BobWeapon (player, &player->psprites[ps_weapon], &ofsx, &ofsy);
+	
+	for(unsigned j = ps_user1; j <= ps_user8; j++)
+	{
+		P_BobWeapon(player, &player->psprites[j], &ofsx, &ofsy);
+	}
 
 	// check for fullbright
 	if (player->fixedcolormap==NOFIXEDCOLORMAP)
 	{
 		for (i=0, psp=player->psprites; i<=ps_flash; i++,psp++)
+		{
 			if (psp->state != NULL)
 			{
 				bool disablefullbright = false;
@@ -217,7 +223,7 @@ void FGLRenderer::DrawPlayerSprites(sector_t * viewsector, bool hudModelStep)
 				}
 				statebright[i] = !!psp->state->GetFullbright() && !disablefullbright;
 			}
-				
+		}
 	}
 
 	if (gl_fixedcolormap) 
