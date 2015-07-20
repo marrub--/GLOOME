@@ -78,6 +78,7 @@ typedef enum {
 	ns_music,
 
 	ns_firstskin,
+	ns_userdata,
 } namespace_t;
 
 enum ELumpFlags

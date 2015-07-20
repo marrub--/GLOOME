@@ -4571,6 +4571,8 @@ enum EACSFunctions
 	ACSF_SetInputLock,
 	ACSF_GetInputLock,
 	ACSF_KeyIsBoundSym, // 11204
+	ACSF_ReadUserData,
+	ACSF_ReadUserDataChar,
 
 	// ZDaemon
 	ACSF_GetTeamScore = 19620,	// (int team)
@@ -6022,6 +6024,8 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			actor = SingleActorFromTID(args[0], activator);
 			return actor != NULL? actor->roll >> 16 : 0;
 
+		// --- GLOOME functions ---
+
 		case ACSF_ChangeFlag:
 			if(argCount >= 3)
 			{
@@ -6373,6 +6377,52 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 		case ACSF_KeyIsBoundSym:
 		{
 			return !(Bindings.GetBinding(args[0]).CompareNoCase(FBehavior::StaticLookupString(args[1])));
+		}
+		
+		case ACSF_ReadUserData:
+		{
+			int lump = Wads.CheckNumForName(FBehavior::StaticLookupString(args[0]), ns_userdata);
+			
+			if(lump == 0)
+			{
+				return 0;
+			}
+			
+			int len = Wads.LumpLength(lump);
+			
+			if(len > (1024 * 1024 * 8)) // 8mb max
+			{
+				return 0;
+			}
+			
+			FMemLump memlump = Wads.ReadLump(lump);
+			return GlobalACSStrings.AddString(memlump.GetString(), stack, stackdepth);
+		}
+		
+		case ACSF_ReadUserDataChar:
+		{
+			int lump = Wads.CheckNumForName(FBehavior::StaticLookupString(args[0]), ns_userdata);
+			int cpos = args[1];
+			
+			if(lump == 0)
+			{
+				return -1;
+			}
+			
+			int len = Wads.LumpLength(lump);
+			
+			if(len < cpos)
+			{
+				return 0;
+			}
+			
+			FWadLump wadlump = Wads.OpenLumpNum(lump);
+			char c;
+			
+			wadlump.Seek(cpos, SEEK_SET);
+			wadlump >> c;
+			
+			return c;
 		}
 
 		default:

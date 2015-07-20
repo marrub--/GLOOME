@@ -378,6 +378,8 @@ special
 	-11202:SetInputLock(1),      // void SetInputLock(bool lock)
 	-11203:GetInputLock(0),      // bool GetInputLock(void)
 	-11204:KeyIsBoundSym(2),     // bool KeyIsBoundSym(int key, str cmd)
+	-11205:ReadUserData(1),      // string ReadUserData(string file)
+	-11206:ReadUserDataChar(2),  // char ReadUserDataChar(string file, int pos)
 
 	// ZDaemon's
 	-19620:GetTeamScore(1),

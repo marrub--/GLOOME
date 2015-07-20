@@ -119,6 +119,7 @@ void FResourceLump::LumpNameSetup(const char *iname)
 				!strncmp(iname, "graphics/", 9)		? ns_graphics :
 				!strncmp(iname, "sounds/", 7)		? ns_sounds :
 				!strncmp(iname, "music/", 6)		? ns_music : 
+				!strncmp(iname, "userdata/", 9) ? ns_userdata :
 				!strchr(iname, '/')					? ns_global :
 				-1;
 	

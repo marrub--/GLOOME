@@ -17,6 +17,8 @@ the best sounds and placeholder graphics for any zdoom.pk3 ever distributed by t
 A_PlaySound can now pitch shift
 +ROLLSPRITE allows roll to be applied to actors that use sprites
 const expressions added
+A_UserPSprite([int layer = 1[, state pspState = ""]]) allows you to overlay sprites like a flash state, but with 16 slots
+A_ClearUserPSprite([int layer = 1])
 
 acs:
 ChangeFlag function
@@ -33,3 +35,5 @@ SetInputLock / GetInputLock will lock input for the following
 INPUT scripts to handle all key input while it is locked
 acc now allows scripts like this (it was an oversight): script 1 (str a, bool b, int c)
 KeyIsBoundSym function to get if a key is bound to a symbol (for INPUT scripts)
+ReadUserData allows you to read arbitrary files from a userdata namespace
+ReadUserDataChar does the same thing but with a single character
