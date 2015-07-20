@@ -189,20 +189,7 @@ CVAR (Int, wipetype, 1, CVAR_ARCHIVE);
 CVAR (Int, snd_drawoutput, 0, 0);
 CUSTOM_CVAR (String, vid_cursor, "None", CVAR_ARCHIVE | CVAR_NOINITCALL)
 {
-	bool res = false;
-
-	if (!stricmp(self, "None" ) && gameinfo.CursorPic.IsNotEmpty())
-	{
-		res = I_SetCursor(TexMan[gameinfo.CursorPic]);
-	}
-	else
-	{
-		res = I_SetCursor(TexMan[self]);
-	}
-	if (!res)
-	{
-		I_SetCursor(TexMan["cursor"]);
-	}
+	I_SetCursor(TexMan["cursor"]);
 }
 
 bool DrawFSHUD;				// [RH] Draw fullscreen HUD?
