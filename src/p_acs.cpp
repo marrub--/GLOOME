@@ -4546,6 +4546,18 @@ enum EACSFunctions
 	ACSF_ChangeActorRoll,
 	ACSF_GetActorRoll,			// 90
 	// ACSF_QuakeEx
+
+	/* Zandronum's - these must be skipped when we reach 99!
+	-100:ResetMap(0),
+	-101 : PlayerIsSpectator(1),
+	-102 : ConsolePlayerNumber(0),
+	-103 : GetTeamProperty(2),
+	-104 : GetPlayerLivesLeft(1),
+	-105 : SetPlayerLivesLeft(2),
+	-106 : KickFromGame(2),
+	*/
+	
+	// GLOOME
 	ACSF_ChangeFlag = 11192,
 	// ACSF_SetTicrate,
 	ACSF_GetTicrate = 11194,
@@ -4559,16 +4571,6 @@ enum EACSFunctions
 	ACSF_SetInputLock,
 	ACSF_GetInputLock,
 	ACSF_KeyIsBoundSym, // 11204
-
-	/* Zandronum's - these must be skipped when we reach 99!
-	-100:ResetMap(0),
-	-101 : PlayerIsSpectator(1),
-	-102 : ConsolePlayerNumber(0),
-	-103 : GetTeamProperty(2),
-	-104 : GetPlayerLivesLeft(1),
-	-105 : SetPlayerLivesLeft(2),
-	-106 : KickFromGame(2),
-	*/
 
 	// ZDaemon
 	ACSF_GetTeamScore = 19620,	// (int team)

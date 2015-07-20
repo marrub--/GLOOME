@@ -16,12 +16,14 @@ add DEFLTDEF lump to specify defaults for keys/cvars/etc (only for engine.pk3)
 [23:49] <TehFakeSalt> I've noticed from messing around with a build I compiled that GLOOME still generates a place in its .ini file for ZDoom's supported games. Not suggesting removing compatibility, but could it only, say, generate controls for Doom if Doom is run once, instead of as soon as the .ini is created? It just kinda creates clutter for games that are likely not even going to ran at all.
 A_WeaponAltReady? allowing the user to use the custom psprite layers for TRUE dual weapons
 make the hexen armors not hardcoded
+hitbox maps
+fix cameratextures, in software you can see the player's weapon sprite (but you can't in ogl)
 ```
 
 second priority stuff
 ===
 ```
-fix cameratextures, in software you can see the player's weapon sprite (but you can't in ogl)
+cl_bobstyle cvar (0 defaults to the weapon's, 1-6 will set the bob style) -- also cl_bobspeed/bobx/boby
 add a parm to SetCameraToTexture that disables/enables weapon sprite viewing
 add automap to texture rendering (SetAutomapToTexture? heh)
 ttf fonts
@@ -32,7 +34,6 @@ ask david about adding an internal acs compiler
 orthogonal cameras
 voxel/model lighting maybe
 prebaked lights? maybe using strive VE's lightmap system? mite b cool
-hitbox maps?
 frame tics as expression in decorate
 
 add flags to offset
@@ -48,7 +49,7 @@ make modeldef support more than 4 pieces per actor
 hard to do, definitely worth it
 ===
 ```
-screenspace shaders
+screenspace shaders -- have to detangle the clusterfuck that is FShader and friends
 redo vid_renderer to switch opengl versions (between 1.8.10 and 2.x renderers)
 angelscript to "replace" decorate and acs
 zandronum MP. hell yeah client/server
