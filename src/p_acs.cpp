@@ -6417,7 +6417,7 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			}
 			
 			FWadLump wadlump = Wads.OpenLumpNum(lump);
-			char c;
+			BYTE c;
 			
 			wadlump.Seek(cpos, SEEK_SET);
 			wadlump >> c;
