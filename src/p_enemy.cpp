@@ -2577,6 +2577,8 @@ static bool P_CheckForResurrection(AActor *self, bool usevilestates)
 				// got one!
 				temp = self->target;
 				self->target = corpsehit;
+				self->tracer = corpsehit; // [marrub] make this a bit better for modders
+				corpsehit->tracer = self;
 				A_FaceTarget(self);
 				if (self->flags & MF_FRIENDLY)
 				{
