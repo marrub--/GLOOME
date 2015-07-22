@@ -485,9 +485,11 @@ fail:
 			sample_t *tmp;
 			for (i = sp->data_length, tmp = sp->data; i; --i)
 			{
-				a = abs(*tmp++);
+				a = abs((long) *tmp++);
 				if (a > maxamp)
+				{
 					maxamp = a;
+				}
 			}
 			sp->volume = 1 / maxamp;
 			cmsg(CMSG_INFO, VERB_DEBUG, " * volume comp: %f\n", sp->volume);
