@@ -8,6 +8,7 @@ cl_morphbob to allow player sprites to bob while morphed
 cl_facekiller enables/disables facing the thing that killed you
 cvarinfo now has an "acsonly" flag
 subtractive glowing flats in GLDEFS, via FLATSUB and friends
+totally way cooler than zdoom B-)
 
 thingdef:
 A_GiveScoreToTarget([int score = (actor's Score property)])
