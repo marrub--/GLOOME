@@ -359,7 +359,10 @@ bool ST_Responder (event_t *ev)
 				unsigned pos = SCheatDefs[i].mPos;
 				if(key == SCheatDefs[i].mName[pos] || SCheatDefs[i].mName[pos] == '.')
 				{
-					eat = true;
+					if(pos != 0)
+					{
+						eat = true;
+					}
 
 					if(SCheatDefs[i].mName[pos] == '.' && SCheatArgsLen < 8)
 					{
