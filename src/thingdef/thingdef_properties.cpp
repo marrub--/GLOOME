@@ -1017,6 +1017,23 @@ DEFINE_PROPERTY(translation, L, Actor)
 //==========================================================================
 //
 //==========================================================================
+DEFINE_PROPERTY(noheal, Si, Actor)
+{
+	PROP_STRING_PARM(actor, 0);
+	PROP_INT_PARM(inherited, 1);
+	
+	const PClass *pc = PClass::FindClass(actor);
+	
+	if(pc != NULL)
+	{
+		info->NoHealInherited.Push(!!inherited);
+		info->NoHeal.Push(pc);
+	}
+}
+
+//==========================================================================
+//
+//==========================================================================
 DEFINE_PROPERTY(stencilcolor, C, Actor)
 {
 	PROP_COLOR_PARM(color, 0);

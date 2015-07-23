@@ -2531,6 +2531,28 @@ static bool P_CheckForResurrection(AActor *self, bool usevilestates)
 			FState *raisestate = corpsehit->GetRaiseState();
 			if (raisestate != NULL)
 			{
+				// [marrub] check if they have noheal for this actor
+				if(corpsehit->GetClass()->ActorInfo->NoHeal.Size() > 0)
+				{
+					TArray<const PClass *> &NoHeal = corpsehit->GetClass()->ActorInfo->NoHeal;
+					TArray<bool> &NoHealInherited = corpsehit->GetClass()->ActorInfo->NoHealInherited;
+					bool cont = false;
+					
+					for(unsigned i = 0; i < NoHeal.Size(); i++)
+					{
+						if(self->IsA(NoHeal[i]) || (NoHealInherited[i] && self->GetClass()->IsDescendantOf(NoHeal[i])))
+						{
+							cont = true;
+							break;
+						}
+					}
+					
+					if(cont)
+					{
+						continue;
+					}
+				}
+				
 				// use the current actor's radius instead of the Arch Vile's default.
 				fixed_t maxdist = corpsehit->GetDefault()->radius + self->radius;
 
