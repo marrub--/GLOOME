@@ -257,6 +257,7 @@ void level_info_t::Reset()
 	cdid = 0;
 	gravity = 0.f;
 	aircontrol = 0.f;
+	jumpdelay = 0;
 	WarpTrans = 0;
 	airsupply = 20;
 	compatflags = compatflags2 = 0;
@@ -993,6 +994,13 @@ DEFINE_MAP_OPTION(aircontrol, true)
 	parse.ParseAssign();
 	parse.sc.MustGetFloat();
 	info->aircontrol = float(parse.sc.Float);
+}
+
+DEFINE_MAP_OPTION(jumpdelay, false)
+{
+	parse.ParseAssign();
+	parse.sc.MustGetNumber();
+	info->jumpdelay = parse.sc.Number;
 }
 
 DEFINE_MAP_OPTION(airsupply, true)

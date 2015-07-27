@@ -1287,6 +1287,7 @@ void G_InitLevelLocals ()
 
 	level.gravity = sv_gravity * 35/TICRATE;
 	level.aircontrol = (fixed_t)(sv_aircontrol * 65536.f);
+	level.jumpdelay = -1;
 	level.teamdamage = teamdamage;
 	level.flags = 0;
 	level.flags2 = 0;
@@ -1328,6 +1329,10 @@ void G_InitLevelLocals ()
 	if (info->aircontrol != 0.f)
 	{
 		level.aircontrol = (fixed_t)(info->aircontrol * 65536.f);
+	}
+	if (info->jumpdelay != 0)
+	{
+		level.jumpdelay = info->jumpdelay;
 	}
 	if (info->teamdamage != 0.f)
 	{
@@ -1465,6 +1470,7 @@ void G_SerializeLevel (FArchive &arc, bool hubLoad)
 		<< level.killed_monsters
 		<< level.gravity
 		<< level.aircontrol
+		<< level.jumpdelay
 		<< level.teamdamage
 		<< level.maptime
 		<< i;
