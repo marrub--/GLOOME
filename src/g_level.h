@@ -305,6 +305,7 @@ struct level_info_t
 	unsigned int cdid;
 	float		gravity;
 	float		aircontrol;
+	int			jumpdelay;
 	int			WarpTrans;
 	int			airsupply;
 	DWORD		compatflags, compatflags2;
@@ -430,6 +431,7 @@ struct FLevelLocals
 
 	float		gravity;
 	fixed_t		aircontrol;
+	int			jumpdelay;
 	fixed_t		airfriction;
 	int			airsupply;
 	int			DefaultEnvironment;		// Default sound environment.

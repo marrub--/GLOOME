@@ -2246,6 +2246,8 @@ void P_ZMovement (AActor *mo, fixed_t oldfloorz)
 	{
 		mo->player->viewheight -= mo->floorz - mo->z;
 		mo->player->deltaviewheight = mo->player->GetDeltaViewHeight();
+		if (mo->player->jumpTics == 0 && mo->velz > 0 && level.jumpdelay != -1)
+			mo->player->jumpTics += 2; // [JP] To avoid jumping right after stepping up a ledge in mid-air, delay any jumping for short while
 	}
 
 	mo->z += mo->velz;
@@ -2435,9 +2437,19 @@ void P_ZMovement (AActor *mo, fixed_t oldfloorz)
 				mo->HitFloor ();
 				if (mo->player)
 				{
-					if (mo->player->jumpTics < 0 || mo->velz < minvel)
+					if ((level.jumpdelay != -1 && mo->velz < minvel) || (mo->player->jumpTics != 0 || mo->velz < minvel))
 					{ // delay any jumping for a short while
-						mo->player->jumpTics = 7;
+						if (level.jumpdelay == -1) // default value
+							mo->player->jumpTics = 7;
+						else if (level.jumpdelay != -1)
+						{
+							if (mo->player->jumpTics > 0 && mo->player->jumpTics < 3)
+								mo->player->jumpTics = 3;
+							else if (mo->player->jumpTics < -15)
+								mo->player->jumpTics == -15;
+							else if (mo->player->jumpTics == 0)
+								mo->player->jumpTics = 3;
+						}
 					}
 					if (mo->velz < minvel && !(mo->flags & MF_NOGRAVITY))
 					{

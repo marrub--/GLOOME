@@ -2459,7 +2459,7 @@ void P_PlayerThink (player_t *player)
 
 				player->mo->velz += jumpvelz;
 				player->mo->flags2 &= ~MF2_ONMOBJ;
-				player->jumpTics = -1;
+				player->jumpTics = level.jumpdelay;
 				if (!(player->cheats & CF_PREDICTING))
 					S_Sound(player->mo, CHAN_BODY, "*jump", 1, ATTN_NORM);
 			}
