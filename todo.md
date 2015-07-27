@@ -8,7 +8,7 @@ decals on floors/ceilings, ask fgsfds for help maybe
 redo hudmessages entirely, add a new function that allows you to print sprites as well
 dynamically overlayable sprites. hell yeah.
 merge ryan's getweapon changes (~/Downloads/GetWeapon changes.diff)
-probably merge these:
+merge these:
 viewtopic.php?f=34&t=31497
 viewtopic.php?f=34&t=46380
 add DEFLTDEF lump to specify defaults for keys/cvars/etc (only for engine.pk3)
@@ -18,6 +18,7 @@ A_WeaponAltReady? allowing the user to use the custom psprite layers for TRUE du
 make the hexen armors not hardcoded
 hitbox maps
 fix cameratextures, in software you can see the player's weapon sprite (but you can't in ogl)
+opus fuck yeah http://stackoverflow.com/questions/16496288/decoding-opus-audio-data
 ```
 
 second priority stuff

@@ -97,3 +97,5 @@ void VerifyTargetChain(AActor *self, bool preciseMissileCheck=true);
 void VerifyMasterChain(AActor *self);
 void ASSIGN_AAPTR(AActor *toActor, int toSlot, AActor *ptr, int flags) ;
 
+bool AAPTR_FILTER(AActor *origin, AActor *locate, int aaptr_filter);
+

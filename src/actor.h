@@ -356,6 +356,7 @@ enum
 	MF7_HITTRACER		= 0x00010000,	// Same as HITTARGET, but for tracer.
 	MF7_NODECAL			= 0x00020000,	// [ZK] Forces puff to have no impact decal
 	MF7_FORCEDECAL		= 0x00040000,	// [ZK] Forces P_LineAttack to use the puff's decal, even if the player's weapon has a decal defined
+	MF7_FILTERHIDES = 0x00080000, // Show the actor to anything not covered by the filter
 
 
 // --- mobj.renderflags ---
@@ -735,13 +736,13 @@ public:
 	int GetTeam();
 
 	// Is the other actor on my team?
-	bool IsTeammate (AActor *other);
+	bool IsTeammate(AActor *other);
 
 	// Is the other actor my friend?
-	bool IsFriend (AActor *other);
+	bool IsFriend(AActor *other);
 
 	// Do I hate the other actor?
-	bool IsHostile (AActor *other);
+	bool IsHostile(AActor *other);
 
 	inline bool IsNoClip2() const;
 
@@ -876,6 +877,7 @@ public:
 
 	// [BB] If 0, everybody can see the actor, if > 0, only members of team (VisibleToTeam-1) can see it.
 	DWORD			VisibleToTeam;
+	int VisibleFilter; // Inclusive filter (AAPTR_ bitmask) to tell who can see this actor; inverted by MF7_FILTERHIDES
 
 	int				special1;		// Special info
 	int				special2;		// Special info

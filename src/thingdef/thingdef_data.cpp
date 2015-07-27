@@ -253,10 +253,9 @@ static FFlagDef ActorFlags[]=
 	DEFINE_FLAG(MF7, HITTARGET, AActor, flags7),
 	DEFINE_FLAG(MF7, HITMASTER, AActor, flags7),
 	DEFINE_FLAG(MF7, HITTRACER, AActor, flags7),
-	
-	// [ZK] Decal flags
-	DEFINE_FLAG(MF7, NODECAL, AActor, flags7),
+	DEFINE_FLAG(MF7, NODECAL, AActor, flags7), // [ZK] Decal flags
 	DEFINE_FLAG(MF7, FORCEDECAL, AActor, flags7),
+	DEFINE_FLAG(MF7, FILTERHIDES, AActor, flags7),
 
 	// Effect flags
 	DEFINE_FLAG(FX, VISIBILITYPULSE, AActor, effects),

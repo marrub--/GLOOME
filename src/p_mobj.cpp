@@ -304,6 +304,7 @@ void AActor::Serialize (FArchive &arc)
 		<< BlockingMobj
 		<< BlockingLine
 		<< VisibleToTeam // [BB]
+		<< VisibleFilter // [fdari]
 		<< pushfactor
 		<< Species
 		<< Score;
@@ -948,6 +949,8 @@ bool AActor::CheckLocalView (int playernum) const
 //
 //============================================================================
 
+#include "actorptrselect.h"
+
 bool AActor::IsVisibleToPlayer() const
 {
 	// [BB] Safety check. This should never be NULL. Nevertheless, we return true to leave the default ZDoom behavior unaltered.
@@ -974,6 +977,22 @@ bool AActor::IsVisibleToPlayer() const
 		}
 		if(!visible)
 			return false;
+	}
+	
+	// [FDARI] Passed all checks but the filter
+	
+	if(VisibleFilter)
+	{
+		// FDARI had a nice setup for this that involved a lot of extra safety precautions,
+		// but we really don't give a shit here. Really, it isn't mutated at all down the
+		// line anyway, so there's no reason to have it const when it will take a bunch
+		// more code to do.
+		if(AAPTR_FILTER((AActor *)this, pPlayer->mo, VisibleFilter))
+		{
+			return !(pPlayer->mo->flags7 & MF7_FILTERHIDES);
+		}
+		
+		return !!(pPlayer->mo->flags7 & MF7_FILTERHIDES);
 	}
 
 	// [BB] Passed all checks.

@@ -3711,6 +3711,8 @@ enum
 	APROP_DamageMultiplier,
 	APROP_MaxStepHeight,
 	APROP_MaxDropOffHeight,
+	APROP_VisibleFilter,
+	APROP_FilterHides,
 };
 
 // These are needed for ACS's APROP_RenderStyle
@@ -3969,6 +3971,21 @@ void DLevelScript::DoSetActorProperty (AActor *actor, int property, int value)
 	case APROP_MaxDropOffHeight:
 		actor->MaxDropOffHeight = value;
 		break;
+	
+	case APROP_VisibleFilter:
+		actor->VisibleFilter = value;
+		break;
+	
+	case APROP_FilterHides:
+		if(value)
+		{
+			actor->flags7 |= MF7_FILTERHIDES;
+		}
+		else
+		{
+			actor->flags7 &= ~MF7_FILTERHIDES;
+		}
+		break;
 
 	default:
 		// do nothing.
@@ -4072,6 +4089,8 @@ int DLevelScript::GetActorProperty (int tid, int property, const SDWORD *stack, 
 	case APROP_Friction:	return actor->Friction;
 	case APROP_MaxStepHeight: return actor->MaxStepHeight;
 	case APROP_MaxDropOffHeight: return actor->MaxDropOffHeight;
+	case APROP_VisibleFilter: return actor->VisibleFilter;
+	case APROP_FilterHides: return !!(actor->flags7 & MF7_FILTERHIDES);
 
 	default:				return 0;
 	}
@@ -4121,6 +4140,7 @@ int DLevelScript::CheckActorProperty (int tid, int property, int value)
 		case APROP_StencilColor:
 		case APROP_MaxStepHeight:
 		case APROP_MaxDropOffHeight:
+		case APROP_VisibleFilter:
 			return (GetActorProperty(tid, property, NULL, 0) == value);
 
 		// Boolean values need to compare to a binary version of value
@@ -4133,6 +4153,7 @@ int DLevelScript::CheckActorProperty (int tid, int property, int value)
 		case APROP_Notarget:
 		case APROP_Notrigger:
 		case APROP_Dormant:
+		case APROP_FilterHides:
 			return (GetActorProperty(tid, property, NULL, 0) == (!!value));
 
 		// Strings are covered by GetActorProperty, but they're fairly
