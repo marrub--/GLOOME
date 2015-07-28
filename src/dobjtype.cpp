@@ -338,6 +338,7 @@ PClass *PClass::CreateDerivedClass (FName name, unsigned int size)
 		info->PainChances = NULL;
 		info->PainFlashes = NULL;
 		info->ColorSets = NULL;
+		info->ScoreOnDeath = 0;
 		m_RuntimeActors.Push (type);
 	}
 	return type;
@@ -433,6 +434,7 @@ void PClass::InitializeActorInfo ()
 	info->PainChances = NULL;
 	info->PainFlashes = NULL;
 	info->ColorSets = NULL;
+	info->ScoreOnDeath = 0;
 	m_RuntimeActors.Push (this);
 }
 

@@ -727,6 +727,11 @@ void AActor::Die (AActor *source, AActor *inflictor, int dmgflags)
 		}
 	}
 
+	if(GetClass()->ActorInfo->ScoreOnDeath != 0 && target != NULL && target->player != NULL)
+	{
+		target->Score += GetClass()->ActorInfo->ScoreOnDeath;
+	}
+	
 	if (extremelydead)
 	{
 		// We'll only get here if an actual extreme death state was used.

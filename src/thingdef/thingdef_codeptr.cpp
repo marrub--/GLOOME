@@ -3952,21 +3952,25 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_MonsterRefire)
 
 //===========================================================================
 //
-// [marrub] A_GiveScoreToTarget
-//
-// Does this really need a description?
+// [marrub] A_GiveScore
 //
 //===========================================================================
 
-DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveScoreToTarget)
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveScore)
 {
-	ACTION_PARAM_START(1);
+	ACTION_PARAM_START(2);
 	ACTION_PARAM_INT(amt, 0);
-	
-	if(self->target != NULL && self->target->health > 0)
+	ACTION_PARAM_INT(ptr, 0);
+
+	AActor *ref = COPY_AAPTR(self, ptr);
+
+	if(ref == NULL)
 	{
-		self->target->Score += ((amt == 0) ? (self->ScoreOnDeath) : (amt));
+		ACTION_SET_RESULT(false);
+		return;
 	}
+	
+	ref->Score += amt;
 }
 
 //===========================================================================

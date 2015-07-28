@@ -278,6 +278,7 @@ struct FActorInfo
 	TArray<const PClass *> ForbiddenToPlayerClass;
 	TArray<const PClass *> NoHeal;
 	TArray<bool>           NoHealInherited;
+	int ScoreOnDeath;
 };
 
 class FDoomEdMap

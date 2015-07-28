@@ -334,7 +334,7 @@ ACTOR Actor native //: Thinker
 	action native A_SetHealth(int health, int ptr = AAPTR_DEFAULT);
 	
 	// GLOOME
-	action native A_GiveScoreToTarget(int amt = 0);
+	action native A_GiveScore(int amt, int ptr = AAPTR_DEFAULT);
 	action native A_UserPSprite(int layer = 1, state pspState = "");
 	action native A_ClearUserPSprite(int layer = 1);
 	action native A_FilterVisibility(int ptr_bitmask);

@@ -539,8 +539,8 @@ DEFINE_PROPERTY(painchance, ZI, Actor)
 //==========================================================================
 DEFINE_PROPERTY(score, I, Actor)
 {
-	PROP_INT_PARM(id, 0);
-	defaults->ScoreOnDeath=id;
+	PROP_INT_PARM(amount, 0);
+	info->ScoreOnDeath = amount;
 }
 
 //==========================================================================
