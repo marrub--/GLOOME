@@ -286,7 +286,6 @@ ACTOR Actor native //: Thinker
 	action native A_DropWeaponPieces(class<Actor> p1, class<Actor> p2, class<Actor> p3);
 	action native A_PigPain ();
 	action native A_MonsterRefire(int chance, state label);
-	action native A_GiveScoreToTarget(int amt = 0);
 	action native A_SetAngle(float angle = 0, int flags = 0, int ptr = AAPTR_DEFAULT);
 	action native A_SetPitch(float pitch, int flags = 0, int ptr = AAPTR_DEFAULT);
 	action native A_SetRoll(float roll, int flags = 0, int ptr = AAPTR_DEFAULT);
@@ -335,6 +334,8 @@ ACTOR Actor native //: Thinker
 	action native A_SetHealth(int health, int ptr = AAPTR_DEFAULT);
 	
 	// GLOOME
+	action native A_GiveScoreToTarget(int amt = 0);
+	action native A_UserPSprite(int layer = 1, state pspState = "");
 	action native A_ClearUserPSprite(int layer = 1);
 	action native A_FilterVisibility(int ptr_bitmask);
 

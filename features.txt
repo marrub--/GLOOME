@@ -3,7 +3,8 @@ inis are much easier to distribute as "defaults" as they don't vary as much by p
 keyconf now handles cheat codes
 has a cooler icon than zdoom
 GAMEINFO now has a ticrate property
-more sane key and cvar defaults ;)
+more sane key and cvar defaults
+the best sounds and placeholder graphics for any zdoom.pk3 ever distributed by terminusest13
 cl_morphbob to allow player sprites to bob while morphed
 cl_facekiller enables/disables facing the thing that killed you
 cvarinfo now has an "acsonly" flag
@@ -12,7 +13,6 @@ subtractive glowing flats in GLDEFS, via FLATSUB and friends
 decorate:
 A_GiveScoreToTarget([int score = (actor's Score property)])
 Score actor property as the default of A_GiveScoreToTarget, will probably change this a bit later
-the best sounds and placeholder graphics for any zdoom.pk3 ever distributed by terminusest13
 +PLAYER.NOFALLDEATH flag that makes the player view not fall to the ground when they die
 A_PlaySound can now pitch shift
 +ROLLSPRITE allows roll to be applied to actors that use sprites

@@ -2446,7 +2446,7 @@ void P_ZMovement (AActor *mo, fixed_t oldfloorz)
 							if (mo->player->jumpTics > 0 && mo->player->jumpTics < 3)
 								mo->player->jumpTics = 3;
 							else if (mo->player->jumpTics < -15)
-								mo->player->jumpTics == -15;
+								mo->player->jumpTics = -15;
 							else if (mo->player->jumpTics == 0)
 								mo->player->jumpTics = 3;
 						}

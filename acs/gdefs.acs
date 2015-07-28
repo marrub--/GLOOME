@@ -285,6 +285,8 @@
 #define APROP_DamageMultiplier	43
 #define APROP_MaxStepHeight 44
 #define APROP_MaxDropOffHeight 45
+#define APROP_VisibleFilter 46
+#define APROP_FilterHides 47
 
 // Render Styles ------------------------------------------------------------
 
@@ -1048,6 +1050,8 @@
 #define QF_FULLINTENSITY	1 << 4
 #define QF_WAVE			1 << 5
 
+// GLOOME
+
 #define PAF_FORCETID  1
 #define PAF_RETURNTID 2
 
@@ -1071,3 +1075,4 @@
 #define WARPF_BOB 0x800
 #define WARPF_MOVEPTR 0x1000
 #define WARPF_USEPTR 0x2000
+
