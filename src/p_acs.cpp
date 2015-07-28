@@ -4594,6 +4594,7 @@ enum EACSFunctions
 	ACSF_KeyIsBoundSym, // 11204
 	ACSF_ReadUserData,
 	ACSF_ReadUserDataChar,
+	ACSF_Squat,
 
 	// ZDaemon
 	ACSF_GetTeamScore = 19620,	// (int team)
@@ -6444,6 +6445,38 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			wadlump >> c;
 			
 			return c;
+		}
+		
+		case ACSF_Squat:
+		{
+			AActor *mo;
+			int playernum = args[0];
+			fixed_t velocity = args[1];
+			
+			if(playernum == -1)
+			{
+				mo = activator;
+			}
+			else if(playernum < 8 && playernum >= 0)
+			{
+				mo = players[playernum].mo;
+			}
+			else
+			{
+				return 1;
+			}
+			
+			if(mo->player == NULL)
+			{
+				return 1;
+			}
+			
+			if(mo->player->mo == mo)
+			{
+				mo->player->deltaviewheight = -velocity >> 3;
+			}
+			
+			break;
 		}
 
 		default:

@@ -381,6 +381,7 @@ special
 	-11204:KeyIsBoundSym(2),     // bool KeyIsBoundSym(int key, str cmd)
 	-11205:ReadUserData(1),      // string ReadUserData(string file)
 	-11206:ReadUserDataChar(2),  // char ReadUserDataChar(string file, int pos)
+	-11207:Squat(2),             // bool Squat(int playerNum, fixed velocity)
 
 	// ZDaemon's
 	-19620:GetTeamScore(1),
