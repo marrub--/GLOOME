@@ -78,7 +78,10 @@ typedef enum {
 	ns_music,
 
 	ns_firstskin,
+	
+	// [marrub] GLOOME namespaces
 	ns_userdata,
+	ns_hitmaps,
 } namespace_t;
 
 enum ELumpFlags

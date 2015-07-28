@@ -381,6 +381,7 @@ bool FWadFile::Open(bool quiet)
 		SetNamespace("HI_START", "HI_END", ns_hires);
 		SetNamespace("VX_START", "VX_END", ns_voxels);
 		SetNamespace("UD_START", "UD_END", ns_userdata);
+		SetNamespace("HM_START", "HM_END", ns_hitmaps);
 		SkinHack();
 	}
 	return true;

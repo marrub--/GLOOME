@@ -120,6 +120,7 @@ void FResourceLump::LumpNameSetup(const char *iname)
 				!strncmp(iname, "sounds/", 7)		? ns_sounds :
 				!strncmp(iname, "music/", 6)		? ns_music : 
 				!strncmp(iname, "userdata/", 9) ? ns_userdata :
+				!strncmp(iname, "hitmaps/", 9) ? ns_hitmaps :
 				!strchr(iname, '/')					? ns_global :
 				-1;
 	
