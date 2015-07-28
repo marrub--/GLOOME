@@ -6237,17 +6237,20 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			fixed_t zofs = args[3];
 			angle_t angle = args[4];
 			int flags = args[5];
-			int ptr_dest = argCount > 6 ? args[6] : 0;
-			const char *statename = argCount > 7 ? FBehavior::StaticLookupString(args[7]) : "";
-			bool exact = argCount > 8 ? !!args[8] : false;
+			const char *statename = argCount > 6 ? FBehavior::StaticLookupString(args[6]) : "";
+			bool exact = argCount > 7 ? !!args[7] : false;
 
-			FState *state = argCount > 7 ? activator->GetClass()->ActorInfo->FindStateByString(statename, exact) : 0;
+			FState *state = argCount > 6 ? activator->GetClass()->ActorInfo->FindStateByString(statename, exact) : 0;
 
 			AActor *reference;
-			if ((flags & WARPF_USEPTR) && ptr_dest != AAPTR_DEFAULT)
-				reference = COPY_AAPTR(activator, ptr_dest);
+			if((flags & WARPF_USEPTR) && tid_dest != AAPTR_DEFAULT)
+			{
+				reference = COPY_AAPTR(activator, tid_dest);
+			}
 			else
+			{
 				reference = SingleActorFromTID(tid_dest, activator);
+			}
 
 			// If there is no actor to warp to, fail.
 			if (!reference)
