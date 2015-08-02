@@ -259,31 +259,90 @@ void GLSprite::Draw(int pass)
 		Vector v3(x1, z2, y1);
 		Vector v4(x2, z2, y2);
 
-		if (drawWithXYBillboard || (actor != NULL && (actor->renderflags & RF_ROLLSPRITE)))
+		DWORD spritetype = (DWORD)-1;
+		if (actor != NULL) spritetype = actor->renderflags & RF_SPRITETYPEMASK;
+		if (spritetype == RF_FACESPRITE || (particle && gl_billboard_particles))
+		{
+			if (drawWithXYBillboard || (actor->renderflags & RF_ROLLSPRITE))
+			{
+				float xcenter = (x1 + x2)*0.5;
+				float ycenter = (y1 + y2)*0.5;
+				float zcenter = (z1 + z2)*0.5;
+				float angleRad = DEG2RAD(270. - float(GLRenderer->mAngles.Yaw));
+
+				Matrix3x4 mat;
+				mat.MakeIdentity();
+				mat.Translate(xcenter, zcenter, ycenter);
+				if (drawWithXYBillboard)
+				{ // Rotate the sprite about a vector perpendicular to the sight vector
+					mat.Rotate(-sin(angleRad), 0, cos(angleRad), -GLRenderer->mAngles.Pitch);
+				}
+				if (actor != NULL && (actor->renderflags & RF_ROLLSPRITE))
+				{ // [fgsfds] Rotate the sprite about the sight vector (roll)
+					mat.Rotate(cos(angleRad), 0, sin(angleRad), 360.0 * (1.0 - ((actor->roll >> 16) / (float)(65536))));
+				}
+
+				mat.Translate(-xcenter, -zcenter, -ycenter);
+
+				v1 = mat * v1;
+				v2 = mat * v2;
+				v3 = mat * v3;
+				v4 = mat * v4;
+			}
+		} 
+		else if (spritetype == RF_WALLSPRITE && (actor->renderflags & RF_ROLLSPRITE))
 		{
 			float xcenter = (x1 + x2)*0.5;
 			float ycenter = (y1 + y2)*0.5;
 			float zcenter = (z1 + z2)*0.5;
-			float angleRad = DEG2RAD(270. - float(GLRenderer->mAngles.Yaw));
+			float yawvecX = FIXED2FLOAT(finecosine[actor->angle >> ANGLETOFINESHIFT]);
+			float yawvecY = FIXED2FLOAT(finesine[actor->angle >> ANGLETOFINESHIFT]);
 
 			Matrix3x4 mat;
 			mat.MakeIdentity();
 			mat.Translate(xcenter, zcenter, ycenter);
-			if(drawWithXYBillboard)
-			{ // Rotate the sprite about a vector perpendicular to the sight vector
-				mat.Rotate(-sin(angleRad), 0, cos(angleRad), -GLRenderer->mAngles.Pitch);
-			}
-			if(actor != NULL && (actor->renderflags & RF_ROLLSPRITE))
-			{ // [fgsfds] Rotate the sprite about the sight vector (roll)
-				mat.Rotate(cos(angleRad), 0, sin(angleRad), 360.0 * (1.0 - ((actor->roll >> 16) / (float)(65536))));
-			}
-
+			// [fgsfds] Rotate the sprite about the actor sight vector (roll)
+			mat.Rotate(yawvecX, yawvecY, 0, 360.0 * (1.0 - ((actor->roll >> 16) / (float)(65536))));
 			mat.Translate(-xcenter, -zcenter, -ycenter);
 
 			v1 = mat * v1;
 			v2 = mat * v2;
 			v3 = mat * v3;
 			v4 = mat * v4;
+		}
+		else if (spritetype == RF_FLOORSPRITE || spritetype == RF_CEILSPRITE)
+		{
+			float xcenter = (x1 + x2)*0.5;
+			float ycenter = (y1 + y2)*0.5;
+			float zcenter = (z1 + z2)*0.5;
+			float yawvecX = FIXED2FLOAT(finecosine[actor->angle >> ANGLETOFINESHIFT]);
+			float yawvecY = FIXED2FLOAT(finesine[actor->angle >> ANGLETOFINESHIFT]);
+
+			Matrix3x4 mat;
+			mat.MakeIdentity();
+			mat.Translate(xcenter, zcenter, ycenter);
+			// [fgsfds] Rotate the sprite about the actor sight vector (roll)
+			if (actor->renderflags & RF_ROLLSPRITE)
+				mat.Rotate(yawvecX, 0, yawvecY, 360.f * (1.f - ((actor->roll >> 16) / (float)(65536))));
+			// [fgsfds] Evil hack: rotate the sprite so it faces upwards/downwards
+			mat.Rotate(-yawvecY, 0, yawvecX, -90.f);
+			mat.Translate(-xcenter, -zcenter, -ycenter);
+
+			v1 = mat * v1;
+			v2 = mat * v2;
+			v3 = mat * v3;
+			v4 = mat * v4;
+			
+			if (actor->renderflags & RF_STICKTOPLANE)
+			{
+				// [fgsfds] Evil hack #2: stick the sprite to the floor/ceiling (TODO: add slope support)
+				float zstick = z2;
+				if (spritetype == RF_FLOORSPRITE) zstick += 0.001;
+				v1[1] = zstick;
+				v2[1] = zstick;
+				v3[1] = zstick;
+				v4[1] = zstick;
+			}
 		}
 
 		glBegin(GL_TRIANGLE_STRIP);
@@ -662,15 +721,26 @@ void GLSprite::Process(AActor* thing,sector_t * sector)
 	
 
 	x = FIXED2FLOAT(thingx);
-	z = FIXED2FLOAT(thingz-thing->floorclip);
-	y = FIXED2FLOAT(thingy);
-
-	// [RH] Make floatbobbing a renderer-only effect.
-	if (thing->flags2 & MF2_FLOATBOB)
+	DWORD spritetype = thing->renderflags & RF_SPRITETYPEMASK;
+	switch (spritetype)
 	{
-		float fz = FIXED2FLOAT(thing->GetBobOffset(r_TicFrac));
-		z += fz;
+	case RF_FLOORSPRITE:
+		z = FIXED2FLOAT(rendersector->floorplane.ZatPoint(thingx, thingy));
+		break;
+	case RF_CEILSPRITE:
+		z = FIXED2FLOAT(rendersector->ceilingplane.ZatPoint(thingx, thingy));
+		break;
+	default:
+		z = FIXED2FLOAT(thingz-thing->floorclip);
+		// [RH] Make floatbobbing a renderer-only effect.
+		if (thing->flags2 & MF2_FLOATBOB)
+		{
+			float fz = FIXED2FLOAT(thing->GetBobOffset(r_TicFrac));
+			z += fz;
+		}
+		break;
 	}
+	y = FIXED2FLOAT(thingy);
 	
 	modelframe = gl_FindModelFrame(RUNTIME_TYPE(thing), spritenum, thing->frame, !!(thing->flags & MF_DROPPED));
 	if (!modelframe)
@@ -710,13 +780,11 @@ void GLSprite::Process(AActor* thing,sector_t * sector)
 
 		// Tests show that this doesn't look good for many decorations and corpses
 		if (spriteheight > 0 && gl_spriteclip > 0 && (thing->renderflags & RF_SPRITETYPEMASK) == RF_FACESPRITE)
-		{
 			PerformSpriteClipAdjustment(thing, thingx, thingy, spriteheight);
-		}
 
 		float viewvecX;
 		float viewvecY;
-		switch (thing->renderflags & RF_SPRITETYPEMASK)
+		switch (spritetype)
 		{
 		case RF_FACESPRITE:
 			viewvecX = GLRenderer->mViewVector.X;
@@ -729,6 +797,8 @@ void GLSprite::Process(AActor* thing,sector_t * sector)
 			break;
 
 		case RF_WALLSPRITE:
+		case RF_FLOORSPRITE:
+		case RF_CEILSPRITE:
 			viewvecX = FIXED2FLOAT(finecosine[thing->angle >> ANGLETOFINESHIFT]);
 			viewvecY = FIXED2FLOAT(finesine[thing->angle >> ANGLETOFINESHIFT]);
 
