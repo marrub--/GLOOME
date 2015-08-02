@@ -265,6 +265,10 @@ static FFlagDef ActorFlags[]=
 	DEFINE_FLAG(RF, FORCEYBILLBOARD, AActor, renderflags),
 	DEFINE_FLAG(RF, FORCEXYBILLBOARD, AActor, renderflags),
 	DEFINE_FLAG(RF, ROLLSPRITE, AActor, renderflags),
+	DEFINE_FLAG(RF, FLOORSPRITE, AActor, renderflags),
+	DEFINE_FLAG(RF, CEILSPRITE, AActor, renderflags),
+	DEFINE_FLAG(RF, WALLSPRITE, AActor, renderflags),
+	DEFINE_FLAG(RF, STICKTOPLANE, AActor, renderflags),
 
 	// Bounce flags
 	DEFINE_FLAG2(BOUNCE_Walls, BOUNCEONWALLS, AActor, BounceFlags),
