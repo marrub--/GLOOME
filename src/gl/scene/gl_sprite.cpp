@@ -336,8 +336,8 @@ void GLSprite::Draw(int pass)
 			if (actor->renderflags & RF_STICKTOPLANE)
 			{
 				// [fgsfds] Evil hack #2: stick the sprite to the floor/ceiling (TODO: add slope support)
-				float zstick = z2;
-				if (spritetype == RF_FLOORSPRITE) zstick += 0.001;
+				float zstick = spritetype == RF_FLOORSPRITE ? actor->Sector->floorplane.ZatPoint((double)xcenter, (double)ycenter) + 0.001 : 
+				                                              actor->Sector->ceilingplane.ZatPoint((double)xcenter, (double)ycenter) - 0.002;
 				v1[1] = zstick;
 				v2[1] = zstick;
 				v3[1] = zstick;
@@ -725,10 +725,8 @@ void GLSprite::Process(AActor* thing,sector_t * sector)
 	switch (spritetype)
 	{
 	case RF_FLOORSPRITE:
-		z = FIXED2FLOAT(rendersector->floorplane.ZatPoint(thingx, thingy));
-		break;
 	case RF_CEILSPRITE:
-		z = FIXED2FLOAT(rendersector->ceilingplane.ZatPoint(thingx, thingy));
+		z = FIXED2FLOAT(thingz);
 		break;
 	default:
 		z = FIXED2FLOAT(thingz-thing->floorclip);
