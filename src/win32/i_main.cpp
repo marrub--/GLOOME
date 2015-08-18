@@ -106,6 +106,7 @@ LRESULT CALLBACK WndProc (HWND, UINT, WPARAM, LPARAM);
 void CreateCrashLog (char *custominfo, DWORD customsize, HWND richedit);
 void DisplayCrashLog ();
 extern BYTE *ST_Util_BitsForBitmap (BITMAPINFO *bitmap_info);
+void I_FlushBufferedConsoleStuff();
 
 // PUBLIC FUNCTION PROTOTYPES ----------------------------------------------
 
@@ -128,6 +129,7 @@ HANDLE			MainThread;
 DWORD			MainThreadID;
 HANDLE			StdOut;
 bool			FancyStdOut, AttachedStdOut;
+bool			ConWindowHidden;
 
 // The main window
 HWND			Window;
@@ -644,6 +646,7 @@ void I_SetWndProc()
 		SetWindowLongPtr (Window, GWLP_USERDATA, 1);
 		SetWindowLongPtr (Window, GWLP_WNDPROC, (WLONG_PTR)WndProc);
 		ShowWindow (ConWindow, SW_HIDE);
+		ConWindowHidden = true;
 		ShowWindow (GameTitleWindow, SW_HIDE);
 		I_InitInput (Window);
 	}
@@ -675,8 +678,10 @@ void RestoreConView()
 
 	SetWindowLongPtr (Window, GWLP_WNDPROC, (WLONG_PTR)LConProc);
 	ShowWindow (ConWindow, SW_SHOW);
+	ConWindowHidden = false;
 	ShowWindow (GameTitleWindow, SW_SHOW);
 	I_ShutdownInput ();		// Make sure the mouse pointer is available.
+	I_FlushBufferedConsoleStuff();
 	// Make sure the progress bar isn't visible.
 	if (StartScreen != NULL)
 	{
@@ -713,7 +718,7 @@ void ShowErrorPane(const char *text)
 	if (text != NULL)
 	{
 		char caption[100];
-		mysnprintf(caption, countof(caption), "Fatal Error - " GAMESIG " %s " X64, GetVersionString());
+		mysnprintf(caption, countof(caption), "Fatal Error - " GAMESIG " %s " X64 " (%s)", GetVersionString(), GetGitTime());
 		SetWindowText (Window, caption);
 		ErrorIcon = CreateWindowEx (WS_EX_NOPARENTNOTIFY, "STATIC", NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | SS_OWNERDRAW, 0, 0, 0, 0, Window, NULL, g_hInst, NULL);
 		if (ErrorIcon != NULL)
@@ -907,11 +912,7 @@ void DoMain (HINSTANCE hInstance)
 		FixPathSeperator(program);
 		progdir.Truncate((long)strlen(program));
 		progdir.UnlockBuffer();
-/*
-		height = GetSystemMetrics (SM_CYFIXEDFRAME) * 2 +
-				GetSystemMetrics (SM_CYCAPTION) + 12 * 32;
-		width  = GetSystemMetrics (SM_CXFIXEDFRAME) * 2 + 8 * 78;
-*/
+
 		width = 512;
 		height = 384;
 
@@ -946,7 +947,7 @@ void DoMain (HINSTANCE hInstance)
 		
 		/* create window */
 		char caption[100];
-		mysnprintf(caption, countof(caption), GAMESIG " %s " X64, GetVersionString());
+		mysnprintf(caption, countof(caption), "" GAMESIG " %s " X64 " (%s)", GetVersionString(), GetGitTime());
 		Window = CreateWindowEx(
 				WS_EX_APPWINDOW,
 				(LPCTSTR)WinClassName,
@@ -1047,7 +1048,7 @@ void DoomSpecificInfo (char *buffer, size_t bufflen)
 	char *const buffend = buffer + bufflen - 2;	// -2 for CRLF at end
 	int i;
 
-	buffer += mysnprintf (buffer, buffend - buffer, GAMENAME " " VERSIONSTR);
+	buffer += mysnprintf (buffer, buffend - buffer, GAMENAME " version %s (%s)", GetVersionString(), GetGitHash());
 	buffer += mysnprintf (buffer, buffend - buffer, "\r\nCommand line: %s\r\n", GetCommandLine());
 
 	for (i = 0; (arg = Wads.GetWadName (i)) != NULL; ++i)
@@ -1292,20 +1293,3 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE nothing, LPSTR cmdline, int n
 	MainThread = INVALID_HANDLE_VALUE;
 	return 0;
 }
-
-//==========================================================================
-//
-// CCMD crashout
-//
-// Debugging routine for testing the crash logger.
-// Useless in a debug build, because that doesn't enable the crash logger.
-//
-//==========================================================================
-
-#ifndef _DEBUG
-#include "c_dispatch.h"
-CCMD (crashout)
-{
-	*(int *)0 = 0;
-}
-#endif

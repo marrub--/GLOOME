@@ -70,8 +70,10 @@
 #include "m_bbox.h"
 #include "r_data/r_translate.h"
 #include "p_trace.h"
+#include "p_setup.h"
 #include "gstrings.h"
 
+AActor *SingleActorFromTID (int tid, AActor *defactor);
 
 static FRandom pr_camissile ("CustomActorfire");
 static FRandom pr_camelee ("CustomMelee");
@@ -1500,7 +1502,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_CustomPunch)
 //==========================================================================
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_RailAttack)
 {
-	ACTION_PARAM_START(16);
+	ACTION_PARAM_START(17);
 	ACTION_PARAM_INT(Damage, 0);
 	ACTION_PARAM_INT(Spawnofs_XY, 1);
 	ACTION_PARAM_BOOL(UseAmmo, 2);
@@ -1517,6 +1519,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_RailAttack)
 	ACTION_PARAM_DOUBLE(DriftSpeed, 13);
 	ACTION_PARAM_CLASS(SpawnClass, 14);
 	ACTION_PARAM_FIXED(Spawnofs_Z, 15);
+	ACTION_PARAM_INT(SpiralOffset, 16);
 	
 	if(Range==0) Range=8192*FRACUNIT;
 	if(Sparsity==0) Sparsity=1.0;
@@ -1545,7 +1548,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_RailAttack)
 		slope = pr_crailgun.Random2() * (Spread_Z / 255);
 	}
 
-	P_RailAttack (self, Damage, Spawnofs_XY, Spawnofs_Z, Color1, Color2, MaxDiff, Flags, PuffType, angle, slope, Range, Duration, Sparsity, DriftSpeed, SpawnClass);
+	P_RailAttack (self, Damage, Spawnofs_XY, Spawnofs_Z, Color1, Color2, MaxDiff, Flags, PuffType, angle, slope, Range, Duration, Sparsity, DriftSpeed, SpawnClass, SpiralOffset);
 }
 
 //==========================================================================
@@ -1563,7 +1566,7 @@ enum
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_CustomRailgun)
 {
-	ACTION_PARAM_START(16);
+	ACTION_PARAM_START(17);
 	ACTION_PARAM_INT(Damage, 0);
 	ACTION_PARAM_INT(Spawnofs_XY, 1);
 	ACTION_PARAM_COLOR(Color1, 2);
@@ -1580,6 +1583,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_CustomRailgun)
 	ACTION_PARAM_DOUBLE(DriftSpeed, 13);
 	ACTION_PARAM_CLASS(SpawnClass, 14);
 	ACTION_PARAM_FIXED(Spawnofs_Z, 15);
+	ACTION_PARAM_INT(SpiralOffset, 16);
 
 	if(Range==0) Range=8192*FRACUNIT;
 	if(Sparsity==0) Sparsity=1.0;
@@ -1663,7 +1667,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_CustomRailgun)
 		slopeoffset = pr_crailgun.Random2() * (Spread_Z / 255);
 	}
 
-	P_RailAttack (self, Damage, Spawnofs_XY, Spawnofs_Z, Color1, Color2, MaxDiff, Flags, PuffType, angleoffset, slopeoffset, Range, Duration, Sparsity, DriftSpeed, SpawnClass);
+	P_RailAttack (self, Damage, Spawnofs_XY, Spawnofs_Z, Color1, Color2, MaxDiff, Flags, PuffType, angleoffset, slopeoffset, Range, Duration, Sparsity, DriftSpeed, SpawnClass, SpiralOffset);
 
 	self->x = saved_x;
 	self->y = saved_y;
@@ -1677,14 +1681,17 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_CustomRailgun)
 //
 //===========================================================================
 
-static void DoGiveInventory(AActor *receiver, DECLARE_PARAMINFO)
+static void DoGiveInventory(AActor * receiver, bool use_aaptr, DECLARE_PARAMINFO)
 {
-	ACTION_PARAM_START(3);
+	ACTION_PARAM_START(2+use_aaptr);
 	ACTION_PARAM_CLASS(mi, 0);
 	ACTION_PARAM_INT(amount, 1);
-	ACTION_PARAM_INT(setreceiver, 2);
 
-	COPY_AAPTR_NOT_NULL(receiver, receiver, setreceiver);
+	if (use_aaptr)
+	{
+		ACTION_PARAM_INT(setreceiver, 2);
+		COPY_AAPTR_NOT_NULL(receiver, receiver, setreceiver);
+	}
 
 	bool res=true;
 	
@@ -1692,6 +1699,11 @@ static void DoGiveInventory(AActor *receiver, DECLARE_PARAMINFO)
 	if (mi) 
 	{
 		AInventory *item = static_cast<AInventory *>(Spawn (mi, 0, 0, 0, NO_REPLACE));
+		if (!item)
+		{
+			ACTION_SET_RESULT(false);
+			return;
+		}
 		if (item->IsKindOf(RUNTIME_CLASS(AHealth)))
 		{
 			item->Amount *= amount;
@@ -1716,12 +1728,12 @@ static void DoGiveInventory(AActor *receiver, DECLARE_PARAMINFO)
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveInventory)
 {
-	DoGiveInventory(self, PUSH_PARAMINFO);
+	DoGiveInventory(self, true, PUSH_PARAMINFO);
 }	
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveToTarget)
 {
-	DoGiveInventory(self->target, PUSH_PARAMINFO);
+	DoGiveInventory(self->target, true, PUSH_PARAMINFO);
 }	
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveToChildren)
@@ -1731,7 +1743,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveToChildren)
 
 	while ((mo = it.Next()))
 	{
-		if (mo->master == self) DoGiveInventory(mo, PUSH_PARAMINFO);
+		if (mo->master == self) DoGiveInventory(mo, false, PUSH_PARAMINFO);
 	}
 }
 
@@ -1744,7 +1756,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_GiveToSiblings)
 	{
 		while ((mo = it.Next()))
 		{
-			if (mo->master == self->master && mo != self) DoGiveInventory(mo, PUSH_PARAMINFO);
+			if (mo->master == self->master && mo != self) DoGiveInventory(mo, false, PUSH_PARAMINFO);
 		}
 	}
 }
@@ -1760,53 +1772,36 @@ enum
 	TIF_NOTAKEINFINITE = 1,
 };
 
-void DoTakeInventory(AActor * receiver, DECLARE_PARAMINFO)
+void DoTakeInventory(AActor * receiver, bool use_aaptr, DECLARE_PARAMINFO)
 {
-	ACTION_PARAM_START(4);
+	ACTION_PARAM_START(3+use_aaptr);
 	ACTION_PARAM_CLASS(item, 0);
 	ACTION_PARAM_INT(amount, 1);
 	ACTION_PARAM_INT(flags, 2);
-	ACTION_PARAM_INT(setreceiver, 3);
 	
-	if (!item) return;
-	COPY_AAPTR_NOT_NULL(receiver, receiver, setreceiver);
-
-	bool res = false;
-
-	AInventory * inv = receiver->FindInventory(item);
-
-	if (inv && !inv->IsKindOf(RUNTIME_CLASS(AHexenArmor)))
+	if (!item)
 	{
-		if (inv->Amount > 0)
-		{
-			res = true;
-		}
-		// Do not take ammo if the "no take infinite/take as ammo depletion" flag is set
-		// and infinite ammo is on
-		if (flags & TIF_NOTAKEINFINITE &&
-			((dmflags & DF_INFINITE_AMMO) || (receiver->player->cheats & CF_INFINITEAMMO)) &&
-			inv->IsKindOf(RUNTIME_CLASS(AAmmo)))
-		{
-			// Nothing to do here, except maybe res = false;? Would it make sense?
-		}
-		else if (!amount || amount>=inv->Amount) 
-		{
-			if (inv->ItemFlags&IF_KEEPDEPLETED) inv->Amount=0;
-			else inv->Destroy();
-		}
-		else inv->Amount-=amount;
+		ACTION_SET_RESULT(false);
+		return;
 	}
+	if (use_aaptr)
+	{
+		ACTION_PARAM_INT(setreceiver, 3);
+		COPY_AAPTR_NOT_NULL(receiver, receiver, setreceiver);
+	}
+
+	bool res = receiver->TakeInventory(item, amount, true, (flags & TIF_NOTAKEINFINITE) != 0);
 	ACTION_SET_RESULT(res);
 }
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_TakeInventory)
 {
-	DoTakeInventory(self, PUSH_PARAMINFO);
+	DoTakeInventory(self, true, PUSH_PARAMINFO);
 }	
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_TakeFromTarget)
 {
-	DoTakeInventory(self->target, PUSH_PARAMINFO);
+	DoTakeInventory(self->target, true, PUSH_PARAMINFO);
 }	
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_TakeFromChildren)
@@ -1816,7 +1811,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_TakeFromChildren)
 
 	while ((mo = it.Next()))
 	{
-		if (mo->master == self) DoTakeInventory(mo, PUSH_PARAMINFO);
+		if (mo->master == self) DoTakeInventory(mo, false, PUSH_PARAMINFO);
 	}
 }
 
@@ -1829,7 +1824,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_TakeFromSiblings)
 	{
 		while ((mo = it.Next()))
 		{
-			if (mo->master == self->master && mo != self) DoTakeInventory(mo, PUSH_PARAMINFO);
+			if (mo->master == self->master && mo != self) DoTakeInventory(mo, false, PUSH_PARAMINFO);
 		}
 	}
 }
@@ -1842,32 +1837,35 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_TakeFromSiblings)
 
 enum SIX_Flags
 {
-	SIXF_TRANSFERTRANSLATION  = 1 << 0,
-	SIXF_ABSOLUTEPOSITION     = 1 << 1,
-	SIXF_ABSOLUTEANGLE        = 1 << 2,
-	SIXF_ABSOLUTEVELOCITY     = 1 << 3,
-	SIXF_SETMASTER            = 1 << 4,
-	SIXF_NOCHECKPOSITION      = 1 << 5,
-	SIXF_TELEFRAG             = 1 << 6,
-	SIXF_CLIENTSIDE           = 1 << 7,	// only used by Skulldronum
-	SIXF_TRANSFERAMBUSHFLAG   = 1 << 8,
-	SIXF_TRANSFERPITCH        = 1 << 9,
-	SIXF_TRANSFERPOINTERS     = 1 << 10,
-	SIXF_USEBLOODCOLOR        = 1 << 11,
-	SIXF_CLEARCALLERTID       = 1 << 12,
-	SIXF_MULTIPLYSPEED        = 1 << 13,
-	SIXF_TRANSFERSCALE        = 1 << 14,
-	SIXF_TRANSFERSPECIAL      = 1 << 15,
-	SIXF_CLEARCALLERSPECIAL   = 1 << 16,
-	SIXF_TRANSFERSTENCILCOL   = 1 << 17,
-	SIXF_TRANSFERALPHA        = 1 << 18,
-	SIXF_TRANSFERRENDERSTYLE  = 1 << 19,
-	SIXF_SETTARGET            = 1 << 20,
-	SIXF_SETTRACER            = 1 << 21,
-	SIXF_NOPOINTERS           = 1 << 22,
-	SIXF_ORIGINATOR           = 1 << 23,
-	SIXF_TRANSFERSPRITEFRAME  = 1 << 24,
-	SIXF_TRANSFERROLL         = 1 << 25,
+	SIXF_TRANSFERTRANSLATION	= 0x00000001,
+	SIXF_ABSOLUTEPOSITION		= 0x00000002,
+	SIXF_ABSOLUTEANGLE			= 0x00000004,
+	SIXF_ABSOLUTEVELOCITY		= 0x00000008,
+	SIXF_SETMASTER				= 0x00000010,
+	SIXF_NOCHECKPOSITION		= 0x00000020,
+	SIXF_TELEFRAG				= 0x00000040,
+	SIXF_CLIENTSIDE				= 0x00000080,	// only used by Skulldronum
+	SIXF_TRANSFERAMBUSHFLAG		= 0x00000100,
+	SIXF_TRANSFERPITCH			= 0x00000200,
+	SIXF_TRANSFERPOINTERS		= 0x00000400,
+	SIXF_USEBLOODCOLOR			= 0x00000800,
+	SIXF_CLEARCALLERTID			= 0x00001000,
+	SIXF_MULTIPLYSPEED			= 0x00002000,
+	SIXF_TRANSFERSCALE			= 0x00004000,
+	SIXF_TRANSFERSPECIAL		= 0x00008000,
+	SIXF_CLEARCALLERSPECIAL		= 0x00010000,
+	SIXF_TRANSFERSTENCILCOL		= 0x00020000,
+	SIXF_TRANSFERALPHA			= 0x00040000,
+	SIXF_TRANSFERRENDERSTYLE	= 0x00080000,
+	SIXF_SETTARGET				= 0x00100000,
+	SIXF_SETTRACER				= 0x00200000,
+	SIXF_NOPOINTERS				= 0x00400000,
+	SIXF_ORIGINATOR				= 0x00800000,
+	SIXF_TRANSFERSPRITEFRAME	= 0x01000000,
+	SIXF_TRANSFERROLL			= 0x02000000,
+	SIXF_ISTARGET				= 0x04000000,
+	SIXF_ISMASTER				= 0x08000000,
+	SIXF_ISTRACER				= 0x10000000,
 };
 
 static bool InitSpawnedItem(AActor *self, AActor *mo, int flags)
@@ -2013,16 +2011,30 @@ static bool InitSpawnedItem(AActor *self, AActor *mo, int flags)
 	{
 		mo->RenderStyle = self->RenderStyle;
 	}
+	
 	if (flags & SIXF_TRANSFERSPRITEFRAME)
 	{
 		mo->sprite = self->sprite;
 		mo->frame = self->frame;
 	}
+
 	if (flags & SIXF_TRANSFERROLL)
 	{
 		mo->roll = self->roll;
 	}
 
+	if (flags & SIXF_ISTARGET)
+	{
+		self->target = mo;
+	}
+	if (flags & SIXF_ISMASTER)
+	{
+		self->master = mo;
+	}
+	if (flags & SIXF_ISTRACER)
+	{
+		self->tracer = mo;
+	}
 	return true;
 }
 
@@ -2529,7 +2541,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetScale)
 
 	AActor *ref = COPY_AAPTR(self, ptr);
 
-	if(ref == NULL)
+	if (!ref)
 	{
 		ACTION_SET_RESULT(false);
 		return;
@@ -2663,10 +2675,9 @@ static bool DoCheckSightOrRange(AActor *self, AActor *camera, double range, bool
 	{
 		dz = 0;
 	}
-
 	double distance = (dx * dx) + (dy * dy) + (twodi == 0? (dz * dz) : 0);
-	if(distance <= range)
-	{ // Within range
+	if (distance <= range){
+		// Within range
 		return true;
 	}
 
@@ -2725,22 +2736,18 @@ static bool DoCheckRange(AActor *self, AActor *camera, double range, bool twodi)
 	double dy = self->y - camera->y;
 	double dz;
 	fixed_t eyez = (camera->z + camera->height - (camera->height>>2));	// same eye height as P_CheckSight
-	if (eyez > self->z + self->height)
-	{
+	if (eyez > self->z + self->height){
 		dz = self->z + self->height - eyez;
 	}
-	else if (eyez < self->z)
-	{
+	else if (eyez < self->z){
 		dz = self->z - eyez;
 	}
-	else
-	{
+	else{
 		dz = 0;
 	}
-
 	double distance = (dx * dx) + (dy * dy) + (twodi == 0? (dz * dz) : 0);
-	if (distance <= range)
-	{ // Within range
+	if (distance <= range){
+		// Within range
 		return true;
 	}
 	return false;
@@ -3016,6 +3023,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Respawn)
 	fixed_t oldz = self->z;
 	self->flags |= MF_SOLID;
 	self->height = self->GetDefault()->height;
+	self->radius = self->GetDefault()->radius;
 	CALL_ACTION(A_RestoreSpecialPosition, self);
 
 	if (flags & RSF_TELEFRAG)
@@ -3760,7 +3768,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_ChangeFlag)
 		}
 		else
 		{
-			DWORD *flagp = (DWORD*) (((char*)self) + fd->structoffset);
+			ActorFlags *flagp = (ActorFlags*) (((char*)self) + fd->structoffset);
 
 			// If these 2 flags get changed we need to update the blockmap and sector links.
 			bool linkchange = flagp == &self->flags && (fd->flagbit == MF_NOBLOCKMAP || fd->flagbit == MF_NOSECTOR);
@@ -3996,12 +4004,11 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetAngle)
 
 	AActor *ref = COPY_AAPTR(self, ptr);
 
-	if(ref == NULL)
+	if (!ref)
 	{
 		ACTION_SET_RESULT(false);
 		return;
 	}
-
 	ref->SetAngle(angle, !!(flags & SPF_INTERPOLATE));
 }
 
@@ -4022,30 +4029,13 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetPitch)
 
 	AActor *ref = COPY_AAPTR(self, ptr);
 
-	if(ref == NULL)
+	if (!ref)
 	{
 		ACTION_SET_RESULT(false);
 		return;
 	}
 
-	if (ref->player != NULL || (flags & SPF_FORCECLAMP))
-	{ // clamp the pitch we set
-		int min, max;
-
-		if (ref->player != NULL)
-		{
-			min = ref->player->MinPitch;
-			max = ref->player->MaxPitch;
-		}
-		else
-		{
-			min = -ANGLE_90 + (1 << ANGLETOFINESHIFT);
-			max = ANGLE_90 - (1 << ANGLETOFINESHIFT);
-		}
-		pitch = clamp<int>(pitch, min, max);
-	}
-
-	ref->SetPitch(pitch, !!(flags & SPF_INTERPOLATE));
+	ref->SetPitch(pitch, !!(flags & SPF_INTERPOLATE), !!(flags & SPF_FORCECLAMP));
 }
 
 //===========================================================================
@@ -4065,12 +4055,11 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetRoll)
 
 	AActor *ref = COPY_AAPTR(self, ptr);
 
-	if(ref == NULL)
+	if (!ref)
 	{
 		ACTION_SET_RESULT(false);
 		return;
 	}
-
 	ref->SetRoll(roll, !!(flags & SPF_INTERPOLATE));
 }
 
@@ -4090,7 +4079,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_ScaleVelocity)
 
 	AActor *ref = COPY_AAPTR(self, ptr);
 
-	if(ref == NULL)
+	if (!ref)
 	{
 		ACTION_SET_RESULT(false);
 		return;
@@ -4127,7 +4116,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_ChangeVelocity)
 
 	AActor *ref = COPY_AAPTR(self, ptr);
 
-	if(ref == NULL)
+	if (!ref)
 	{
 		ACTION_SET_RESULT(false);
 		return;
@@ -4290,17 +4279,33 @@ enum T_Flags
 	TF_NODESTFOG =		0x00000080, // Don't spawn any fog at the arrival position.
 	TF_USEACTORFOG =	0x00000100, // Use the actor's TeleFogSourceType and TeleFogDestType fogs.
 	TF_NOJUMP =			0x00000200, // Don't jump after teleporting.
+	TF_OVERRIDE =		0x00000400, // Ignore NOTELEPORT.
 };
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Teleport)
 {
-	ACTION_PARAM_START(6);
+	ACTION_PARAM_START(7);
 	ACTION_PARAM_STATE(TeleportState, 0);
 	ACTION_PARAM_CLASS(TargetType, 1);
 	ACTION_PARAM_CLASS(FogType, 2);
 	ACTION_PARAM_INT(Flags, 3);
 	ACTION_PARAM_FIXED(MinDist, 4);
 	ACTION_PARAM_FIXED(MaxDist, 5);
+	ACTION_PARAM_INT(ptr, 6);
+
+	AActor *ref = COPY_AAPTR(self, ptr);
+
+	if (!ref)
+	{
+		ACTION_SET_RESULT(false);
+		return;
+	}
+
+	if ((ref->flags2 & MF2_NOTELEPORT) && !(Flags & TF_OVERRIDE))
+	{
+		ACTION_SET_RESULT(false);
+		return;
+	}
 
 	// Randomly choose not to teleport like A_Srcr2Decide.
 	if (Flags & TF_RANDOMDECIDE)
@@ -4310,7 +4315,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Teleport)
 			192, 120, 120, 120, 64, 64, 32, 16, 0
 		};
 
-		unsigned int chanceindex = self->health / ((self->SpawnHealth()/8 == 0) ? 1 : self->SpawnHealth()/8);
+		unsigned int chanceindex = ref->health / ((ref->SpawnHealth()/8 == 0) ? 1 : ref->SpawnHealth()/8);
 
 		if (chanceindex >= countof(chance))
 		{
@@ -4321,37 +4326,48 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Teleport)
 	}
 
 	DSpotState *state = DSpotState::GetSpotState();
-	if (state == NULL) return;
+	if (state == NULL)
+	{
+		ACTION_SET_RESULT(false);
+		return;
+	}
 
-	if (!TargetType) TargetType = PClass::FindClass("BossSpot");
+	if (!TargetType) 
+		TargetType = PClass::FindClass("BossSpot");
 
-	AActor * spot = state->GetSpotWithMinMaxDistance(TargetType, self->x, self->y, MinDist, MaxDist);
-	if (spot == NULL) return;
+	AActor * spot = state->GetSpotWithMinMaxDistance(TargetType, ref->x, ref->y, MinDist, MaxDist);
+	if (spot == NULL) 
+	{
+		ACTION_SET_RESULT(false);
+		return;
+	}
 
-	fixed_t prevX = self->x;
-	fixed_t prevY = self->y;
-	fixed_t prevZ = self->z;
+	fixed_t prevX = ref->x;
+	fixed_t prevY = ref->y;
+	fixed_t prevZ = ref->z;
 	fixed_t aboveFloor = spot->z - spot->floorz;
 	fixed_t finalz = spot->floorz + aboveFloor;
 
-	if (spot->z + self->height > spot->ceilingz)
-		finalz = spot->ceilingz - self->height;
+	if (spot->z + ref->height > spot->ceilingz)
+		finalz = spot->ceilingz - ref->height;
 	else if (spot->z < spot->floorz)
 		finalz = spot->floorz;
 
 
 	//Take precedence and cooperate with telefragging first.
-	bool teleResult = P_TeleportMove(self, spot->x, spot->y, finalz, Flags & TF_TELEFRAG);
+	bool teleResult = P_TeleportMove(ref, spot->x, spot->y, finalz, Flags & TF_TELEFRAG);
 
-	if (Flags & TF_FORCED)
+	if (!teleResult && (Flags & TF_FORCED))
 	{
 		//If for some reason the original move didn't work, regardless of telefrag, force it to move.
-		self->SetOrigin(spot->x, spot->y, finalz);
+		ref->SetOrigin(spot->x, spot->y, finalz);
 		teleResult = true;
 	}
 
+	AActor *fog1 = NULL, *fog2 = NULL;
 	if (teleResult)
 	{
+
 		//If a fog type is defined in the parameter, or the user wants to use the actor's predefined fogs,
 		//and if there's no desire to be fogless, spawn a fog based upon settings.
 		if (FogType || (Flags & TF_USEACTORFOG))
@@ -4359,31 +4375,40 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Teleport)
 			if (!(Flags & TF_NOSRCFOG))
 			{
 				if (Flags & TF_USEACTORFOG)
-					P_SpawnTeleportFog(self, prevX, prevY, prevZ, true);
+					P_SpawnTeleportFog(ref, prevX, prevY, prevZ, true, true);
 				else
-					Spawn(FogType, prevX, prevY, prevZ, ALLOW_REPLACE);
+				{
+					fog1 = Spawn(FogType, prevX, prevY, prevZ, ALLOW_REPLACE);
+					if (fog1 != NULL)
+						fog1->target = ref;
+				}
 			}
 			if (!(Flags & TF_NODESTFOG))
 			{
 				if (Flags & TF_USEACTORFOG)
-					P_SpawnTeleportFog(self, self->x, self->y, self->z, false);
+					P_SpawnTeleportFog(ref, ref->x, ref->y, ref->z, false, true);
 				else
-					Spawn(FogType, self->x, self->y, self->z, ALLOW_REPLACE);
+				{
+					fog2 = Spawn(FogType, ref->x, ref->y, ref->z, ALLOW_REPLACE);
+					if (fog2 != NULL)
+						fog2->target = ref;
+				}
 			}
+			
 		}
 		
 		if (Flags & TF_USESPOTZ)
-			self->z = spot->z;
+			ref->z = spot->z;
 		else
-			self->z = self->floorz;
+			ref->z = ref->floorz;
 
 		if (!(Flags & TF_KEEPANGLE))
-			self->angle = spot->angle;
+			ref->angle = spot->angle;
 
 		if (!(Flags & TF_KEEPVELOCITY))
-			self->velx = self->vely = self->velz = 0;
+			ref->velx = ref->vely = ref->velz = 0;
 
-		if (!(Flags & TF_NOJUMP))
+		if (!(Flags & TF_NOJUMP)) //The state jump should only happen with the calling actor.
 		{
 			ACTION_SET_RESULT(false); // Jumps should never set the result for inventory state chains!
 			if (TeleportState == NULL)
@@ -4428,6 +4453,31 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Quake)
 	ACTION_PARAM_INT(tremrad, 3);
 	ACTION_PARAM_SOUND(sound, 4);
 	P_StartQuake(self, 0, intensity, duration, damrad, tremrad, sound);
+}
+
+//===========================================================================
+//
+// A_QuakeEx
+//
+// Extended version of A_Quake. Takes individual axis into account and can
+// take a flag.
+//===========================================================================
+
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_QuakeEx)
+{
+	ACTION_PARAM_START(11);
+	ACTION_PARAM_INT(intensityX, 0);
+	ACTION_PARAM_INT(intensityY, 1);
+	ACTION_PARAM_INT(intensityZ, 2);
+	ACTION_PARAM_INT(duration, 3);
+	ACTION_PARAM_INT(damrad, 4);
+	ACTION_PARAM_INT(tremrad, 5);
+	ACTION_PARAM_SOUND(sound, 6);
+	ACTION_PARAM_INT(flags, 7);
+	ACTION_PARAM_DOUBLE(mulWaveX, 8);
+	ACTION_PARAM_DOUBLE(mulWaveY, 9);
+	ACTION_PARAM_DOUBLE(mulWaveZ, 10);
+	P_StartQuakeXYZ(self, 0, intensityX, intensityY, intensityZ, duration, damrad, tremrad, sound, flags, mulWaveX, mulWaveY, mulWaveZ);
 }
 
 //===========================================================================
@@ -4501,7 +4551,6 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Weave)
 //===========================================================================
 
 
-void P_TranslateLineDef (line_t *ld, maplinedef_t *mld);
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_LineEffect)
 {
 	ACTION_PARAM_START(2);
@@ -4653,8 +4702,8 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_WolfAttack)
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Warp)
 {
 	ACTION_PARAM_START(7);
-	
-	ACTION_PARAM_INT(dest, 0);
+
+	ACTION_PARAM_INT(destination_selector, 0);
 	ACTION_PARAM_FIXED(xofs, 1);
 	ACTION_PARAM_FIXED(yofs, 2);
 	ACTION_PARAM_FIXED(zofs, 3);
@@ -4663,38 +4712,30 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Warp)
 	ACTION_PARAM_STATE(success_state, 6);
 	
 	AActor *reference;
+	
 	if((flags & WARPF_USETID))
 	{
-		if(dest == 0)
-		{
-			reference = self;
-		}
-		else
-		{
-			FActorIterator iterator(dest);
-			reference = iterator.Next();
-		}
+		reference = SingleActorFromTID(destination_selector, self);
 	}
 	else
 	{
-		reference = COPY_AAPTR(self, dest);
+		reference = COPY_AAPTR(self, destination_selector);
 	}
 
-	// If there is no actor to warp to, fail.
-	if(!reference)
+	//If there is no actor to warp to, fail.
+	if (!reference)
 	{
 		ACTION_SET_RESULT(false);
 		return;
 	}
 
-	if(P_Thing_Warp(self, reference, xofs, yofs, zofs, angle, flags))
+	if (P_Thing_Warp(self, reference, xofs, yofs, zofs, angle, flags))
 	{
-		if(success_state)
+		if (success_state)
 		{
-			ACTION_SET_RESULT(false); // Jumps should never set the result for inventory state chains!
+			ACTION_SET_RESULT(false);	// Jumps should never set the result for inventory state chains!
 			// in this case, you have the statejump to help you handle all the success anyway.
 			ACTION_JUMP(success_state);
-			
 			return;
 		}
 
@@ -4704,6 +4745,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Warp)
 	{
 		ACTION_SET_RESULT(false);
 	}
+
 }
 
 //==========================================================================
@@ -4818,12 +4860,25 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, ACS_NamedTerminate)
 }
 
 
+static bool DoCheckSpecies(AActor *mo, FName filterSpecies, bool exclude)
+{
+	FName actorSpecies = mo->GetSpecies();
+	if (filterSpecies == NAME_None) return true;
+	return exclude ? (actorSpecies != filterSpecies) : (actorSpecies == filterSpecies);
+}
+
+static bool DoCheckClass(AActor *mo, const PClass *filterClass, bool exclude)
+{
+	const PClass *actorClass = mo->GetClass();
+	if (filterClass == NULL) return true;
+	return exclude ? (actorClass != filterClass) : (actorClass == filterClass);
+}
 //==========================================================================
 //
-// A_RadiusGive
+// A_RadiusGive(item, distance, flags, amount, filter, species)
 //
 // Uses code roughly similar to A_Explode (but without all the compatibility
-// baggage and damage computation code to give an item to all eligible mobjs
+// baggage and damage computation code) to give an item to all eligible mobjs
 // in range.
 //
 //==========================================================================
@@ -4842,21 +4897,30 @@ enum RadiusGiveFlags
 	RGF_CUBE		=	1 << 9,
 	RGF_NOSIGHT		=	1 << 10,
 	RGF_MISSILES	=	1 << 11,
+	RGF_INCLUSIVE	=	1 << 12,
+	RGF_ITEMS		=	1 << 13,
+	RGF_KILLED		=	1 << 14,
+	RGF_EXFILTER	=	1 << 15,
+	RGF_EXSPECIES	=	1 << 16,
+	RGF_EITHER		=	1 << 17,
 };
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_RadiusGive)
 {
-	ACTION_PARAM_START(7);
+	ACTION_PARAM_START(6);
 	ACTION_PARAM_CLASS(item, 0);
 	ACTION_PARAM_FIXED(distance, 1);
 	ACTION_PARAM_INT(flags, 2);
 	ACTION_PARAM_INT(amount, 3);
+	ACTION_PARAM_CLASS(filter, 4);
+	ACTION_PARAM_NAME(species, 5);
 
 	// We need a valid item, valid targets, and a valid range
-	if (item == NULL || (flags & RGF_MASK) == 0 || distance <= 0)
+	if (item == NULL || (flags & RGF_MASK) == 0 || !flags || distance <= 0)
 	{
 		return;
 	}
+	
 	if (amount == 0)
 	{
 		amount = 1;
@@ -4867,109 +4931,107 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_RadiusGive)
 	AActor *thing;
 	while ((thing = it.Next()))
 	{
-		// Don't give to inventory items
-		if (thing->flags & MF_SPECIAL)
+		//[MC] Check for a filter, species, and the related exfilter/expecies/either flag(s).
+		bool filterpass = DoCheckClass(thing, filter, !!(flags & RGF_EXFILTER)),
+			speciespass = DoCheckSpecies(thing, species, !!(flags & RGF_EXSPECIES));
+
+		if ((flags & RGF_EITHER) ? (!(filterpass || speciespass)) : (!(filterpass && speciespass)))
 		{
-			continue;
-		}
-		// Avoid giving to self unless requested
-		if (thing == self && !(flags & RGF_GIVESELF))
-		{
-			continue;
-		}
-		// Avoiding special pointers if requested
-		if (((thing == self->target) && (flags & RGF_NOTARGET)) ||
-			((thing == self->tracer) && (flags & RGF_NOTRACER)) ||
-			((thing == self->master) && (flags & RGF_NOMASTER)))
-		{
-			continue;
-		}
-		// Don't give to dead thing unless requested
-		if (thing->flags & MF_CORPSE)
-		{
-			if (!(flags & RGF_CORPSES))
-			{
+			if (thing != self)	//Don't let filter and species obstruct RGF_GIVESELF.
 				continue;
-			}
-		}
-		else if (thing->health <= 0 || thing->flags6 & MF6_KILLED)
-		{
-			continue;
-		}
-		// Players, monsters, and other shootable objects
-		if (thing->player)
-		{
-			if ((thing->player->mo == thing) && !(flags & RGF_PLAYERS))
-			{
-				continue;
-			}
-			if ((thing->player->mo != thing) && !(flags & RGF_VOODOO))
-			{
-				continue;
-			}
-		}
-		else if (thing->flags3 & MF3_ISMONSTER)
-		{
-			if (!(flags & RGF_MONSTERS))
-			{
-				continue;
-			}
-		}
-		else if (thing->flags & MF_SHOOTABLE || thing->flags6 & MF6_VULNERABLE)
-		{
-			if (!(flags & RGF_OBJECTS))
-			{
-				continue;
-			}
-		}
-		else if (thing->flags & MF_MISSILE)
-		{
-			if (!(flags & RGF_MISSILES))
-			{
-				continue;
-			}
-		}
-		else
-		{
-			continue;
 		}
 
-		if (flags & RGF_CUBE)
-		{ // check if inside a cube
-			if (abs(thing->x - self->x) > distance ||
-				abs(thing->y - self->y) > distance ||
-				abs((thing->z + thing->height/2) - (self->z + self->height/2)) > distance)
-			{
+		if (thing == self)
+		{
+			if (!(flags & RGF_GIVESELF))
 				continue;
-			}
 		}
-		else
-		{ // check if inside a sphere
-			TVector3<double> tpos(thing->x, thing->y, thing->z + thing->height/2);
-			TVector3<double> spos(self->x, self->y, self->z + self->height/2);
-			if ((tpos - spos).LengthSquared() > distsquared)
-			{
-				continue;
-			}
-		}
-		fixed_t dz = abs ((thing->z + thing->height/2) - (self->z + self->height/2));
 
-		if ((flags & RGF_NOSIGHT) || P_CheckSight (thing, self, SF_IGNOREVISIBILITY|SF_IGNOREWATERBOUNDARY))
-		{ // OK to give; target is in direct path, or the monster doesn't care about it being in line of sight.
-			AInventory *gift = static_cast<AInventory *>(Spawn (item, 0, 0, 0, NO_REPLACE));
-			if (gift->IsKindOf(RUNTIME_CLASS(AHealth)))
+		//Check for target, master, and tracer flagging.
+		bool targetPass = true;
+		bool masterPass = true;
+		bool tracerPass = true;
+		bool ptrPass = false;
+		if ((thing != self) && (flags & (RGF_NOTARGET | RGF_NOMASTER | RGF_NOTRACER)))
+		{
+			if ((thing == self->target) && (flags & RGF_NOTARGET))
+				targetPass = false;
+			if ((thing == self->master) && (flags & RGF_NOMASTER))
+				masterPass = false;
+			if ((thing == self->tracer) && (flags & RGF_NOTRACER))
+				tracerPass = false;
+
+			ptrPass = (flags & RGF_INCLUSIVE) ? (targetPass || masterPass || tracerPass) : (targetPass && masterPass && tracerPass);
+
+			//We should not care about what the actor is here. It's safe to abort this actor.
+			if (!ptrPass)
+				continue;
+		}
+
+		//Next, actor flag checking. 
+		bool selfPass = !!((flags & RGF_GIVESELF) && thing == self);
+		bool corpsePass = !!((flags & RGF_CORPSES) && thing->flags & MF_CORPSE);
+		bool killedPass = !!((flags & RGF_KILLED) && thing->flags6 & MF6_KILLED);
+		bool monsterPass = !!((flags & RGF_MONSTERS) && thing->flags3 & MF3_ISMONSTER);
+		bool objectPass = !!((flags & RGF_OBJECTS) && ((thing->flags & MF_SHOOTABLE) || (thing->flags6 & MF6_VULNERABLE)));
+		bool playerPass = !!((flags & RGF_PLAYERS) && (thing->player != NULL) && (thing->player->mo == thing));
+		bool voodooPass = !!((flags & RGF_VOODOO) && (thing->player != NULL) && (thing->player->mo != thing));
+		//Self calls priority over the rest of this.
+		if (!selfPass)
+		{
+			//If it's specifically a monster/object/player/voodoo... Can be either or...
+			if (monsterPass || objectPass || playerPass || voodooPass)
 			{
-				gift->Amount *= amount;
+				//...and is dead, without desire to give to the dead...
+				if (((thing->health <= 0) && !(corpsePass || killedPass)))
+				{
+					//Skip!
+					continue;
+				}
+			}
+		}
+
+		bool itemPass = !!((flags & RGF_ITEMS) && thing->IsKindOf(RUNTIME_CLASS(AInventory)));
+		bool missilePass = !!((flags & RGF_MISSILES) && thing->flags & MF_MISSILE);
+
+		if (selfPass || monsterPass || corpsePass || killedPass || itemPass || objectPass || missilePass || playerPass || voodooPass)
+		{
+			if (flags & RGF_CUBE)
+			{ // check if inside a cube
+				if (fabs((double)thing->x - self->x) > (double)distance ||
+					fabs((double)thing->y - self->y) > (double)distance ||
+					fabs((double)(thing->z + thing->height / 2) - (self->z + self->height / 2)) > (double)distance)
+				{
+					continue;
+				}
 			}
 			else
-			{
-				gift->Amount = amount;
+			{ // check if inside a sphere
+				TVector3<double> tpos(thing->x, thing->y, thing->z + thing->height / 2);
+				TVector3<double> spos(self->x, self->y, self->z + self->height / 2);
+				if ((tpos - spos).LengthSquared() > distsquared)
+				{
+					continue;
+				}
 			}
-			gift->flags |= MF_DROPPED;
-			gift->ClearCounters();
-			if (!gift->CallTryPickup (thing))
-			{
-				gift->Destroy ();
+
+			if ((flags & RGF_NOSIGHT) || P_CheckSight(thing, self, SF_IGNOREVISIBILITY | SF_IGNOREWATERBOUNDARY))
+			{ // OK to give; target is in direct path, or the monster doesn't care about it being in line of sight.
+				AInventory *gift = static_cast<AInventory *>(Spawn(item, 0, 0, 0, NO_REPLACE));
+				if (gift->IsKindOf(RUNTIME_CLASS(AHealth)))
+				{
+					gift->Amount *= amount;
+				}
+				else
+				{
+					gift->Amount = amount;
+				}
+				gift->flags |= MF_DROPPED;
+				gift->ClearCounters();
+				if (!gift->CallTryPickup(thing))
+				{
+					gift->Destroy();
+				}
 			}
 		}
 	}
@@ -5046,24 +5108,13 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetSpeed)
 
 	AActor *ref = COPY_AAPTR(self, ptr);
 
-	if(ref == NULL)
+	if (!ref)
 	{
 		ACTION_SET_RESULT(false);
 		return;
 	}
 	
 	ref->Speed = speed;
-}
-
-static bool DoCheckSpecies(AActor *mo, FName species, bool exclude)
-{
-	return (!(species) || mo->Species == NAME_None || (species && ((exclude) ? (mo->Species != species) : (mo->Species == species))));
-}
-
-static bool DoCheckFilter(AActor *mo, const PClass *filter, bool exclude)
-{
-	const PClass *c1 = mo->GetClass();
-	return (!(filter) || (filter == NULL) || (filter && ((exclude) ? (c1 != filter) : (c1 == filter))));
 }
 
 //===========================================================================
@@ -5097,7 +5148,7 @@ enum DMSS
 
 static void DoDamage(AActor *dmgtarget, AActor *self, int amount, FName DamageType, int flags, const PClass *filter, FName species)
 {
-	bool filterpass = DoCheckFilter(dmgtarget, filter, !!(flags & DMSS_EXFILTER)),
+	bool filterpass = DoCheckClass(dmgtarget, filter, !!(flags & DMSS_EXFILTER)),
 		speciespass = DoCheckSpecies(dmgtarget, species, !!(flags & DMSS_EXSPECIES));
 	if ((flags & DMSS_EITHER) ? (filterpass || speciespass) : (filterpass && speciespass))
 	{
@@ -5106,7 +5157,7 @@ static void DoDamage(AActor *dmgtarget, AActor *self, int amount, FName DamageTy
 			dmgFlags |= DMG_FOILINVUL;
 		if (flags & DMSS_FOILBUDDHA)
 			dmgFlags |= DMG_FOILBUDDHA;
-		if ((flags & DMSS_KILL) || (flags & DMSS_NOFACTOR)) //Kill implies NoFactor
+		if (flags & (DMSS_KILL | DMSS_NOFACTOR)) //Kill implies NoFactor
 			dmgFlags |= DMG_NO_FACTOR;
 		if (!(flags & DMSS_AFFECTARMOR) || (flags & DMSS_KILL)) //Kill overrides AffectArmor
 			dmgFlags |= DMG_NO_ARMOR;
@@ -5277,8 +5328,8 @@ enum KILS
 
 static void DoKill(AActor *killtarget, AActor *self, FName damagetype, int flags, const PClass *filter, FName species)
 {
-	bool filterpass = DoCheckFilter(killtarget, filter, (flags & KILS_EXFILTER) ? true : false),
-		speciespass = DoCheckSpecies(killtarget, species, (flags & KILS_EXSPECIES) ? true : false);
+	bool filterpass = DoCheckClass(killtarget, filter, !!(flags & KILS_EXFILTER)),
+		speciespass = DoCheckSpecies(killtarget, species, !!(flags & KILS_EXSPECIES));
 	if ((flags & KILS_EITHER) ? (filterpass || speciespass) : (filterpass && speciespass)) //Check this first. I think it'll save the engine a lot more time this way.
 	{
 		int dmgFlags = DMG_NO_ARMOR | DMG_NO_FACTOR;
@@ -5295,7 +5346,8 @@ static void DoKill(AActor *killtarget, AActor *self, FName damagetype, int flags
 			//Check to see if it's invulnerable. Disregarded if foilinvul is on, but never works on a missile with NODAMAGE
 			//since that's the whole point of it.
 			if ((!(killtarget->flags2 & MF2_INVULNERABLE) || (flags & KILS_FOILINVUL)) &&
-				(!(killtarget->flags2 & MF7_BUDDHA) || (flags & KILS_FOILBUDDHA)) && !(killtarget->flags5 & MF5_NODAMAGE))
+				(!(killtarget->flags7 & MF7_BUDDHA) || (flags & KILS_FOILBUDDHA)) && 
+				!(killtarget->flags5 & MF5_NODAMAGE))
 			{
 				P_ExplodeMissile(killtarget, NULL, NULL);
 			}
@@ -5437,8 +5489,8 @@ enum RMVF_flags
 
 static void DoRemove(AActor *removetarget, int flags, const PClass *filter, FName species)
 {
-	bool filterpass = DoCheckFilter(removetarget, filter, (flags & RMVF_EXFILTER) ? true : false),
-		speciespass = DoCheckSpecies(removetarget, species, (flags & RMVF_EXSPECIES) ? true : false);
+	bool filterpass = DoCheckClass(removetarget, filter, !!(flags & RMVF_EXFILTER)),
+		speciespass = DoCheckSpecies(removetarget, species, !!(flags & RMVF_EXSPECIES));
 	if ((flags & RMVF_EITHER) ? (filterpass || speciespass) : (filterpass && speciespass))
 	{
 		if ((flags & RMVF_EVERYTHING))
@@ -5591,34 +5643,17 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_Remove)
 // A_SetTeleFog
 //
 // Sets the teleport fog(s) for the calling actor.
-// Takes a name of the classes for te source and destination. 
-// Can set both at the same time. Use "" to retain the previous fog without
-// changing it.
-//
+// Takes a name of the classes for the source and destination.
 //===========================================================================
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetTeleFog)
 {
 	ACTION_PARAM_START(2);
-	ACTION_PARAM_NAME(oldpos, 0);
-	ACTION_PARAM_NAME(newpos, 1);
-	const PClass *check = PClass::FindClass(oldpos);
-	if (check == NULL || !stricmp(oldpos, "none") || !stricmp(oldpos, "null"))
-		self->TeleFogSourceType = NULL;
-	else if (!stricmp(oldpos, ""))
-	{ //Don't change it if it's just ""
-	}
-	else
-		self->TeleFogSourceType = check;
+	ACTION_PARAM_CLASS(oldpos, 0);
+	ACTION_PARAM_CLASS(newpos, 1);
 
-	check = PClass::FindClass(newpos);
-	if (check == NULL || !stricmp(newpos, "none") || !stricmp(newpos, "null"))
-		self->TeleFogDestType = NULL;
-	else if (!stricmp(newpos, ""))
-	{ //Don't change it if it's just ""
-	}
-	else
-		self->TeleFogDestType = check;
+	self->TeleFogSourceType = oldpos;
+	self->TeleFogDestType = newpos;
 }
 
 //===========================================================================
@@ -5626,7 +5661,6 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetTeleFog)
 // A_SwapTeleFog
 //
 // Switches the source and dest telefogs around. 
-//
 //===========================================================================
 
 DEFINE_ACTION_FUNCTION(AActor, A_SwapTeleFog)
@@ -5644,7 +5678,6 @@ DEFINE_ACTION_FUNCTION(AActor, A_SwapTeleFog)
 // A_SetFloatBobPhase
 //
 // Changes the FloatBobPhase of the actor.
-//
 //===========================================================================
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetFloatBobPhase)
@@ -5653,19 +5686,15 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetFloatBobPhase)
 	ACTION_PARAM_INT(bob, 0);
 
 	//Respect float bob phase limits.
-	if((self != NULL) && (bob >= 0 && bob <= 63))
-	{
+	if (self && (bob >= 0 && bob <= 63))
 		self->FloatBobPhase = bob;
-	}
 }
 
 //===========================================================================
-//
 // A_SetHealth
 //
 // Changes the health of the actor.
 // Takes a pointer as well.
-//
 //===========================================================================
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetHealth)
@@ -5676,9 +5705,8 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetHealth)
 
 	AActor *mobj = COPY_AAPTR(self, ptr);
 
-	if(mobj == NULL)
+	if (!mobj)
 	{
-		ACTION_SET_RESULT(false);
 		return;
 	}
 
@@ -5697,6 +5725,112 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetHealth)
 		else
 			mobj->health = health;
 	}
+}
+
+//===========================================================================
+// A_ResetHealth
+//
+// Resets the health of the actor to default, except if their dead.
+// Takes a pointer.
+//===========================================================================
+
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_ResetHealth)
+{
+	ACTION_PARAM_START(1);
+	ACTION_PARAM_INT(ptr, 0);
+
+	AActor *mobj = COPY_AAPTR(self, ptr);
+
+	if (!mobj)
+	{
+		return;
+	}
+
+	player_t *player = mobj->player;
+	if (player && (player->mo->health > 0))
+	{
+		player->health = player->mo->health = player->mo->GetDefault()->health; //Copied from the resurrect cheat.
+	}
+	else if (mobj && (mobj->health > 0))
+	{
+		mobj->health = mobj->SpawnHealth();
+	}
+}
+
+//===========================================================================
+// A_JumpIfHigherOrLower
+//
+// Jumps if a target, master, or tracer is higher or lower than the calling 
+// actor. Can also specify how much higher/lower the actor needs to be than 
+// itself. Can also take into account the height of the actor in question,
+// depending on which it's checking. This means adding height of the
+// calling actor's self if the pointer is higher, or height of the pointer 
+// if its lower.
+//===========================================================================
+
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_JumpIfHigherOrLower)
+{
+	ACTION_PARAM_START(6);
+	ACTION_PARAM_STATE(high, 0);
+	ACTION_PARAM_STATE(low, 1);
+	ACTION_PARAM_FIXED(offsethigh, 2);
+	ACTION_PARAM_FIXED(offsetlow, 3);
+	ACTION_PARAM_BOOL(includeHeight, 4);
+	ACTION_PARAM_INT(ptr, 5);
+
+	AActor *mobj = COPY_AAPTR(self, ptr);
+
+
+	if (!mobj || (mobj == self)) //AAPTR_DEFAULT is completely useless in this regard.
+	{
+		return;
+	}
+	ACTION_SET_RESULT(false); //No inventory jump chains please.
+
+	if ((high) && (mobj->z > ((includeHeight ? self->height : 0) + self->z + offsethigh)))
+		ACTION_JUMP(high);
+	else if ((low) && (mobj->z + (includeHeight ? mobj->height : 0)) < (self->z + offsetlow))
+		ACTION_JUMP(low);
+}
+
+
+//===========================================================================
+//
+// A_SetRipperLevel(int level)
+//
+// Sets the ripper level of the calling actor.
+//===========================================================================
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetRipperLevel)
+{
+	ACTION_PARAM_START(1);
+	ACTION_PARAM_INT(level, 0);
+	self->RipperLevel = level;
+}
+
+//===========================================================================
+//
+// A_SetRipMin(int min)
+//
+// Sets the minimum level a ripper must be in order to rip through this actor.
+//===========================================================================
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetRipMin)
+{
+	ACTION_PARAM_START(1);
+	ACTION_PARAM_INT(min, 0);
+	self->RipLevelMin = min; 
+}
+
+//===========================================================================
+//
+// A_SetRipMax(int max)
+//
+// Sets the minimum level a ripper must be in order to rip through this actor.
+//===========================================================================
+DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_SetRipMax)
+{
+	ACTION_PARAM_START(1);
+	ACTION_PARAM_INT(max, 0);
+	self->RipLevelMax = max;
 }
 
 //==========================================================================

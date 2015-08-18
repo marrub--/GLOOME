@@ -2354,17 +2354,17 @@ IMPLEMENT_CLASS(AMusicChanger)
 
 bool AMusicChanger::DoTriggerAction (AActor *triggerer, int activationType)
 {
-	if (activationType & SECSPAC_Enter)
+	if (activationType & SECSPAC_Enter && triggerer->player != NULL)
 	{
-		if (args[0] == 0 || level.info->MusicMap.CheckKey(args[0]))
- 		{
-			level.nextmusic = args[0];
-			reactiontime = 30;
+		if (triggerer->player->MUSINFOactor != this)
+		{
+			triggerer->player->MUSINFOactor = this;
+			triggerer->player->MUSINFOtics = 30;
 		}
 	}
 	return Super::DoTriggerAction (triggerer, activationType);
 }
-
+ 
 void AMusicChanger::PostBeginPlay()
 {
 	// The music changer should consider itself activated if the player

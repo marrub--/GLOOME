@@ -105,7 +105,7 @@ CUSTOM_CVAR (Bool, st_scale, true, CVAR_ARCHIVE)
 	}
 }
 
-CVAR (Int, crosshair, 1, CVAR_ARCHIVE)
+CVAR (Int, crosshair, 0, CVAR_ARCHIVE)
 CVAR (Bool, crosshairforce, false, CVAR_ARCHIVE)
 CVAR (Color, crosshaircolor, 0xff0000, CVAR_ARCHIVE);
 CVAR (Bool, crosshairhealth, true, CVAR_ARCHIVE);

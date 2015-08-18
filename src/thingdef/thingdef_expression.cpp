@@ -452,6 +452,82 @@ ExpVal FxIntCast::EvalExpression (AActor *self)
 //
 //==========================================================================
 
+FxFloatCast::FxFloatCast(FxExpression *x)
+: FxExpression(x->ScriptPosition)
+{
+	basex = x;
+	ValueType = VAL_Float;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+FxFloatCast::~FxFloatCast()
+{
+	SAFE_DELETE(basex);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+FxExpression *FxFloatCast::Resolve(FCompileContext &ctx)
+{
+	CHECKRESOLVED();
+	SAFE_RESOLVE(basex, ctx);
+
+	if (basex->ValueType == VAL_Float)
+	{
+		FxExpression *x = basex;
+		basex = NULL;
+		delete this;
+		return x;
+	}
+	else if (basex->ValueType == VAL_Int)
+	{
+		if (basex->isConstant())
+		{
+			ExpVal constval = basex->EvalExpression(NULL);
+			FxExpression *x = new FxConstant(constval.GetFloat(), ScriptPosition);
+			delete this;
+			return x;
+		}
+		return this;
+	}
+	else
+	{
+		ScriptPosition.Message(MSG_ERROR, "Numeric type expected");
+		delete this;
+		return NULL;
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+ExpVal FxFloatCast::EvalExpression (AActor *self)
+{
+	ExpVal baseval = basex->EvalExpression(self);
+	baseval.Float = baseval.GetFloat();
+	baseval.Type = VAL_Float;
+	return baseval;
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 FxPlusSign::FxPlusSign(FxExpression *operand)
 : FxExpression(operand->ScriptPosition)
 {
@@ -1576,6 +1652,7 @@ FxExpression *FxAbs::Resolve(FCompileContext &ctx)
 
 		case VAL_Float:
 			value.Float = fabs(value.Float);
+			break;
 
 		default:
 			// shouldn't happen
@@ -1697,15 +1774,24 @@ ExpVal FxRandom::EvalExpression (AActor *self)
 //
 //
 //==========================================================================
-FxRandomPick::FxRandomPick(FRandom * r, TArray<FxExpression*> mi, const FScriptPosition &pos)
+FxRandomPick::FxRandomPick(FRandom * r, TArray<FxExpression*> mi, bool floaty, const FScriptPosition &pos)
 : FxExpression(pos)
 {
 	for (unsigned int index = 0; index < mi.Size(); index++)
 	{
-		min.Push(new FxIntCast(mi[index]));
+		FxExpression *casted;
+		if (floaty)
+		{
+			casted = new FxFloatCast(mi[index]);
+		}
+		else
+		{
+			casted = new FxIntCast(mi[index]);
+		}
+		min.Push(casted);
 	}
 	rng = r;
-	ValueType = VAL_Int;
+	ValueType = floaty ? VAL_Float : VAL_Int;
 }
 
 //==========================================================================
@@ -2052,6 +2138,7 @@ FxExpression *FxGlobalVariable::Resolve(FCompileContext&)
 	case VAL_Fixed:
 	case VAL_Angle:
 		ValueType = VAL_Float;
+		break;
 
 	case VAL_Object:
 	case VAL_Class:

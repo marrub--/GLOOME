@@ -641,6 +641,23 @@ CCMD (error_fatal)
 	}
 }
 
+//==========================================================================
+//
+// CCMD crashout
+//
+// Debugging routine for testing the crash logger.
+// Useless in a win32 debug build, because that doesn't enable the crash logger.
+//
+//==========================================================================
+
+#if !defined(_WIN32) || !defined(_DEBUG)
+CCMD (crashout)
+{
+	*(volatile int *)0 = 0;
+}
+#endif
+
+
 CCMD (dir)
 {
 	FString dir, path;
@@ -783,11 +800,11 @@ CCMD (warp)
 
 CCMD (load)
 {
-	if (argv.argc() != 2)
+    if (argv.argc() != 2)
 	{
-		Printf ("usage: load <filename>\n");
-		return;
-	}
+        Printf ("usage: load <filename>\n");
+        return;
+    }
 	if (netgame)
 	{
 		Printf ("cannot load during a network game\n");
@@ -795,7 +812,7 @@ CCMD (load)
 	}
 	FString fname = argv[1];
 	DefaultExtension (fname, ".zds");
-	G_LoadGame (fname);
+    G_LoadGame (fname);
 }
 
 //==========================================================================
@@ -900,7 +917,52 @@ CCMD(info)
 			linetarget->SpawnHealth());
 		PrintMiscActorInfo(linetarget);
 	}
-	else Printf("No target found. Info cannot find actors that have the NOBLOCKMAP flag or have height/radius of 0.\n");
+	else Printf("No target found. Info cannot find actors that have "
+				"the NOBLOCKMAP flag or have height/radius of 0.\n");
+}
+
+typedef bool (*ActorTypeChecker) (AActor *);
+
+static bool IsActorAMonster(AActor *mo)
+{
+	return mo->flags3&MF3_ISMONSTER && !(mo->flags&MF_CORPSE) && !(mo->flags&MF_FRIENDLY);
+}
+
+static bool IsActorAnItem(AActor *mo)
+{
+	return mo->IsKindOf(RUNTIME_CLASS(AInventory)) && mo->flags&MF_SPECIAL;
+}
+
+static bool IsActorACountItem(AActor *mo)
+{
+	return mo->IsKindOf(RUNTIME_CLASS(AInventory)) && mo->flags&MF_SPECIAL && mo->flags&MF_COUNTITEM;
+}
+
+static void PrintFilteredActorList(const ActorTypeChecker IsActorType, const char *FilterName)
+{
+	AActor *mo;
+	const PClass *FilterClass = NULL;
+
+	if (FilterName != NULL)
+	{
+		FilterClass = PClass::FindClass(FilterName);
+		if (FilterClass == NULL || FilterClass->ActorInfo == NULL)
+		{
+			Printf("%s is not an actor class.\n", FilterName);
+			return;
+		}
+	}
+	TThinkerIterator<AActor> it;
+
+	while ( (mo = it.Next()) )
+	{
+		if ((FilterClass == NULL || mo->IsA(FilterClass)) && IsActorType(mo))
+		{
+			Printf ("%s at (%d,%d,%d)\n",
+				mo->GetClass()->TypeName.GetChars(),
+				mo->x >> FRACBITS, mo->y >> FRACBITS, mo->z >> FRACBITS);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -910,20 +972,9 @@ CCMD(info)
 //-----------------------------------------------------------------------------
 CCMD(monster)
 {
-	AActor * mo;
-
 	if (CheckCheatmode ()) return;
-	TThinkerIterator<AActor> it;
 
-	while ( (mo = it.Next()) )
-	{
-		if (mo->flags3&MF3_ISMONSTER && !(mo->flags&MF_CORPSE) && !(mo->flags&MF_FRIENDLY))
-		{
-			Printf ("%s at (%d,%d,%d)\n",
-				mo->GetClass()->TypeName.GetChars(),
-				mo->x >> FRACBITS, mo->y >> FRACBITS, mo->z >> FRACBITS);
-		}
-	}
+	PrintFilteredActorList(IsActorAMonster, argv.argc() > 1 ? argv[1] : NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -933,20 +984,21 @@ CCMD(monster)
 //-----------------------------------------------------------------------------
 CCMD(items)
 {
-	AActor * mo;
-
 	if (CheckCheatmode ()) return;
-	TThinkerIterator<AActor> it;
 
-	while ( (mo = it.Next()) )
-	{
-		if (mo->IsKindOf(RUNTIME_CLASS(AInventory)) && mo->flags&MF_SPECIAL)
-		{
-			Printf ("%s at (%d,%d,%d)\n",
-				mo->GetClass()->TypeName.GetChars(),
-				mo->x >> FRACBITS, mo->y >> FRACBITS, mo->z >> FRACBITS);
-		}
-	}
+	PrintFilteredActorList(IsActorAnItem, argv.argc() > 1 ? argv[1] : NULL);
+}
+
+//-----------------------------------------------------------------------------
+//
+//
+//
+//-----------------------------------------------------------------------------
+CCMD(countitems)
+{
+	if (CheckCheatmode ()) return;
+
+	PrintFilteredActorList(IsActorACountItem, argv.argc() > 1 ? argv[1] : NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -1027,8 +1079,7 @@ CCMD(nextsecret)
 				TEXTCOLOR_NORMAL " is for single-player only.\n");
 		return;
 	}
-	char *next = NULL;
-	
+
 	if (level.NextSecretMap.Len() > 0 && level.NextSecretMap.Compare("enDSeQ", 6))
 	{
 		G_DeferedInitNew(level.NextSecretMap);

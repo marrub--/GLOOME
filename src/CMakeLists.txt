@@ -11,6 +11,12 @@ include( CheckLibraryExists )
 include( FindPkgConfig )
 include( FindOpenGL )
 
+if( NOT APPLE )
+	option( NO_ASM "Disable assembly code" OFF )
+else( NOT APPLE )
+	# At the moment asm code doesn't work with OS X, so disable by default
+	option( NO_ASM "Disable assembly code" ON )
+endif( NOT APPLE )
 if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	option( NO_STRIP "Do not strip Release or MinSizeRel builds" )
 	# At least some versions of Xcode fail if you strip with the linker
@@ -374,6 +380,10 @@ endif( NOT DYN_FLUIDSYNTH )
 
 # Start defining source files for ZDoom
 set( PLAT_WIN32_SOURCES
+	//gl/hqnx_asm/hq2x_asm.cpp
+	//gl/hqnx_asm/hq3x_asm.cpp
+	//gl/hqnx_asm/hq4x_asm.cpp
+	//gl/hqnx_asm/hqnx_asm_Image.cpp
 	win32/eaxedit.cpp
 	win32/fb_d3d9.cpp
 	win32/fb_d3d9_wipe.cpp
@@ -414,18 +424,12 @@ set( PLAT_OSX_SOURCES
 	posix/osx/iwadpicker_cocoa.mm
 	posix/osx/zdoom.icns )
 set( PLAT_COCOA_SOURCES
-	posix/cocoa/hid/HID_Config_Utilities.c
-	posix/cocoa/hid/HID_Error_Handler.c
-	posix/cocoa/hid/HID_Name_Lookup.c
-	posix/cocoa/hid/HID_Queue_Utilities.c
-	posix/cocoa/hid/HID_Utilities.c
-	posix/cocoa/hid/IOHIDDevice_.c
-	posix/cocoa/hid/IOHIDElement_.c
-	posix/cocoa/hid/ImmrHIDUtilAddOn.c
 	posix/cocoa/critsec.cpp
-	posix/cocoa/i_backend_cocoa.mm
+	posix/cocoa/i_input.mm
 	posix/cocoa/i_joystick.cpp
-	posix/cocoa/i_timer.cpp )
+	posix/cocoa/i_main.mm
+	posix/cocoa/i_timer.cpp
+	posix/cocoa/i_video.mm )
 
 if( WIN32 )
 	set( SYSTEM_SOURCES_DIR win32 )
@@ -542,6 +546,7 @@ file( GLOB HEADER_FILES
 	gl/data/*.h
 	gl/dynlights/*.h
 	gl/hqnx/*.h
+	//gl/hqnx_asm/*.h
 	gl/models/*.h
 	gl/renderer/*.h
 	gl/scene/*.h
@@ -599,6 +604,7 @@ set( NOT_COMPILED_SOURCE_FILES
 	g_hexen/a_fighterquietus.cpp
 	g_hexen/a_firedemon.cpp
 	g_hexen/a_flechette.cpp
+	g_hexen/a_flies.cpp
 	g_hexen/a_fog.cpp
 	g_hexen/a_healingradius.cpp
 	g_hexen/a_heresiarch.cpp
@@ -634,12 +640,23 @@ set( NOT_COMPILED_SOURCE_FILES
 	xlat/xlat_parser.y
 	xlat_parser.c
 	xlat_parser.h
+
+	# We could have the ASM macro add these files, but it wouldn't add all
+	# platforms.
+	asm_ia32/a.asm
+	asm_ia32/misc.asm
+	asm_ia32/tmap.asm
+	asm_ia32/tmap2.asm
+	asm_ia32/tmap3.asm
+	asm_x86_64/tmap3.asm
+	asm_x86_64/tmap3.s
 )
 
 add_executable( gloome WIN32 MACOSX_BUNDLE
 	${HEADER_FILES}
 	${NOT_COMPILED_SOURCE_FILES}
 	__autostart.cpp
+	${ASM_SOURCES}
 	${SYSTEM_SOURCES}
 	${X86_SOURCES}
 	x86.cpp
@@ -680,6 +697,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	f_wipe.cpp
 	farchive.cpp
 	files.cpp
+	g_doomedmap.cpp
 	g_game.cpp
 	g_acsresponder.cpp
 	g_hub.cpp
@@ -742,6 +760,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	p_spec.cpp
 	p_states.cpp
 	p_switch.cpp
+	p_tags.cpp
 	p_teleport.cpp
 	p_terrain.cpp
 	p_things.cpp
@@ -852,6 +871,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	gl/data/gl_data.cpp
 	gl/data/gl_portaldata.cpp
 	gl/data/gl_setup.cpp
+	//gl/data/gl_matrix.cpp
 	gl/data/gl_vertexbuffer.cpp
 	gl/dynlights/a_dynlight.cpp
 	gl/utility/gl_clock.cpp
@@ -869,6 +889,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	gl/textures/gl_material.cpp
 	gl/textures/gl_hirestex.cpp
 	gl/textures/gl_bitmap.cpp
+	//gl/textures/gl_samplers.cpp
 	gl/textures/gl_translate.cpp
 	gl/textures/gl_hqresize.cpp
 	gl/textures/gl_skyboxtexture.cpp
@@ -899,6 +920,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	gl/system/gl_framebuffer.cpp
 	gl/system/gl_menu.cpp
 	gl/system/gl_wipe.cpp
+	//gl/system/gl_load.c
 	gl/models/gl_models_md3.cpp
 	gl/models/gl_models_md2.cpp
 	gl/models/gl_models.cpp
@@ -1084,6 +1106,8 @@ if( APPLE )
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/posix/osx/zdoom-info.plist" )
 endif( APPLE )
 
+source_group("Assembly Files\\ia32" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/asm_ia32/.+")
+source_group("Assembly Files\\x86_64" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/asm_x86_64/.+")
 source_group("Audio Files" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/sound/.+")
 source_group("Audio Files\\Timidity\\Headers" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/timidity/.+\\.h$")
 source_group("Audio Files\\Timidity\\Source" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/timidity/.+\\.cpp$")
@@ -1100,6 +1124,7 @@ source_group("OpenGL Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("OpenGL Renderer\\Data" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/data/.+")
 source_group("OpenGL Renderer\\Dynamic Lights" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/dynlights/.+")
 source_group("OpenGL Renderer\\HQ Resize" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/hqnx/.+")
+//source_group("OpenGL Renderer\\HQ Resize Assembly version" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/hqnx_asm/.+")
 source_group("OpenGL Renderer\\Models" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/models/.+")
 source_group("OpenGL Renderer\\Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/renderer/.+")
 source_group("OpenGL Renderer\\Scene" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/scene/.+")

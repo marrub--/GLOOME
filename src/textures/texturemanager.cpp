@@ -1239,10 +1239,18 @@ void FTextureManager::PrecacheLevel (void)
 	if (demoplayback)
 		return;
 
+	precacheTime = I_MSTime();
+
 	hitlist = new BYTE[cnt];
 	memset (hitlist, 0, cnt);
 
 	screen->GetHitlist(hitlist);
+
+	for (unsigned i = 0; i < level.info->PrecacheTextures.Size(); i++)
+	{
+		hitlist[level.info->PrecacheTextures[i].GetIndex()] |= FTextureManager::HIT_Wall;
+	}
+
 	for (int i = cnt - 1; i >= 0; i--)
 	{
 		Renderer->PrecacheTexture(ByIndex(i), hitlist[i]);

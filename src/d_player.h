@@ -464,6 +464,13 @@ public:
 
 	FName		LastDamageType;			// [RH] For damage-specific pain and death sounds
 
+	TObjPtr<AActor> MUSINFOactor;		// For MUSINFO purposes
+	SBYTE		MUSINFOtics;
+
+	bool		settings_controller;	// Player can control game settings.
+	SBYTE		crouching;
+	SBYTE		crouchdir;
+
 	//Added by MC:
 	TObjPtr<DBot> Bot;
 

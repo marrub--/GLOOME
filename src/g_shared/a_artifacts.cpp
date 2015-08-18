@@ -60,7 +60,7 @@ bool APowerupGiver::Use (bool pickup)
 	}
 	if (BlendColor != 0)
 	{
-		if (BlendColor != (unsigned)MakeSpecialColormap(65535)) power->BlendColor = BlendColor;
+		if (BlendColor != MakeSpecialColormap(65535)) power->BlendColor = BlendColor;
 		else power->BlendColor = 0;
 	}
 	if (Mode != NAME_None)
@@ -177,7 +177,7 @@ void APowerup::DoEffect ()
 			{
 				Owner->player->fixedcolormap = Colormap;
 			}
-			else if (Owner->player->fixedcolormap == Colormap)
+			else if (Owner->player->fixedcolormap == Colormap)	
 			{
 				// only unset if the fixed colormap comes from this item
 				Owner->player->fixedcolormap = NOFIXEDCOLORMAP;
@@ -257,7 +257,7 @@ bool APowerup::HandlePickup (AInventory *item)
 		// Color gets transferred if the new item has an effect.
 
 		// Increase the effect's duration.
-		if (power->ItemFlags & IF_ADDITIVETIME)
+		if (power->ItemFlags & IF_ADDITIVETIME) 
 		{
 			EffectTics += power->EffectTics;
 			BlendColor = power->BlendColor;
@@ -719,7 +719,7 @@ int APowerInvisibility::AlterWeaponSprite (visstyle_t *vis)
 //
 // APowerInvisibility :: HandlePickup
 //
-// If the player already has the first stage of a cumulative powerup, getting
+// If the player already has the first stage of a cumulative powerup, getting 
 // it again increases the player's alpha. (But shouldn't this be in Use()?)
 //
 //===========================================================================
@@ -839,7 +839,7 @@ void APowerLightAmp::DoEffect ()
 	if (Owner->player != NULL && Owner->player->fixedcolormap < NUMCOLORMAPS)
 	{
 		if (EffectTics > BLINKTHRESHOLD || (EffectTics & 8))
-		{
+		{	
 			Owner->player->fixedlightlevel = 1;
 		}
 		else
@@ -897,7 +897,7 @@ void APowerTorch::DoEffect ()
 	{
 		Super::DoEffect ();
 	}
-	else
+	else 
 	{
 		APowerup::DoEffect ();
 
@@ -997,7 +997,8 @@ void APowerFlight::EndEffect ()
 	{
 		return;
 	}
-	if (!(Owner->player->cheats & CF_FLY))
+
+	if (!(Owner->flags7 & MF7_FLYCHEAT))
 	{
 		if (Owner->z != Owner->floorz)
 		{
@@ -1210,7 +1211,7 @@ fixed_t APowerSpeed ::GetSpeedFactor ()
 void APowerSpeed::DoEffect ()
 {
 	Super::DoEffect ();
-
+	
 	if (Owner == NULL || Owner->player == NULL)
 		return;
 
@@ -1510,7 +1511,7 @@ void APowerTimeFreezer::DoEffect()
 	// [RH] The "blinking" can't check against EffectTics exactly or it will
 	// never happen, because InitEffect ensures that EffectTics will always
 	// be odd when level.time is even.
-	if ( EffectTics > 4*32
+	if ( EffectTics > 4*32 
 		|| (( EffectTics > 3*32 && EffectTics <= 4*32 ) && ((EffectTics + 1) & 15) != 0 )
 		|| (( EffectTics > 2*32 && EffectTics <= 3*32 ) && ((EffectTics + 1) & 7) != 0 )
 		|| (( EffectTics >   32 && EffectTics <= 2*32 ) && ((EffectTics + 1) & 3) != 0 )
@@ -1756,6 +1757,7 @@ IMPLEMENT_CLASS(APowerRegeneration)
 
 void APowerRegeneration::DoEffect()
 {
+	Super::DoEffect();
 	if (Owner != NULL && Owner->health > 0 && (level.time & 31) == 0)
 	{
 		if (P_GiveBody(Owner, Strength/FRACUNIT))
@@ -1903,7 +1905,7 @@ void APowerMorph::EndEffect( )
 		assert(Player == NULL);
 		return;
 	}
-
+	
 	// Abort if owner already unmorphed
 	if (Player == NULL)
 	{
@@ -1921,7 +1923,7 @@ void APowerMorph::EndEffect( )
 	if (!bNoCallUndoMorph)
 	{
 		int savedMorphTics = Player->morphTics;
-		P_UndoPlayerMorph (Player, Player);
+		P_UndoPlayerMorph (Player, Player, 0, !!(Player->MorphStyle & MORPH_UNDOALWAYS));
 
 		// Abort if unmorph failed; in that case,
 		// set the usual retry timer and return.

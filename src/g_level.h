@@ -104,6 +104,9 @@ struct FMapInfoParser
 
 	void ParseIntermissionAction(FIntermissionDescriptor *Desc);
 	void ParseIntermission();
+	void ParseDoomEdNums();
+	void ParseSpawnNums();
+	void ParseConversationIDs();
 	void ParseAMColors(bool);
 	FName CheckEndSequence();
 	FName ParseEndGame();
@@ -337,6 +340,7 @@ struct level_info_t
 	TArray<FSpecialAction> specialactions;
 
 	TArray<FSoundID> PrecacheSounds;
+	TArray<FTextureID> PrecacheTextures;
 
 	level_info_t() 
 	{ 

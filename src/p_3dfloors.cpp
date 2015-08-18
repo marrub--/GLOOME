@@ -41,9 +41,8 @@
 #include "w_wad.h"
 #include "sc_man.h"
 #include "g_level.h"
+#include "p_terrain.h"
 #include "r_data/colormaps.h"
-
-#ifdef _3DFLOORS
 
 //==========================================================================
 //
@@ -207,96 +206,97 @@ static void P_Add3DFloor(sector_t* sec, sector_t* sec2, line_t* master, int flag
 //==========================================================================
 static int P_Set3DFloor(line_t * line, int param, int param2, int alpha)
 {
-	int s,i;
+	int s, i;
 	int flags;
-	int tag=line->args[0];
-    sector_t * sec = line->frontsector, * ss;
+	int tag = line->args[0];
+	sector_t * sec = line->frontsector, *ss;
 
-    for (s=-1; (s = P_FindSectorFromTag(tag,s)) >= 0;)
+	FSectorTagIterator itr(tag);
+	while ((s = itr.Next()) >= 0)
 	{
-		ss=&sectors[s];
+		ss = &sectors[s];
 
-		if (param==0)
+		if (param == 0)
 		{
-			flags=FF_EXISTS|FF_RENDERALL|FF_SOLID|FF_INVERTSECTOR;
+			flags = FF_EXISTS | FF_RENDERALL | FF_SOLID | FF_INVERTSECTOR;
 			alpha = 255;
-			for (i=0;i<sec->linecount;i++)
+			for (i = 0; i < sec->linecount; i++)
 			{
-				line_t * l=sec->lines[i];
+				line_t * l = sec->lines[i];
 
-				if (l->special==Sector_SetContents && l->frontsector==sec)
+				if (l->special == Sector_SetContents && l->frontsector == sec)
 				{
-					alpha=clamp<int>(l->args[1], 0, 100);
+					alpha = clamp<int>(l->args[1], 0, 100);
 					if (l->args[2] & 1) flags &= ~FF_SOLID;
 					if (l->args[2] & 2) flags |= FF_SEETHROUGH;
 					if (l->args[2] & 4) flags |= FF_SHOOTTHROUGH;
 					if (l->args[2] & 8) flags |= FF_ADDITIVETRANS;
-					if (alpha!=100) flags|=FF_TRANSLUCENT;//|FF_BOTHPLANES|FF_ALLSIDES;
-					if (l->args[0]) 
+					if (alpha != 100) flags |= FF_TRANSLUCENT;//|FF_BOTHPLANES|FF_ALLSIDES;
+					if (l->args[0])
 					{
 						// Yes, Vavoom's 3D-floor definitions suck!
 						// The content list changed in r1783 of Vavoom to be unified
 						// among all its supported games, so it has now ten different
 						// values instead of just five.
-						static DWORD vavoomcolors[]={VC_EMPTY, 
+						static DWORD vavoomcolors[] = { VC_EMPTY,
 							VC_WATER, VC_LAVA, VC_NUKAGE, VC_SLIME, VC_HELLSLIME,
-							VC_BLOOD, VC_SLUDGE, VC_HAZARD, VC_BOOMWATER};
-						flags|=FF_SWIMMABLE|FF_BOTHPLANES|FF_ALLSIDES|FF_FLOOD;
+							VC_BLOOD, VC_SLUDGE, VC_HAZARD, VC_BOOMWATER };
+						flags |= FF_SWIMMABLE | FF_BOTHPLANES | FF_ALLSIDES | FF_FLOOD;
 
-						l->frontsector->ColorMap = 
-							GetSpecialLights (l->frontsector->ColorMap->Color, 
-											  vavoomcolors[l->args[0]], 
-											  l->frontsector->ColorMap->Desaturate);
+						l->frontsector->ColorMap =
+							GetSpecialLights(l->frontsector->ColorMap->Color,
+							vavoomcolors[l->args[0]],
+							l->frontsector->ColorMap->Desaturate);
 					}
-					alpha=(alpha*255)/100;
+					alpha = (alpha * 255) / 100;
 					break;
 				}
 			}
 		}
-		else if (param==4)
+		else if (param == 4)
 		{
-			flags=FF_EXISTS|FF_RENDERPLANES|FF_INVERTPLANES|FF_NOSHADE|FF_FIX;
+			flags = FF_EXISTS | FF_RENDERPLANES | FF_INVERTPLANES | FF_NOSHADE | FF_FIX;
 			if (param2 & 1) flags |= FF_SEETHROUGH;	// marker for allowing missing texture checks
-			alpha=255;
+			alpha = 255;
 		}
-		else 
+		else
 		{
-			static const int defflags[]= {0, 
-										  FF_SOLID, 
-										  FF_SWIMMABLE|FF_BOTHPLANES|FF_ALLSIDES|FF_SHOOTTHROUGH|FF_SEETHROUGH, 
-										  FF_SHOOTTHROUGH|FF_SEETHROUGH, 
+			static const int defflags[] = { 0,
+				FF_SOLID,
+				FF_SWIMMABLE | FF_BOTHPLANES | FF_ALLSIDES | FF_SHOOTTHROUGH | FF_SEETHROUGH,
+				FF_SHOOTTHROUGH | FF_SEETHROUGH,
 			};
 
-			flags = defflags[param&3] | FF_EXISTS|FF_RENDERALL;
+			flags = defflags[param & 3] | FF_EXISTS | FF_RENDERALL;
 
-			if (param&4) flags |= FF_ALLSIDES|FF_BOTHPLANES;
-			if (param&16) flags ^= FF_SEETHROUGH;
-			if (param&32) flags ^= FF_SHOOTTHROUGH;
+			if (param & 4) flags |= FF_ALLSIDES | FF_BOTHPLANES;
+			if (param & 16) flags ^= FF_SEETHROUGH;
+			if (param & 32) flags ^= FF_SHOOTTHROUGH;
 
-			if (param2&1) flags |= FF_NOSHADE;
-			if (param2&2) flags |= FF_DOUBLESHADOW;
-			if (param2&4) flags |= FF_FOG;
-			if (param2&8) flags |= FF_THINFLOOR;
-			if (param2&16) flags |= FF_UPPERTEXTURE;
-			if (param2&32) flags |= FF_LOWERTEXTURE;
-			if (param2&64) flags |= FF_ADDITIVETRANS|FF_TRANSLUCENT;
+			if (param2 & 1) flags |= FF_NOSHADE;
+			if (param2 & 2) flags |= FF_DOUBLESHADOW;
+			if (param2 & 4) flags |= FF_FOG;
+			if (param2 & 8) flags |= FF_THINFLOOR;
+			if (param2 & 16) flags |= FF_UPPERTEXTURE;
+			if (param2 & 32) flags |= FF_LOWERTEXTURE;
+			if (param2 & 64) flags |= FF_ADDITIVETRANS | FF_TRANSLUCENT;
 			// if flooding is used the floor must be non-solid and is automatically made shootthrough and seethrough
-			if ((param2&128) && !(flags & FF_SOLID)) flags |= FF_FLOOD|FF_SEETHROUGH|FF_SHOOTTHROUGH;
-			if (param2&512) flags |= FF_FADEWALLS;
+			if ((param2 & 128) && !(flags & FF_SOLID)) flags |= FF_FLOOD | FF_SEETHROUGH | FF_SHOOTTHROUGH;
+			if (param2 & 512) flags |= FF_FADEWALLS;
 			FTextureID tex = line->sidedef[0]->GetTexture(side_t::top);
-			if (!tex.Exists() && alpha<255)
+			if (!tex.Exists() && alpha < 255)
 			{
 				alpha = -tex.GetIndex();
 			}
 			alpha = clamp(alpha, 0, 255);
-			if (alpha==0) flags&=~(FF_RENDERALL|FF_BOTHPLANES|FF_ALLSIDES);
-			else if (alpha!=255) flags|=FF_TRANSLUCENT;
-										 
+			if (alpha == 0) flags &= ~(FF_RENDERALL | FF_BOTHPLANES | FF_ALLSIDES);
+			else if (alpha != 255) flags |= FF_TRANSLUCENT;
+
 		}
 		P_Add3DFloor(ss, sec, line, flags, alpha);
 	}
 	// To be 100% safe this should be done even if the alpha by texture value isn't used.
-	if (!line->sidedef[0]->GetTexture(side_t::top).isValid()) 
+	if (!line->sidedef[0]->GetTexture(side_t::top).isValid())
 		line->sidedef[0]->SetTexture(side_t::top, FNullTextureID());
 	return 1;
 }
@@ -333,8 +333,15 @@ void P_PlayerOnSpecial3DFloor(player_t* player)
 				(player->mo->z + player->mo->height) < rover->bottom.plane->ZatPoint(player->mo->x, player->mo->y))
 				continue;
 		}
-		
-		if (rover->model->special || rover->model->damage) P_PlayerInSpecialSector(player, rover->model);
+
+		// Apply sector specials
+		if (rover->model->special || rover->model->damage)
+			P_PlayerInSpecialSector(player, rover->model);
+
+		// Apply flat specials (using the ceiling!)
+		P_PlayerOnSpecialFlat(
+			player, TerrainTypes[rover->model->GetTexture(rover->flags & FF_INVERTSECTOR? sector_t::floor : sector_t::ceiling)]);
+
 		break;
 	}
 }
@@ -481,7 +488,7 @@ void P_Recalculate3DFloors(sector_t * sector)
 				// by the clipping code below.
 				ffloors.Push(pick);
 			}
-			else if (pick->flags&(FF_SWIMMABLE|FF_TRANSLUCENT) && pick->flags&FF_EXISTS)
+			else if ((pick->flags&(FF_SWIMMABLE|FF_TRANSLUCENT) || (!(pick->flags&FF_RENDERALL))) && pick->flags&FF_EXISTS)
 			{
 				// We must check if this nonsolid segment gets clipped from the top by another 3D floor
 				if (solid != NULL && solid_bottom < height)
@@ -575,6 +582,7 @@ void P_Recalculate3DFloors(sector_t * sector)
 		lightlist[0].extra_colormap = sector->ColorMap;
 		lightlist[0].blend = 0;
 		lightlist[0].flags = 0;
+		lightlist[0].fromsector = true;
 		
 		maxheight = sector->CenterCeiling();
 		minheight = sector->CenterFloor();
@@ -596,6 +604,7 @@ void P_Recalculate3DFloors(sector_t * sector)
 				newlight.extra_colormap = rover->GetColormap();
 				newlight.blend = rover->GetBlend();
 				newlight.flags = rover->flags;
+				newlight.fromsector = false;
 				lightlist.Push(newlight);
 			}
 			else if (i==0)
@@ -610,6 +619,7 @@ void P_Recalculate3DFloors(sector_t * sector)
 					lightlist[0].extra_colormap = rover->GetColormap();
 					lightlist[0].blend = rover->GetBlend();
 					lightlist[0].flags = rover->flags;
+					lightlist[0].fromsector = false;
 				}
 			}
 			if (rover->flags&FF_DOUBLESHADOW)
@@ -634,6 +644,7 @@ void P_Recalculate3DFloors(sector_t * sector)
 						newlight.blend = 0;
 					}
 					newlight.flags = rover->flags;
+					newlight.fromsector = false;
 					lightlist.Push(newlight);
 				}
 			}
@@ -836,7 +847,7 @@ void P_Spawn3DFloors (void)
 			{
 				if (line->args[1]&8)
 				{
-					line->id = line->args[4];
+					tagManager.AddLineID(i, line->args[4]);
 				}
 				else
 				{
@@ -942,8 +953,6 @@ int	P_Find3DFloor(sector_t * sec, fixed_t x, fixed_t y, fixed_t z, bool above, b
 	// Failsafe
 	return -1;
 }
-
-#endif
 
 #include "c_dispatch.h"
 

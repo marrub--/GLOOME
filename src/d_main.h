@@ -53,6 +53,7 @@ void D_Display ();
 // BASE LEVEL
 //
 void D_PageTicker (void);
+void D_PageDrawer (void);
 void D_AdvanceDemo (void);
 void D_StartTitle (void);
 bool D_AddFile (TArray<FString> &wadfiles, const char *file, bool check = true, int position = -1);
@@ -115,15 +116,13 @@ extern FStartupInfo DoomStartupInfo;
 //
 //==========================================================================
 
-struct FIWadManager
+class FIWadManager
 {
-private:
 	TArray<FIWADInfo> mIWads;
 	TArray<FString> mIWadNames;
 	TArray<int> mLumpsFound;
 
 	void ParseIWadInfo(const char *fn, const char *data, int datasize);
-	void ParseIWadInfos(const char *fn);
 	void ClearChecks();
 	void CheckLumpName(const char *name);
 	int GetIWadInfo();
@@ -131,7 +130,19 @@ private:
 	int CheckIWAD (const char *doomwaddir, WadStuff *wads);
 	int IdentifyVersion (TArray<FString> &wadfiles, const char *iwad, const char *zdoom_wad);
 public:
+	void ParseIWadInfos(const char *fn);
 	const FIWADInfo *FindIWAD(TArray<FString> &wadfiles, const char *iwad, const char *basewad);
+	const FString *GetAutoname(unsigned int num) const
+	{
+		if (num < mIWads.Size()) return &mIWads[num].Autoname;
+		else return NULL;
+	}
+	int GetIWadFlags(unsigned int num) const
+	{
+		if (num < mIWads.Size()) return mIWads[num].flags;
+		else return false;
+	}
+
 };
 
 

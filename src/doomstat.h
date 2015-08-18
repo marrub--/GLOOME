@@ -173,6 +173,7 @@ extern	bool	 		playeringame[/*MAXPLAYERS*/];
 
 // File handling stuff.
 extern	FILE*			debugfile;
+extern	FILE*			hashfile;
 
 // if true, load all graphics at level load
 extern	bool	 		precache;
@@ -249,5 +250,8 @@ EXTERN_CVAR (Int, dmflags2);	// [BC]
 EXTERN_CVAR (Int, compatflags);
 EXTERN_CVAR (Int, compatflags2);
 extern int i_compatflags, i_compatflags2, ii_compatflags, ii_compatflags2, ib_compatflags;
+
+// Filters from AddAutoloadFiles(). Used to filter files from archives.
+extern FString LumpFilterIWAD;
 
 #endif
