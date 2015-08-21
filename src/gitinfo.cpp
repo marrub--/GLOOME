@@ -42,11 +42,6 @@ const char *GetGitDescription()
 	return GIT_DESCRIPTION;
 }
 
-const char *GetGitHash()
-{
-	return GIT_HASH;
-}
-
 const char *GetGitTime()
 {
 	return GIT_TIME;

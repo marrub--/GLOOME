@@ -154,6 +154,7 @@ enum ActorFlag
 	MF_ICECORPSE		= 0x80000000,	// a frozen corpse (for blasting) [RH] was 0x800000
 
 	// --- dummies for unknown/unimplemented Strife flags ---
+
 	MF_STRIFEx8000000 = 0,		// seems related to MF_SHADOW
 };
 
@@ -412,10 +413,6 @@ enum ActorRenderFlag
 
 	RF_ROLLSPRITE   = 0x40000, // [marrub] roll the sprite billboard
 	RF_STICKTOPLANE = 0x50000, // [fgsfds] stick rendered floor/ceiling sprite to the floor/ceiling of the current sector
-
-// --- dummies for unknown/unimplemented Strife flags ---
-
-	MF_STRIFEx8000000 = 0,		// seems related to MF_SHADOW
 };
 
 #define TRANSLUC25			(FRACUNIT/4)

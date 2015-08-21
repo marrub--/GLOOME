@@ -4522,8 +4522,9 @@ enum EACSFunctions
 	ACSF_SetActorRoll,
 	ACSF_ChangeActorRoll,
 	ACSF_GetActorRoll,			// 90
-	ACSF_QuakeEx
+	ACSF_QuakeEx,
 	ACSF_Warp,					// 92
+
 	/* Zandronum's - these must be skipped when we reach 99!
 	-100:ResetMap(0),
 	-101 : PlayerIsSpectator(1),
@@ -4544,7 +4545,6 @@ enum EACSFunctions
 	ACSF_GetPlayerBobMul,
 	ACSF_SetGameProperty,
 	ACSF_GetGameProperty, // 11200
-	ACSF_Warp,
 	ACSF_SetInputLock,
 	ACSF_GetInputLock,
 	ACSF_KeyIsBoundSym, // 11204
@@ -6048,7 +6048,7 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 					}
 					else
 					{
-						DWORD *flagp = (DWORD*)(((char*)aptr) + fd->structoffset);
+						ActorFlags *flagp = (ActorFlags*)(((char*)aptr) + fd->structoffset);
 
 						// If these 2 flags get changed we need to update the blockmap and sector links.
 						bool linkchange = flagp == &aptr->flags && (fd->flagbit == MF_NOBLOCKMAP || fd->flagbit == MF_NOSECTOR);

@@ -277,6 +277,9 @@ struct FActorInfo
 	TArray<const PClass *> VisibleToPlayerClass;
 	TArray<const PClass *> RestrictedToPlayerClass;
 	TArray<const PClass *> ForbiddenToPlayerClass;
+	TArray<const PClass *> NoHeal;
+	TArray<bool>           NoHealInherited;
+	int ScoreOnDeath;
 };
 
 struct FDoomEdEntry

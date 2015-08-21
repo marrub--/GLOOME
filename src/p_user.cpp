@@ -310,8 +310,9 @@ player_t::player_t()
   BlendB(0),
   BlendA(0),
   LogText(),
-  crouching(0),
-  crouchdir(0),
+  // [ZK] Spooky, the next two lines prevent compilation. Look into later.
+  //crouching(0),
+  //crouchdir(0),
   crouchfactor(0),
   crouchoffset(0),
   crouchviewdelta(0),

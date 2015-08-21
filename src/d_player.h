@@ -474,8 +474,6 @@ public:
 	//Added by MC:
 	TObjPtr<DBot> Bot;
 
-	bool		settings_controller;	// Player can control game settings.
-
 	float		BlendR;		// [RH] Final blending values
 	float		BlendG;
 	float		BlendB;
@@ -486,8 +484,6 @@ public:
 	int			MinPitch;	// Viewpitch limits (negative is up, positive is down)
 	int			MaxPitch;
 
-	SBYTE	crouching;
-	SBYTE	crouchdir;
 	fixed_t crouchfactor;
 	fixed_t crouchoffset;
 	fixed_t crouchviewdelta;

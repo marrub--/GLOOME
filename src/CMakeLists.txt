@@ -380,10 +380,10 @@ endif( NOT DYN_FLUIDSYNTH )
 
 # Start defining source files for ZDoom
 set( PLAT_WIN32_SOURCES
-	//gl/hqnx_asm/hq2x_asm.cpp
-	//gl/hqnx_asm/hq3x_asm.cpp
-	//gl/hqnx_asm/hq4x_asm.cpp
-	//gl/hqnx_asm/hqnx_asm_Image.cpp
+	#gl/hqnx_asm/hq2x_asm.cpp
+	#gl/hqnx_asm/hq3x_asm.cpp
+	#gl/hqnx_asm/hq4x_asm.cpp
+	#gl/hqnx_asm/hqnx_asm_Image.cpp
 	win32/eaxedit.cpp
 	win32/fb_d3d9.cpp
 	win32/fb_d3d9_wipe.cpp
@@ -546,7 +546,7 @@ file( GLOB HEADER_FILES
 	gl/data/*.h
 	gl/dynlights/*.h
 	gl/hqnx/*.h
-	//gl/hqnx_asm/*.h
+	#gl/hqnx_asm/*.h
 	gl/models/*.h
 	gl/renderer/*.h
 	gl/scene/*.h
@@ -871,7 +871,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	gl/data/gl_data.cpp
 	gl/data/gl_portaldata.cpp
 	gl/data/gl_setup.cpp
-	//gl/data/gl_matrix.cpp
+	#gl/data/gl_matrix.cpp
 	gl/data/gl_vertexbuffer.cpp
 	gl/dynlights/a_dynlight.cpp
 	gl/utility/gl_clock.cpp
@@ -889,7 +889,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	gl/textures/gl_material.cpp
 	gl/textures/gl_hirestex.cpp
 	gl/textures/gl_bitmap.cpp
-	//gl/textures/gl_samplers.cpp
+	#gl/textures/gl_samplers.cpp
 	gl/textures/gl_translate.cpp
 	gl/textures/gl_hqresize.cpp
 	gl/textures/gl_skyboxtexture.cpp
@@ -920,7 +920,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	gl/system/gl_framebuffer.cpp
 	gl/system/gl_menu.cpp
 	gl/system/gl_wipe.cpp
-	//gl/system/gl_load.c
+	#gl/system/gl_load.c
 	gl/models/gl_models_md3.cpp
 	gl/models/gl_models_md2.cpp
 	gl/models/gl_models.cpp
@@ -1124,7 +1124,7 @@ source_group("OpenGL Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/
 source_group("OpenGL Renderer\\Data" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/data/.+")
 source_group("OpenGL Renderer\\Dynamic Lights" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/dynlights/.+")
 source_group("OpenGL Renderer\\HQ Resize" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/hqnx/.+")
-//source_group("OpenGL Renderer\\HQ Resize Assembly version" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/hqnx_asm/.+")
+#source_group("OpenGL Renderer\\HQ Resize Assembly version" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/hqnx_asm/.+")
 source_group("OpenGL Renderer\\Models" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/models/.+")
 source_group("OpenGL Renderer\\Renderer" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/renderer/.+")
 source_group("OpenGL Renderer\\Scene" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/gl/scene/.+")

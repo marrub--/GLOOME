@@ -84,7 +84,6 @@ FGameConfigFile::FGameConfigFile ()
 	FString pathname;
 
 	OkayToWrite = false;	// Do not allow saving of the config before DoGameSetup()
-	bMigrating = false;
 	bModSetup = false;
 	pathname = GetConfigPath (true);
 	ChangePathName (pathname);

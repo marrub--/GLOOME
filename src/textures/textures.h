@@ -344,8 +344,10 @@ public:
 		unsigned int precacheTime;
 		float shaderspeed;
 		int mIsTransparent:2;
+		bool bGlowSubtract : 1; // [marrub] texture glows subtractively
 		bool bGlowing:1;						// Texture glows
 		bool bFullbright:1;						// always draw fullbright
+		bool bFullblack : 1; // [marrub] always draw fully black
 		bool bSkybox:1;							// This is a skybox
 		bool bSkyColorDone:1;					// Fill color for sky
 		char bBrightmapChecked:1;				// Set to 1 if brightmap has been checked
@@ -354,17 +356,24 @@ public:
 		bool bNoCompress:1;
 		bool bNoExpand:1;
 
+		// [ZK] Kept for compatibility
+		FTexture *DecalTexture;					// This is needed for decals of UseType TEX_MiscPatch-
+		bool bBrightmap : 1;						// This is a brightmap
+		bool bBrightmapDisablesFullbright : 1;	// This disables fullbright display
+		bool mExpanded : 1;
+
 		MiscGLInfo() throw ();
 		~MiscGLInfo();
 	};
 	MiscGLInfo gl_info;
 
-	virtual void PrecacheGL(int cache);
+	virtual void PrecacheGL();
 	virtual void UncacheGL();
 	void GetGlowColor(float *data);
 	PalEntry GetSkyCapColor(bool bottom);
 	bool isGlowing() { return gl_info.bGlowing; }
 	bool isFullbright() { return gl_info.bFullbright; }
+	bool isFullblack() { return gl_info.bFullblack; }
 	void CreateDefaultBrightmap();
 	bool FindHoles(const unsigned char * buffer, int w, int h);
 	static bool SmoothEdges(unsigned char * buffer,int w, int h);

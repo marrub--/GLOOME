@@ -450,7 +450,7 @@ CCMD (exec)
 
 	for (int i = 1; i < argv.argc(); ++i)
 	{
-		switch (C_ExecFile (argv[i], gamestate == GS_STARTUP))
+		switch (C_ExecFile (argv[i]))
 		{
 		case 1: Printf ("Could not open \"%s\"\n", argv[1]); break;
 		case 2: Printf ("Error parsing \"%s\"\n", argv[1]); break;
