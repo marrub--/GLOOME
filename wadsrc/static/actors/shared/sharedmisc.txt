@@ -11,8 +11,8 @@ ACTOR Unknown
 	States
 	{
 	Spawn:
-		UNKN A -1
-		Stop
+		UNKN AB 4
+		Loop
 	}
 }
 
