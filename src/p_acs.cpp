@@ -4573,6 +4573,7 @@ enum EACSFunctions
 	ACSF_ReadUserData,
 	ACSF_ReadUserDataChar,
 	ACSF_Squat,
+	ACSF_GetUserDataSize,
 
 	// ZDaemon
 	ACSF_GetTeamScore = 19620,	// (int team)
@@ -6283,6 +6284,16 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 			
 			FMemLump memlump = Wads.ReadLump(lump);
 			return GlobalACSStrings.AddString(memlump.GetString(), stack, stackdepth);
+		}
+		
+		case ACSF_GetUserDataSize:
+		{
+			int lump = Wads.CheckNumForName(FBehavior::StaticLookupString(args[0]), ns_userdata);
+			if(lump == 0)
+			{
+				return -1;
+			}
+			return Wads.LumpLength(lump);
 		}
 		
 		case ACSF_ReadUserDataChar:
