@@ -4574,6 +4574,7 @@ enum EACSFunctions
 	ACSF_ReadUserDataChar,
 	ACSF_Squat,
 	ACSF_GetUserDataSize,
+	ACSF_GetThingSpecial,
 
 	// ZDaemon
 	ACSF_GetTeamScore = 19620,	// (int team)
@@ -6351,6 +6352,23 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 				mo->player->deltaviewheight = -velocity >> 3;
 			}
 			
+			break;
+		}
+		
+		case ACSF_GetThingSpecial:
+		{
+			int tid = args[0];
+			int num = args[1];
+			AActor *actor = SingleActorFromTID(tid, activator);
+			
+			if(num == 0)
+			{
+				return actor->special;
+			}
+			else if(num > 0 && num < 6)
+			{
+				return actor->args[num - 1];
+			}
 			break;
 		}
 
