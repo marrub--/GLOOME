@@ -35,16 +35,18 @@
 #define __VERSION_H__
 
 const char *GetGitDescription();
+const char *GetGitHash();
+const char *GetGitTime();
 const char *GetVersionString();
 
 /** Lots of different version numbers **/
 
-#define VERSIONSTR "1.8.10"
+#define VERSIONSTR "2.1pre"
 
 // The version as seen in the Windows resource
-#define RC_FILEVERSION 1,8,10,0
-#define RC_PRODUCTVERSION 1,8,10,0
-#define RC_PRODUCTVERSION2 "1.8.10"
+#define RC_FILEVERSION 2,0,9999,0
+#define RC_PRODUCTVERSION 2,0,9999,0
+#define RC_PRODUCTVERSION2 "2.1pre"
 
 // Version identifier for network games.
 // Bump it every time you do a release unless you're certain you
@@ -54,16 +56,16 @@ const char *GetVersionString();
 // Version stored in the ini's [LastRun] section.
 // Bump it if you made some configuration change that you want to
 // be able to migrate in FGameConfigFile::DoGlobalSetup().
-#define LASTRUNVERSION "210"
+#define LASTRUNVERSION "211"
 
 // Protocol version used in demos.
 // Bump it if you change existing DEM_ commands or add new ones.
 // Otherwise, it should be safe to leave it alone.
-#define DEMOGAMEVERSION 0x21B
+#define DEMOGAMEVERSION 0x21C
 
 // Minimum demo version we can play.
 // Bump it whenever you change or remove existing DEM_ commands.
-#define MINDEMOVERSION 0x21B
+#define MINDEMOVERSION 0x21C
 
 // SAVEVER is the version of the information stored in level snapshots.
 // Note that SAVEVER is not directly comparable to VERSION.
@@ -74,8 +76,7 @@ const char *GetVersionString();
 
 // Use 4500 as the base git save version, since it's higher than the
 // SVN revision ever got.
-#define SAVEVER 14518
-#define SAVEVERSTRING "14518"
+#define SAVEVER 4524
 
 #define SAVEVERSTRINGIFY2(x) #x
 #define SAVEVERSTRINGIFY(x) SAVEVERSTRINGIFY2(x)

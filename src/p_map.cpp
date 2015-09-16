@@ -250,7 +250,6 @@ void P_GetFloorCeilingZ(FCheckPosition &tmf, int flags)
 		sec = tmf.thing->Sector;
 	}
 
-#ifdef _3DFLOORS
 	for (unsigned int i = 0; i<sec->e->XFloor.ffloors.Size(); i++)
 	{
 		F3DFloor*  rover = sec->e->XFloor.ffloors[i];
@@ -274,7 +273,6 @@ void P_GetFloorCeilingZ(FCheckPosition &tmf, int flags)
 			tmf.ceilingpic = *rover->bottom.texture;
 		}
 	}
-#endif
 }
 
 //==========================================================================
@@ -575,6 +573,25 @@ int P_GetFriction(const AActor *mo, int *frictionfactor)
 	{
 		friction = secfriction(mo->Sector);
 		movefactor = secmovefac(mo->Sector) >> 1;
+
+			// Check 3D floors -- might be the source of the waterlevel
+			for (unsigned i = 0; i < mo->Sector->e->XFloor.ffloors.Size(); i++)
+			{
+				F3DFloor *rover = mo->Sector->e->XFloor.ffloors[i];
+				if (!(rover->flags & FF_EXISTS)) continue;
+				if (!(rover->flags & FF_SWIMMABLE)) continue;
+
+				if (mo->z > rover->top.plane->ZatPoint(mo->x, mo->y) ||
+					mo->z < rover->bottom.plane->ZatPoint(mo->x, mo->y))
+					continue;
+
+				newfriction = secfriction(rover->model);
+				if (newfriction < friction || friction == ORIG_FRICTION)
+				{
+					friction = newfriction;
+					movefactor = secmovefac(rover->model) >> 1;
+				}
+			}
 	}
 	else if (var_friction && !(mo->flags & (MF_NOCLIP | MF_NOGRAVITY)))
 	{	// When the object is straddling sectors with the same
@@ -585,16 +602,27 @@ int P_GetFriction(const AActor *mo, int *frictionfactor)
 		{
 			sec = m->m_sector;
 
-#ifdef _3DFLOORS
 			// 3D floors must be checked, too
 			for (unsigned i = 0; i < sec->e->XFloor.ffloors.Size(); i++)
 			{
 				F3DFloor *rover = sec->e->XFloor.ffloors[i];
 				if (!(rover->flags & FF_EXISTS)) continue;
-				if (!(rover->flags & FF_SOLID)) continue;
 
-				// Player must be on top of the floor to be affected...
-				if (mo->z != rover->top.plane->ZatPoint(mo->x, mo->y)) continue;
+				if (rover->flags & FF_SOLID)
+				{
+					// Must be standing on a solid floor
+					if (mo->z != rover->top.plane->ZatPoint(mo->x, mo->y)) continue;
+				}
+				else if (rover->flags & FF_SWIMMABLE)
+				{
+					// Or on or inside a swimmable floor (e.g. in shallow water)
+					if (mo->z > rover->top.plane->ZatPoint(mo->x, mo->y) ||
+						(mo->z + mo->height) < rover->bottom.plane->ZatPoint(mo->x, mo->y))
+						continue;
+				}
+				else
+					continue;
+
 				newfriction = secfriction(rover->model);
 				if (newfriction < friction || friction == ORIG_FRICTION)
 				{
@@ -602,7 +630,6 @@ int P_GetFriction(const AActor *mo, int *frictionfactor)
 					movefactor = secmovefac(rover->model);
 				}
 			}
-#endif
 
 			if (!(sec->special & FRICTION_MASK) &&
 				Terrains[TerrainTypes[sec->GetTexture(sector_t::floor)]].Friction == 0)
@@ -756,13 +783,10 @@ bool PIT_CheckLine(line_t *ld, const FBoundingBox &box, FCheckPosition &tm)
 	if (!(tm.thing->flags & MF_DROPOFF) &&
 		!(tm.thing->flags & (MF_NOGRAVITY | MF_NOCLIP)))
 	{
-		secplane_t frontplane = ld->frontsector->floorplane;
-		secplane_t backplane = ld->backsector->floorplane;
-#ifdef _3DFLOORS
+		secplane_t frontplane, backplane;
 		// Check 3D floors as well
 		frontplane = P_FindFloorPlane(ld->frontsector, tm.thing->x, tm.thing->y, tm.thing->floorz);
 		backplane = P_FindFloorPlane(ld->backsector, tm.thing->x, tm.thing->y, tm.thing->floorz);
-#endif
 		if (frontplane.c < STEEPSLOPE || backplane.c < STEEPSLOPE)
 		{
 			const msecnode_t *node = tm.thing->touching_sectorlist;
@@ -888,6 +912,96 @@ bool PIT_CheckLine(line_t *ld, const FBoundingBox &box, FCheckPosition &tm)
 	return true;
 }
 
+
+//==========================================================================
+//
+// Isolated to keep the code readable and fix the logic
+//
+//==========================================================================
+
+static bool CheckRipLevel(AActor *victim, AActor *projectile)
+{
+	if (victim->RipLevelMin > 0 && projectile->RipperLevel < victim->RipLevelMin) return false;
+	if (victim->RipLevelMax > 0 && projectile->RipperLevel > victim->RipLevelMax) return false;
+	return true;
+}
+
+
+//==========================================================================
+//
+// Isolated to keep the code readable and allow reuse in other attacks
+//
+//==========================================================================
+
+static bool CanAttackHurt(AActor *victim, AActor *shooter)
+{
+	// players are never subject to infighting settings and are always allowed
+	// to harm / be harmed by anything.
+	if (!victim->player && !shooter->player)
+	{
+		int infight;
+		if (level.flags2 & LEVEL2_TOTALINFIGHTING) infight = 1;
+		else if (level.flags2 & LEVEL2_NOINFIGHTING) infight = -1;
+		else infight = infighting;
+
+		if (infight < 0)
+		{
+			// -1: Monsters cannot hurt each other, but make exceptions for
+			//     friendliness and hate status.
+			if (shooter->flags & MF_SHOOTABLE)
+			{
+				// Question: Should monsters be allowed to shoot barrels in this mode?
+				// The old code does not.
+				if (victim->flags3 & MF3_ISMONSTER)
+				{
+					// Monsters that are clearly hostile can always hurt each other
+					if (!victim->IsHostile(shooter))
+					{
+						// The same if the shooter hates the target
+						if (victim->tid == 0 || shooter->TIDtoHate != victim->tid)
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+		else if (infight == 0)
+		{
+			//  0: Monsters cannot hurt same species except 
+			//     cases where they are clearly supposed to do that
+			if (victim->IsFriend(shooter))
+			{
+				// Friends never harm each other, unless the shooter has the HARMFRIENDS set.
+				if (!(shooter->flags7 & MF7_HARMFRIENDS)) return false;
+			}
+			else
+			{
+				if (victim->TIDtoHate != 0 && victim->TIDtoHate == shooter->TIDtoHate)
+				{
+					// [RH] Don't hurt monsters that hate the same victim as you do
+					return false;
+				}
+				if (victim->GetSpecies() == shooter->GetSpecies() && !(victim->flags6 & MF6_DOHARMSPECIES))
+				{
+					// Don't hurt same species or any relative -
+					// but only if the target isn't one's hostile.
+					if (!victim->IsHostile(shooter))
+					{
+						// Allow hurting monsters the shooter hates.
+						if (victim->tid == 0 || shooter->TIDtoHate != victim->tid)
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+		// else if (infight==1) every shot hurts anything - no further tests needed
+	}
+	return true;
+}
+
 //==========================================================================
 //
 // PIT_CheckThing
@@ -943,7 +1057,7 @@ bool PIT_CheckThing(AActor *thing, FCheckPosition &tm)
 	// Both things overlap in x or y direction
 	bool unblocking = false;
 
-	if (tm.FromPMove)
+	if ((tm.FromPMove || tm.thing->player != NULL) && thing->flags&MF_SOLID)
 	{
 		// Both actors already overlap. To prevent them from remaining stuck allow the move if it
 		// takes them further apart or the move does not change the position (when called from P_ChangeSector.)
@@ -951,7 +1065,9 @@ bool PIT_CheckThing(AActor *thing, FCheckPosition &tm)
 		{
 			unblocking = true;
 		}
-		else
+		else if (abs(thing->x - tm.thing->x) < (thing->radius+tm.thing->radius) &&
+				 abs(thing->y - tm.thing->y) < (thing->radius+tm.thing->radius))
+
 		{
 			fixed_t newdist = P_AproxDistance(thing->x - tm.x, thing->y - tm.y);
 			fixed_t olddist = P_AproxDistance(thing->x - tm.thing->x, thing->y - tm.thing->y);
@@ -1124,10 +1240,6 @@ bool PIT_CheckThing(AActor *thing, FCheckPosition &tm)
 		// [RH] Extend DeHacked infighting to allow for monsters
 		// to never fight each other
 
-		// [Graf Zahl] Why do I have the feeling that this didn't really work anymore now
-		// that ZDoom supports friendly monsters?
-
-
 		if (tm.thing->target != NULL)
 		{
 			if (thing == tm.thing->target)
@@ -1135,69 +1247,9 @@ bool PIT_CheckThing(AActor *thing, FCheckPosition &tm)
 				return true;
 			}
 
-			// players are never subject to infighting settings and are always allowed
-			// to harm / be harmed by anything.
-			if (!thing->player && !tm.thing->target->player)
+			if (!CanAttackHurt(thing, tm.thing->target))
 			{
-				int infight;
-				if (level.flags2 & LEVEL2_TOTALINFIGHTING) infight = 1;
-				else if (level.flags2 & LEVEL2_NOINFIGHTING) infight = -1;
-				else infight = infighting;
-
-				if (infight < 0)
-				{
-					// -1: Monsters cannot hurt each other, but make exceptions for
-					//     friendliness and hate status.
-					if (tm.thing->target->flags & MF_SHOOTABLE)
-					{
-						// Question: Should monsters be allowed to shoot barrels in this mode?
-						// The old code does not.
-						if (thing->flags3 & MF3_ISMONSTER)
-						{
-							// Monsters that are clearly hostile can always hurt each other
-							if (!thing->IsHostile(tm.thing->target))
-							{
-								// The same if the shooter hates the target
-								if (thing->tid == 0 || tm.thing->target->TIDtoHate != thing->tid)
-								{
-									return false;
-								}
-							}
-						}
-					}
-				}
-				else if (infight == 0)
-				{
-					//  0: Monsters cannot hurt same species except 
-					//     cases where they are clearly supposed to do that
-					if (thing->IsFriend(tm.thing->target))
-					{
-						// Friends never harm each other, unless the shooter has the HARMFRIENDS set.
-						if (!(thing->flags7 & MF7_HARMFRIENDS)) return false;
-					}
-					else
-					{
-						if (thing->TIDtoHate != 0 && thing->TIDtoHate == tm.thing->target->TIDtoHate)
-						{
-							// [RH] Don't hurt monsters that hate the same thing as you do
-							return false;
-						}
-						if (thing->GetSpecies() == tm.thing->target->GetSpecies() && !(thing->flags6 & MF6_DOHARMSPECIES))
-						{
-							// Don't hurt same species or any relative -
-							// but only if the target isn't one's hostile.
-							if (!thing->IsHostile(tm.thing->target))
-							{
-								// Allow hurting monsters the shooter hates.
-								if (thing->tid == 0 || tm.thing->target->TIDtoHate != thing->tid)
-								{
-									return false;
-								}
-							}
-						}
-					}
-				}
-				// else if (infight==1) any shot hurts anything - no further tests
+				return false;
 			}
 		}
 		if (!(thing->flags & MF_SHOOTABLE))
@@ -1208,7 +1260,8 @@ bool PIT_CheckThing(AActor *thing, FCheckPosition &tm)
 		{
 			return true;
 		}
-		if (tm.DoRipping && !(thing->flags5 & MF5_DONTRIP))
+
+		if ((tm.DoRipping && !(thing->flags5 & MF5_DONTRIP)) && CheckRipLevel(thing, tm.thing))
 		{
 			if (!(tm.thing->flags6 & MF6_NOBOSSRIP) || !(thing->flags2 & MF2_BOSS))
 			{
@@ -1260,7 +1313,7 @@ bool PIT_CheckThing(AActor *thing, FCheckPosition &tm)
 
 		// Do damage
 		damage = tm.thing->GetMissileDamage((tm.thing->flags4 & MF4_STRIFEDAMAGE) ? 3 : 7, 1);
-		if ((damage > 0) || (tm.thing->flags6 & MF6_FORCEPAIN))
+		if ((damage > 0) || (tm.thing->flags6 & MF6_FORCEPAIN) || (tm.thing->flags7 & MF7_CAUSEPAIN))
 		{
 			int newdam = P_DamageMobj(thing, tm.thing, tm.thing->target, damage, tm.thing->DamageType);
 			if (damage > 0)
@@ -1394,7 +1447,6 @@ bool P_CheckPosition(AActor *thing, fixed_t x, fixed_t y, FCheckPosition &tm, bo
 	//Added by MC: Fill the tmsector.
 	tm.sector = newsec;
 
-#ifdef _3DFLOORS
 	//Check 3D floors
 	if (!thing->IsNoClip2() && newsec->e->XFloor.ffloors.Size())
 	{
@@ -1426,7 +1478,6 @@ bool P_CheckPosition(AActor *thing, fixed_t x, fixed_t y, FCheckPosition &tm, bo
 			}
 		}
 	}
-#endif
 
 	validcount++;
 	spechit.Clear();
@@ -1562,7 +1613,7 @@ bool P_CheckPosition(AActor *thing, fixed_t x, fixed_t y, bool actorsonly)
 
 bool P_TestMobjLocation(AActor *mobj)
 {
-	int flags;
+	ActorFlags flags;
 
 	flags = mobj->flags;
 	mobj->flags &= ~MF_PICKUP;
@@ -1743,7 +1794,6 @@ static void CheckForPushSpecial(line_t *line, int side, AActor *mobj, bool windo
 				fzb <= mobj->z && bzb <= mobj->z)
 			{
 				// we must also check if some 3D floor in the backsector may be blocking
-#ifdef _3DFLOORS
 				for (unsigned int i = 0; i<line->backsector->e->XFloor.ffloors.Size(); i++)
 				{
 					F3DFloor* rover = line->backsector->e->XFloor.ffloors[i];
@@ -1758,7 +1808,6 @@ static void CheckForPushSpecial(line_t *line, int side, AActor *mobj, bool windo
 						goto isblocking;
 					}
 				}
-#endif
 				return;
 			}
 		}
@@ -2683,7 +2732,6 @@ const secplane_t * P_CheckSlopeWalk(AActor *actor, fixed_t &xmove, fixed_t &ymov
 	const secplane_t *plane = &actor->floorsector->floorplane;
 	fixed_t planezhere = plane->ZatPoint(actor->x, actor->y);
 
-#ifdef _3DFLOORS
 	for (unsigned int i = 0; i<actor->floorsector->e->XFloor.ffloors.Size(); i++)
 	{
 		F3DFloor * rover = actor->floorsector->e->XFloor.ffloors[i];
@@ -2718,7 +2766,6 @@ const secplane_t * P_CheckSlopeWalk(AActor *actor, fixed_t &xmove, fixed_t &ymov
 			}
 		}
 	}
-#endif
 
 	if (actor->floorsector != actor->Sector)
 	{
@@ -2950,7 +2997,6 @@ bool FSlide::BounceWall(AActor *mo)
 	deltaangle = (2 * lineangle) - moveangle;
 	mo->angle = deltaangle;
 
-	lineangle >>= ANGLETOFINESHIFT;
 	deltaangle >>= ANGLETOFINESHIFT;
 
 	movelen = fixed_t(sqrt(double(mo->velx)*mo->velx + double(mo->vely)*mo->vely));
@@ -3097,7 +3143,6 @@ struct aim_t
 	AActor *		thing_friend, *thing_other;
 	angle_t			pitch_friend, pitch_other;
 	int				flags;
-#ifdef _3DFLOORS
 	sector_t *		lastsector;
 	secplane_t *	lastfloorplane;
 	secplane_t *	lastceilingplane;
@@ -3105,13 +3150,11 @@ struct aim_t
 	bool			crossedffloors;
 
 	bool AimTraverse3DFloors(const divline_t &trace, intercept_t * in);
-#endif
 
 	void AimTraverse(fixed_t startx, fixed_t starty, fixed_t endx, fixed_t endy, AActor *target = NULL);
 
 };
 
-#ifdef _3DFLOORS
 //============================================================================
 //
 // AimTraverse3DFloors
@@ -3136,9 +3179,6 @@ bool aim_t::AimTraverse3DFloors(const divline_t &trace, intercept_t * in)
 		fixed_t trX = trace.x + FixedMul(trace.dx, in->frac);
 		fixed_t trY = trace.y + FixedMul(trace.dy, in->frac);
 		fixed_t dist = FixedMul(attackrange, in->frac);
-
-
-		int dir = aimpitch < 0 ? 1 : aimpitch > 0 ? -1 : 0;
 
 		frontflag = P_PointOnLineSide(shootthing->x, shootthing->y, li);
 
@@ -3216,7 +3256,6 @@ bool aim_t::AimTraverse3DFloors(const divline_t &trace, intercept_t * in)
 	lastfloorplane = nextbottomplane;
 	return true;
 }
-#endif
 
 //============================================================================
 //
@@ -3269,9 +3308,7 @@ void aim_t::AimTraverse(fixed_t startx, fixed_t starty, fixed_t endx, fixed_t en
 			if (toppitch >= bottompitch)
 				return;				// stop
 
-#ifdef _3DFLOORS
 			if (!AimTraverse3DFloors(it.Trace(), in)) return;
-#endif
 			continue;					// shot continues
 		}
 
@@ -3310,7 +3347,6 @@ void aim_t::AimTraverse(fixed_t startx, fixed_t starty, fixed_t endx, fixed_t en
 			continue;
 		}
 
-#ifdef _3DFLOORS
 		// we must do one last check whether the trace has crossed a 3D floor
 		if (lastsector == th->Sector && th->Sector->e->XFloor.ffloors.Size())
 		{
@@ -3335,7 +3371,6 @@ void aim_t::AimTraverse(fixed_t startx, fixed_t starty, fixed_t endx, fixed_t en
 				}
 			}
 		}
-#endif
 
 		// check angles to see if the thing can be aimed at
 
@@ -3349,7 +3384,6 @@ void aim_t::AimTraverse(fixed_t startx, fixed_t starty, fixed_t endx, fixed_t en
 		if (thingbottompitch < toppitch)
 			continue;					// shot under the thing
 
-#ifdef _3DFLOORS
 		if (crossedffloors)
 		{
 			// if 3D floors were in the way do an extra visibility check for safety
@@ -3368,7 +3402,6 @@ void aim_t::AimTraverse(fixed_t startx, fixed_t starty, fixed_t endx, fixed_t en
 				else return;
 			}
 		}
-#endif
 
 		// this thing can be hit!
 		if (thingtoppitch < toppitch)
@@ -3505,7 +3538,6 @@ fixed_t P_AimLineAttack(AActor *t1, angle_t angle, fixed_t distance, AActor **pL
 	// Information for tracking crossed 3D floors
 	aim.aimpitch = t1->pitch;
 
-#ifdef _3DFLOORS
 	aim.crossedffloors = t1->Sector->e->XFloor.ffloors.Size() != 0;
 	aim.lastsector = t1->Sector;
 	aim.lastfloorplane = aim.lastceilingplane = NULL;
@@ -3521,7 +3553,6 @@ fixed_t P_AimLineAttack(AActor *t1, angle_t angle, fixed_t distance, AActor **pL
 		bottomz = rover->top.plane->ZatPoint(t1->x, t1->y);
 		if (bottomz <= t1->z) aim.lastfloorplane = rover->top.plane;
 	}
-#endif
 
 	aim.AimTraverse(t1->x, t1->y, x2, y2, target);
 
@@ -3767,13 +3798,6 @@ AActor *P_LineAttack(AActor *t1, angle_t angle, fixed_t distance,
 
 				// We must pass the unreplaced puff type here 
 				puff = P_SpawnPuff(t1, pufftype, hitx, hity, hitz, angle - ANG180, 2, puffFlags | PF_HITTHING, pufftid);
-			}
-
-			if (puffDefaults != NULL && trace.Actor != NULL && puff != NULL)
-			{
-				if (puffDefaults->flags7 && MF7_HITTARGET)	puff->target = trace.Actor;
-				if (puffDefaults->flags7 && MF7_HITMASTER)	puff->master = trace.Actor;
-				if (puffDefaults->flags7 && MF7_HITTRACER)	puff->tracer = trace.Actor;
 			}
 
 			// Allow puffs to inflict poison damage, so that hitscans can poison, too.
@@ -4086,9 +4110,11 @@ struct SRailHit
 };
 struct RailData
 {
+	AActor *Caller;
 	TArray<SRailHit> RailHits;
 	bool StopAtOne;
 	bool StopAtInvul;
+	bool ThruSpecies;
 };
 
 static ETraceStatus ProcessRailHit(FTraceResults &res, void *userdata)
@@ -4105,6 +4131,12 @@ static ETraceStatus ProcessRailHit(FTraceResults &res, void *userdata)
 		return TRACE_Stop;
 	}
 
+	// Skip actors with the same species if the puff has MTHRUSPECIES.
+	if (data->ThruSpecies && res.Actor->GetSpecies() == data->Caller->GetSpecies())
+	{
+		return TRACE_Skip;
+	}
+
 	// Save this thing for damaging later, and continue the trace
 	SRailHit newhit;
 	newhit.HitActor = res.Actor;
@@ -4119,7 +4151,7 @@ static ETraceStatus ProcessRailHit(FTraceResults &res, void *userdata)
 //
 //
 //==========================================================================
-void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, int color1, int color2, double maxdiff, int railflags, const PClass *puffclass, angle_t angleoffset, angle_t pitchoffset, fixed_t distance, int duration, double sparsity, double drift, const PClass *spawnclass)
+void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, int color1, int color2, double maxdiff, int railflags, const PClass *puffclass, angle_t angleoffset, angle_t pitchoffset, fixed_t distance, int duration, double sparsity, double drift, const PClass *spawnclass, int SpiralOffset)
 {
 	fixed_t vx, vy, vz;
 	angle_t angle, pitch;
@@ -4159,7 +4191,8 @@ void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, i
 	y1 += offset_xy * finesine[angle];
 
 	RailData rail_data;
-
+	rail_data.Caller = source;
+	
 	rail_data.StopAtOne = !!(railflags & RAF_NOPIERCE);
 	start.X = FIXED2FLOAT(x1);
 	start.Y = FIXED2FLOAT(y1);
@@ -4172,7 +4205,7 @@ void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, i
 
 	flags = (puffDefaults->flags6 & MF6_NOTRIGGER) ? 0 : TRACE_PCross | TRACE_Impact;
 	rail_data.StopAtInvul = (puffDefaults->flags3 & MF3_FOILINVUL) ? false : true;
-
+	rail_data.ThruSpecies = (puffDefaults->flags6 & MF6_MTHRUSPECIES) ? true : false;
 	Trace(x1, y1, shootz, source->Sector, vx, vy, vz,
 		distance, MF_SHOOTABLE, ML_BLOCKEVERYTHING, source, trace,
 		flags, ProcessRailHit, &rail_data);
@@ -4188,6 +4221,8 @@ void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, i
 
 	for (i = 0; i < rail_data.RailHits.Size(); i++)
 	{
+		
+
 		fixed_t x, y, z;
 		bool spawnpuff;
 		bool bleed = false;
@@ -4216,21 +4251,19 @@ void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, i
 		}
 		if (spawnpuff)
 		{
-			P_SpawnPuff(source, puffclass, x, y, z, (source->angle + angleoffset) - ANG90, 1, puffflags);
+			P_SpawnPuff(source, puffclass, x, y, z, (source->angle + angleoffset) - ANG90, 1, puffflags, 0, hitactor);
 		}
-		if (hitactor != NULL && puffDefaults != NULL && thepuff != NULL)
-		{
-			if (puffDefaults->flags7 & MF7_HITTARGET)	thepuff->target = hitactor;
-			if (puffDefaults->flags7 & MF7_HITMASTER)	thepuff->master = hitactor;
-			if (puffDefaults->flags7 & MF7_HITTRACER)	thepuff->tracer = hitactor;
-		}
-		if (puffDefaults && puffDefaults->PoisonDamage > 0 && puffDefaults->PoisonDuration != INT_MIN)
-		{
-			P_PoisonMobj(hitactor, thepuff ? thepuff : source, source, puffDefaults->PoisonDamage, puffDefaults->PoisonDuration, puffDefaults->PoisonPeriod, puffDefaults->PoisonDamageType);
-		}
+		
 		int dmgFlagPass = DMG_INFLICTOR_IS_PUFF;
-		dmgFlagPass += (puffDefaults->flags3 & MF3_FOILINVUL) ? DMG_FOILINVUL : 0; //[MC]Because the original foilinvul check wasn't working.
-		dmgFlagPass += (puffDefaults->flags7 & MF7_FOILBUDDHA) ? DMG_FOILBUDDHA : 0;
+		if (puffDefaults != NULL)	// is this even possible?
+		{
+			if (puffDefaults->PoisonDamage > 0 && puffDefaults->PoisonDuration != INT_MIN)
+			{
+				P_PoisonMobj(hitactor, thepuff ? thepuff : source, source, puffDefaults->PoisonDamage, puffDefaults->PoisonDuration, puffDefaults->PoisonPeriod, puffDefaults->PoisonDamageType);
+			}
+			if (puffDefaults->flags3 & MF3_FOILINVUL) dmgFlagPass |= DMG_FOILINVUL;
+			if (puffDefaults->flags7 & MF7_FOILBUDDHA) dmgFlagPass |= DMG_FOILBUDDHA;
+		}
 		int newdam = P_DamageMobj(hitactor, thepuff ? thepuff : source, source, damage, damagetype, dmgFlagPass);
 
 		if (bleed)
@@ -4243,21 +4276,17 @@ void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, i
 	// Spawn a decal or puff at the point where the trace ended.
 	if (trace.HitType == TRACE_HitWall)
 	{
-		AActor *puff = NULL;
-		
+		AActor* puff = NULL;
+
 		if (puffclass != NULL && puffDefaults->flags3 & MF3_ALWAYSPUFF)
 		{
 			puff = P_SpawnPuff(source, puffclass, trace.X, trace.Y, trace.Z, (source->angle + angleoffset) - ANG90, 1, 0);
 		}
-		
 		if (puff != NULL && puffDefaults->flags7 & MF7_FORCEDECAL && puff->DecalGenerator)
-		{
 			SpawnShootDecal(puff, trace);
-		}
 		else
-		{
 			SpawnShootDecal(source, trace);
-		}
+
 	}
 	if (thepuff != NULL)
 	{
@@ -4279,7 +4308,7 @@ void P_RailAttack(AActor *source, int damage, int offset_xy, fixed_t offset_z, i
 	end.X = FIXED2DBL(trace.X);
 	end.Y = FIXED2DBL(trace.Y);
 	end.Z = FIXED2DBL(trace.Z);
-	P_DrawRailTrail(source, start, end, color1, color2, maxdiff, railflags, spawnclass, source->angle + angleoffset, duration, sparsity, drift);
+	P_DrawRailTrail(source, start, end, color1, color2, maxdiff, railflags, spawnclass, source->angle + angleoffset, duration, sparsity, drift, SpiralOffset);
 }
 
 //==========================================================================
@@ -4683,8 +4712,6 @@ void P_RadiusAttack(AActor *bombspot, AActor *bombsource, int bombdamage, int bo
 	double bombdistancefloat = 1.f / (double)(bombdistance - fulldamagedistance);
 	double bombdamagefloat = (double)bombdamage;
 
-	FVector3 bombvec(FIXED2FLOAT(bombspot->x), FIXED2FLOAT(bombspot->y), FIXED2FLOAT(bombspot->z));
-
 	FBlockThingsIterator it(FBoundingBox(bombspot->x, bombspot->y, bombdistance << FRACBITS));
 	AActor *thing;
 
@@ -4779,7 +4806,7 @@ void P_RadiusAttack(AActor *bombspot, AActor *bombsource, int bombdamage, int bo
 			points *= thing->GetClass()->Meta.GetMetaFixed(AMETA_RDFactor, FRACUNIT) / (double)FRACUNIT;
 
 			// points and bombdamage should be the same sign
-			if (((bombspot->flags7 & MF7_CAUSEPAIN) || (points * bombdamage) > 0) && P_CheckSight(thing, bombspot, SF_IGNOREVISIBILITY | SF_IGNOREWATERBOUNDARY))
+			if (((points * bombdamage) > 0) && P_CheckSight(thing, bombspot, SF_IGNOREVISIBILITY | SF_IGNOREWATERBOUNDARY))
 			{ // OK to damage; target is in direct path
 				double velz;
 				double thrust;
@@ -4905,7 +4932,7 @@ EXTERN_CVAR(Int, cl_bloodtype)
 
 bool P_AdjustFloorCeil(AActor *thing, FChangePosition *cpos)
 {
-	int flags2 = thing->flags2 & MF2_PASSMOBJ;
+	ActorFlags2 flags2 = thing->flags2 & MF2_PASSMOBJ;
 	FCheckPosition tm;
 
 	if ((thing->flags2 & MF2_PASSMOBJ) && (thing->flags3 & MF3_ISMONSTER))
@@ -5406,7 +5433,6 @@ bool P_ChangeSector(sector_t *sector, int crunch, int amt, int floorOrCeil, bool
 	cpos.movemidtex = false;
 	cpos.sector = sector;
 
-#ifdef _3DFLOORS
 	// Also process all sectors that have 3D floors transferred from the
 	// changed sector.
 	if (sector->e->XFloor.attached.Size())
@@ -5454,8 +5480,6 @@ bool P_ChangeSector(sector_t *sector, int crunch, int amt, int floorOrCeil, bool
 		}
 	}
 	P_Recalculate3DFloors(sector);			// Must recalculate the 3d floor and light lists
-#endif
-
 
 	// [RH] Use different functions for the four different types of sector
 	// movement.

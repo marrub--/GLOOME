@@ -42,6 +42,11 @@ const char *GetGitDescription()
 	return GIT_DESCRIPTION;
 }
 
+const char *GetGitTime()
+{
+	return GIT_TIME;
+}
+
 const char *GetVersionString()
 {
 	if (GetGitDescription()[0] == '\0')

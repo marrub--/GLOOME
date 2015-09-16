@@ -678,7 +678,7 @@ void P_DrawRailTrail(AActor *source, const TVector3<double> &start, const TVecto
 		
 		color1 = color1 == 0 ? -1 : ParticleColor(color1);
 		pos = start;
-		deg = TAngle<double>(270);
+		deg = TAngle<double>(SpiralOffset);
 		for (i = spiral_steps; i; i--)
 		{
 			particle_t *p = NewParticle ();
@@ -749,11 +749,11 @@ void P_DrawRailTrail(AActor *source, const TVector3<double> &start, const TVecto
 			{
 				int rnd = M_Random ();
 				if (rnd & 1)
-					diff.X = clamp<double> (diff.X + ((rnd & 8) ? 1 : -1), -maxdiff, maxdiff);
+					diff.X = clamp<double>(diff.X + ((rnd & 8) ? 1 : -1), -maxdiff, maxdiff);
 				if (rnd & 2)
-					diff.Y = clamp<double> (diff.Y + ((rnd & 16) ? 1 : -1), -maxdiff, maxdiff);
+					diff.Y = clamp<double>(diff.Y + ((rnd & 16) ? 1 : -1), -maxdiff, maxdiff);
 				if (rnd & 4)
-					diff.Z = clamp<double> (diff.Z + ((rnd & 32) ? 1 : -1), -maxdiff, maxdiff);
+					diff.Z = clamp<double>(diff.Z + ((rnd & 32) ? 1 : -1), -maxdiff, maxdiff);
 			}
 
 			TVector3<double> postmp = pos + diff;
@@ -802,11 +802,11 @@ void P_DrawRailTrail(AActor *source, const TVector3<double> &start, const TVecto
 			{
 				int rnd = pr_railtrail();
 				if (rnd & 1)
-					diff.X = clamp<double> (diff.X + ((rnd & 8) ? 1 : -1), -maxdiff, maxdiff);
+					diff.X = clamp<double>(diff.X + ((rnd & 8) ? 1 : -1), -maxdiff, maxdiff);
 				if (rnd & 2)
-					diff.Y = clamp<double> (diff.Y + ((rnd & 16) ? 1 : -1), -maxdiff, maxdiff);
+					diff.Y = clamp<double>(diff.Y + ((rnd & 16) ? 1 : -1), -maxdiff, maxdiff);
 				if (rnd & 4)
-					diff.Z = clamp<double> (diff.Z + ((rnd & 32) ? 1 : -1), -maxdiff, maxdiff);
+					diff.Z = clamp<double>(diff.Z + ((rnd & 32) ? 1 : -1), -maxdiff, maxdiff);
 			}			
 			TVector3<double> postmp = pos + diff;
 

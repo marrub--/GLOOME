@@ -593,7 +593,7 @@ bool AInventory::HandlePickup (AInventory *item)
 {
 	if (item->GetClass() == GetClass())
 	{
-		if (Amount < MaxAmount || sv_unlimited_pickup)
+		if (Amount < MaxAmount || (sv_unlimited_pickup && !item->ShouldStay()))
 		{
 			if (Amount > 0 && Amount + item->Amount < 0)
 			{
@@ -1133,6 +1133,32 @@ void AInventory::Destroy ()
 
 //===========================================================================
 //
+// AInventory :: DepleteOrDestroy
+//
+// If the item is depleted, just change its amount to 0, otherwise it's destroyed.
+//
+//===========================================================================
+
+void AInventory::DepleteOrDestroy ()
+{
+	// If it's not ammo or an internal armor, destroy it.
+	// Ammo needs to stick around, even when it's zero for the benefit
+	// of the weapons that use it and to maintain the maximum ammo
+	// amounts a backpack might have given.
+	// Armor shouldn't be removed because they only work properly when
+	// they are the last items in the inventory.
+	if (ItemFlags & IF_KEEPDEPLETED)
+	{
+		Amount = 0;
+	}
+	else
+	{
+		Destroy();
+	}
+}
+
+//===========================================================================
+//
 // AInventory :: GetBlend
 //
 // Returns a color to blend to the player's view as long as they possess this
@@ -1372,6 +1398,8 @@ bool AInventory::TryPickupRestricted (AActor *&toucher)
 
 bool AInventory::CallTryPickup (AActor *toucher, AActor **toucher_return)
 {
+	TObjPtr<AInventory> Invstack = Inventory; // A pointer of the inventories item stack.
+
 	// unmorphed versions of a currently morphed actor cannot pick up anything. 
 	if (toucher->flags & MF_UNMORPHED) return false;
 
@@ -1392,7 +1420,27 @@ bool AInventory::CallTryPickup (AActor *toucher, AActor **toucher_return)
 		GoAwayAndDie();
 	}
 
-	if (res) GiveQuest(toucher);
+	if (res)
+	{
+		GiveQuest(toucher);
+
+		// Transfer all inventory accross that the old object had, if requested.
+		if ((ItemFlags & IF_TRANSFER))
+		{
+			while (Invstack)
+			{
+				AInventory* titem = Invstack;
+				Invstack = titem->Inventory;
+				if (titem->Owner == this)
+				{
+					if (!titem->CallTryPickup(toucher)) // The object no longer can exist
+					{
+						titem->Destroy();
+					}
+				}
+			}
+		}
+	}
 	return res;
 }
 

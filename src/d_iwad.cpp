@@ -219,7 +219,7 @@ void FIWadManager::ParseIWadInfo(const char *fn, const char *data, int datasize)
 					sc.ScriptError("Unknown keyword '%s'", sc.String);
 				}
 			}
-			if(iwad->MapInfo.IsEmpty())
+			if (iwad->MapInfo.IsEmpty())
 			{
 				// We must at least load the minimum defaults to allow the engine to run.
 				iwad->MapInfo = "mapinfo/mindefaults.txt";
@@ -252,7 +252,7 @@ void FIWadManager::ParseIWadInfo(const char *fn, const char *data, int datasize)
 
 //==========================================================================
 //
-// Lool for IWAD definition lump
+// Look for IWAD definition lump
 //
 //==========================================================================
 
@@ -301,11 +301,11 @@ int FIWadManager::ScanIWAD (const char *iwad)
 			FResourceLump *lump = iwadfile->GetLump(ii);
 
 			CheckLumpName(lump->Name);
-			if (lump->FullName != NULL)
+			if (lump->FullName.IsNotEmpty())
 			{
 				if (strnicmp(lump->FullName, "maps/", 5) == 0)
 				{
-					FString mapname(lump->FullName+5, strcspn(lump->FullName+5, "."));
+					FString mapname(&lump->FullName[5], strcspn(&lump->FullName[5], "."));
 					CheckLumpName(mapname);
 				}
 			}
@@ -392,7 +392,6 @@ int FIWadManager::IdentifyVersion (TArray<FString> &wadfiles, const char *iwad, 
 	bool iwadparmfound = false;
 	FString custwad;
 
-	ParseIWadInfos(zdoom_wad);
 	wads.Resize(mIWadNames.Size());
 	foundwads.Resize(mIWads.Size());
 	memset(&foundwads[0], 0, foundwads.Size() * sizeof(foundwads[0]));
@@ -508,7 +507,7 @@ int FIWadManager::IdentifyVersion (TArray<FString> &wadfiles, const char *iwad, 
 					  "\n"
 #if defined(_WIN32)
 					  "1. Place one or more of these wads in the same directory as " GAMENAME ".\n"
-					  "2. Edit your " GAMENAMELOWERCASE ".ini and add the directories of your iwads\n"
+					  "2. Edit your " GAMENAMELOWERCASE "-username.ini and add the directories of your iwads\n"
 					  "to the list beneath [IWADSearch.Directories]");
 #elif defined(__APPLE__)
 					  "1. Place one or more of these wads in ~/Library/Application Support/" GAMENAMELOWERCASE "/\n"

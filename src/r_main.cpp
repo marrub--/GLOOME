@@ -791,7 +791,7 @@ void R_RenderActorView (AActor *actor, bool dontmaplines)
 	P_FindParticleSubsectors ();
 
 	WallCycles.Clock();
-	DWORD savedflags = camera->renderflags;
+	ActorRenderFlags savedflags = camera->renderflags;
 	// Never draw the player unless in chasecam mode
 	if (!r_showviewer)
 	{
