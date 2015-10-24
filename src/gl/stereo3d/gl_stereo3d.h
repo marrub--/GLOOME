@@ -38,8 +38,8 @@ public:
 
 	Stereo3DMode();
 	virtual ~Stereo3DMode();
-	virtual const_iterator begin() = 0;
-	virtual const_iterator end() = 0;
+	virtual const_iterator begin() const = 0;
+	virtual const_iterator end() const = 0;
 
 protected:
 	static Stereo3DMode const * currentStereo3DMode;
@@ -54,8 +54,8 @@ class Mono : public Stereo3DMode
 public:
 	static const Mono& getInstance();
 
-	virtual const_iterator begin() { return &theEye; }
-	virtual const_iterator end() { return (&theEye) + 1; }
+	virtual const_iterator begin() const { return &theEye; }
+	virtual const_iterator end() const { return (&theEye) + 1; }
 
 protected:
 	Mono();

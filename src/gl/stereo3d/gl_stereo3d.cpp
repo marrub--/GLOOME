@@ -23,7 +23,7 @@ void EyePose::GetProjection(float fov, float aspectRatio, float fovRatio, GLdoub
 	}
 	cotangent = cos(radians) / sine;
 
-	memset(m, 0, sizeof(m));
+	memset(m, 0, 16*sizeof(GLdouble));
 	m[0][0] = cotangent / aspectRatio;
 	m[1][1] = cotangent;
 	m[2][2] = -(zFar + zNear) / deltaZ;
