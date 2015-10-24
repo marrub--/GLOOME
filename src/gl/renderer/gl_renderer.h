@@ -119,6 +119,10 @@ public:
 	void SetProjection(float fov, float ratio, float fovratio);
 	void SetProjection(double m[4][4]); // stereo 3d
 	void SetViewMatrix(fixed_t viewx, fixed_t viewy, fixed_t viewz, bool mirror, bool planemirror);
+	void SetViewMatrix(
+		float posx, float posy, float posz,
+		float roll, float pitch, float yaw,
+		bool mirror, bool planemirror);
 	void ProcessScene(bool toscreen = false);
 
 	bool StartOffscreen();

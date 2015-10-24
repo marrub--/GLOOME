@@ -39,7 +39,22 @@ Viewport EyePose::GetViewport(const Viewport& fullViewport) const
 }
 
 
-Stereo3DMode::Stereo3DMode()  
+/* virtual */
+void EyePose::GetView(
+	float viewx, float viewy, float viewz,
+	float roll, float pitch, float yaw,
+	float outViewPos[3], float outRollPitchYaw[3]) const
+{
+	outViewPos[0] = viewx;
+	outViewPos[1] = viewy;
+	outViewPos[2] = viewz;
+	outRollPitchYaw[0] = roll;
+	outRollPitchYaw[1] = pitch;
+	outRollPitchYaw[2] = yaw;
+}
+
+
+Stereo3DMode::Stereo3DMode()
 {
 }
 
