@@ -44,6 +44,8 @@ public:
 	virtual ~Stereo3DMode();
 	virtual const_iterator begin() const = 0;
 	virtual const_iterator end() const = 0;
+	virtual void SetUp() const {};
+	virtual void TearDown() const {};
 
 protected:
 	static Stereo3DMode const * currentStereo3DMode;
