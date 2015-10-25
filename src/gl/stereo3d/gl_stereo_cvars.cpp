@@ -6,6 +6,7 @@ CVAR(Int, vr_mode, 0, CVAR_GLOBALCONFIG)
 CVAR(Bool, vr_swap, false, CVAR_GLOBALCONFIG)
 // intraocular distance in meters
 CVAR(Float, vr_ipd, 0.062f, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // METERS
+CVAR(Float, vr_screendist, 0.600f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // METERS
 
 namespace s3d {
 
