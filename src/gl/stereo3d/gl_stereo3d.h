@@ -40,11 +40,10 @@ class Stereo3DMode
 {
 public:
 	/* const_iterator cycles through the various eye viewpoints */
-	typedef const EyePose * const_iterator;
+	typedef EyePose const * const_iterator;
 
 	/* static methods for managing the selected stereoscopic view state */
 	static const Stereo3DMode& getCurrentMode();
-	static void setCurrentMode(const Stereo3DMode& mode);
 
 	Stereo3DMode();
 	virtual ~Stereo3DMode();
@@ -55,8 +54,9 @@ public:
 	virtual void SetUp() const {};
 	virtual void TearDown() const {};
 
-protected:
+private:
 	static Stereo3DMode const * currentStereo3DMode;
+	static void setCurrentMode(const Stereo3DMode& mode);
 };
 
 

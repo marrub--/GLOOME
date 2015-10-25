@@ -77,19 +77,4 @@ const MonoView& MonoView::getInstance()
 	return instance;
 }
 
-// Initialize static member
-Stereo3DMode const * Stereo3DMode::currentStereo3DMode = nullptr;
-
-/* static */
-void Stereo3DMode::setCurrentMode(const Stereo3DMode& mode) {
-	Stereo3DMode::currentStereo3DMode = &mode;
-}
-
-/* static */
-const Stereo3DMode& Stereo3DMode::getCurrentMode() {
-	if (currentStereo3DMode == nullptr)
-		setCurrentMode(MonoView::getInstance());
-	return *currentStereo3DMode;
-}
-
 } /* namespace s3d */

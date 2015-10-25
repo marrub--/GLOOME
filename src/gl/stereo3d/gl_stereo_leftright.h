@@ -8,9 +8,10 @@ namespace s3d {
 class ShiftedEyePose : public EyePose
 {
 public:
-	ShiftedEyePose(float shift);
+	ShiftedEyePose(float shift) : shift(shift) {};
 	float getShift() const { return shift; }
 	void setShift(float shift) { this->shift = shift; }
+	virtual void GetProjection(float fov, float aspectRatio, float fovRatio, GLdouble outMatrix[4][4]) const;
 protected:
 	float shift;
 };
@@ -19,7 +20,7 @@ class LeftEyePose : public ShiftedEyePose
 {
 public:
 	LeftEyePose(float ipd) : ShiftedEyePose(-0.5*ipd) {}
-	float getIpd() const { return -2.0*shift; }
+	float getIpd() const { return -2.0*getShift(); }
 	void setIpd(float ipd) { setShift(-0.5*ipd); }
 };
 
@@ -31,11 +32,22 @@ public:
 	void setIpd(float ipd) { setShift(+0.5*ipd); }
 };
 
+/**
+ * As if viewed through the left eye only
+ */
 class LeftEyeView : public Stereo3DMode
 {
-	LeftEyeView(float ipd);
+public:
+	static const LeftEyeView& getInstance(float ipd);
+
+	LeftEyeView(float ipd) : eye(ipd) {}
 	float getIpd() const { return eye.getIpd(); }
 	void setIpd(float ipd) { eye.setIpd(ipd); }
+	virtual const_iterator begin() const { return &eye; }
+	virtual const_iterator end() const {
+		EyePose const * penum = &eye;
+		return ++penum; 
+	}
 protected:
 	LeftEyePose eye;
 };
