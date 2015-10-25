@@ -45,6 +45,7 @@ void EyePose::GetView(
 	float roll, float pitch, float yaw,
 	float outViewPos[3], float outRollPitchYaw[3]) const
 {
+	// pass-through for Mono view
 	outViewPos[0] = viewx;
 	outViewPos[1] = viewy;
 	outViewPos[2] = viewz;

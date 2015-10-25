@@ -892,6 +892,7 @@ add_executable( gloome WIN32 MACOSX_BUNDLE
 	gl/scene/gl_spritelight.cpp
 	gl/stereo3d/gl_anaglyph.cpp
 	gl/stereo3d/gl_stereo3d.cpp
+	gl/stereo3d/gl_stereo_cvars.cpp
 	gl/dynlights/gl_dynlight.cpp
 	gl/dynlights/gl_glow.cpp
 	gl/dynlights/gl_dynlight1.cpp
