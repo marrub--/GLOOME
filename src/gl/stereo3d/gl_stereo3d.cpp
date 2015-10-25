@@ -66,14 +66,14 @@ Stereo3DMode::~Stereo3DMode()
 // Avoid static initialization order fiasco by declaring first Mode type (Mono) here in the
 // same source file as Stereo3DMode::getCurrentMode()
 // https://isocpp.org/wiki/faq/ctors#static-init-order
-Mono::Mono() 
+MonoView::MonoView() 
 {
 }
 
 /* static */
-const Mono& Mono::getInstance() 
+const MonoView& MonoView::getInstance() 
 {
-	static Mono instance;
+	static MonoView instance;
 	return instance;
 }
 
@@ -88,7 +88,7 @@ void Stereo3DMode::setCurrentMode(const Stereo3DMode& mode) {
 /* static */
 const Stereo3DMode& Stereo3DMode::getCurrentMode() {
 	if (currentStereo3DMode == nullptr)
-		setCurrentMode(Mono::getInstance());
+		setCurrentMode(MonoView::getInstance());
 	return *currentStereo3DMode;
 }
 
