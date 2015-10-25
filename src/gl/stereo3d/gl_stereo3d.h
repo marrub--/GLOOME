@@ -37,7 +37,7 @@ class Stereo3DMode
 {
 public:
 	/* const_iterator cycles through the various eye viewpoints */
-	typedef EyePose const * const_iterator;
+	typedef const EyePose * const * const_iterator;
 
 	/* static methods for managing the selected stereoscopic view state */
 	static const Stereo3DMode& getCurrentMode();
@@ -65,12 +65,13 @@ class MonoView : public Stereo3DMode
 public:
 	static const MonoView& getInstance();
 
-	virtual const_iterator begin() const { return &centralEye; }
-	virtual const_iterator end() const { return (&centralEye) + 1; }
+	virtual const_iterator begin() const { return &centralEye_ptr; }
+	virtual const_iterator end() const { return (&centralEye_ptr) + 1; }
 
 protected:
 	MonoView();
 	EyePose centralEye;
+	const EyePose * centralEye_ptr;
 };
 
 
