@@ -37,7 +37,7 @@ class Stereo3DMode
 {
 public:
 	/* const_iterator cycles through the various eye viewpoints */
-	typedef const EyePose * const * const_iterator;
+	typedef std::vector<const EyePose *>::const_iterator const_iterator;
 
 	/* static methods for managing the selected stereoscopic view state */
 	static const Stereo3DMode& getCurrentMode();
@@ -45,11 +45,14 @@ public:
 	Stereo3DMode();
 	virtual ~Stereo3DMode();
 	/* const_iterator cycles through the various eye viewpoints */
-	virtual const_iterator begin() const = 0;
-	virtual const_iterator end() const = 0;
+	virtual const_iterator begin() const { return eye_ptrs.begin(); }
+	virtual const_iterator end() const { return eye_ptrs.end(); }
 	/* hooks for setup and cleanup operations for each stereo mode */
 	virtual void SetUp() const {};
 	virtual void TearDown() const {};
+
+protected:
+	std::vector<const EyePose *> eye_ptrs;
 
 private:
 	static Stereo3DMode const * currentStereo3DMode;
@@ -65,13 +68,9 @@ class MonoView : public Stereo3DMode
 public:
 	static const MonoView& getInstance();
 
-	virtual const_iterator begin() const { return &centralEye_ptr; }
-	virtual const_iterator end() const { return (&centralEye_ptr) + 1; }
-
 protected:
-	MonoView();
+	MonoView() { eye_ptrs.push_back(&centralEye); }
 	EyePose centralEye;
-	const EyePose * centralEye_ptr;
 };
 
 

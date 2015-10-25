@@ -45,14 +45,11 @@ class LeftEyeView : public Stereo3DMode
 public:
 	static const LeftEyeView& getInstance(float ipd);
 
-	LeftEyeView(float ipd) : eye(ipd), eye_ptr(&eye) {}
+	LeftEyeView(float ipd) : eye(ipd) { eye_ptrs.push_back(&eye); }
 	float getIpd() const { return eye.getIpd(); }
 	void setIpd(float ipd) { eye.setIpd(ipd); }
-	virtual const_iterator begin() const { return &eye_ptr; }
-	virtual const_iterator end() const { return (&eye_ptr) + 1; }
 protected:
 	LeftEyePose eye;
-	const EyePose * eye_ptr;
 };
 
 
@@ -61,14 +58,11 @@ class RightEyeView : public Stereo3DMode
 public:
 	static const RightEyeView& getInstance(float ipd);
 
-	RightEyeView(float ipd) : eye(ipd), eye_ptr(&eye) {}
+	RightEyeView(float ipd) : eye(ipd) { eye_ptrs.push_back(&eye); }
 	float getIpd() const { return eye.getIpd(); }
 	void setIpd(float ipd) { eye.setIpd(ipd); }
-	virtual const_iterator begin() const { return &eye_ptr; }
-	virtual const_iterator end() const { return (&eye_ptr) + 1; }
 protected:
 	RightEyePose eye;
-	const EyePose * eye_ptr;
 };
 
 

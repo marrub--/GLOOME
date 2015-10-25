@@ -60,10 +60,6 @@ Stereo3DMode::~Stereo3DMode()
 // Avoid static initialization order fiasco by declaring first Mode type (Mono) here in the
 // same source file as Stereo3DMode::getCurrentMode()
 // https://isocpp.org/wiki/faq/ctors#static-init-order
-MonoView::MonoView() 
-	: centralEye_ptr(&centralEye)
-{
-}
 
 /* static */
 const MonoView& MonoView::getInstance() 
