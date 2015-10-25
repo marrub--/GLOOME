@@ -211,8 +211,9 @@ OptionMenu "OpenGLOptions"
 OptionValue VRMode
 {
 	0, "Normal"
-	1, "Left Eye"
-	2, "Right Eye"
+	1, "Green/Magenta"
+	2, "Left Eye"
+	3, "Right Eye"
 }
 
 OptionMenu "VideoOptions"

@@ -11,21 +11,42 @@ namespace s3d {
 class ColorMask
 {
 public:
-	ColorMask(bool r, bool g, bool b) : redMask(r), greenMask(g), blueMask(b) {}
-private:
-	bool redMask;
-	bool greenMask;
-	bool blueMask;
+	ColorMask(bool r, bool g, bool b) : r(r), g(g), b(b) {}
+	ColorMask inverse() const { return ColorMask(!r, !g, !b); }
+
+	GLboolean r;
+	GLboolean g;
+	GLboolean b;
 };
 
+
+class AnaglyphLeftPose : public LeftEyePose
+{
+public:
+	AnaglyphLeftPose(const ColorMask& colorMask, float ipd) : LeftEyePose(ipd), colorMask(colorMask) {}
+	virtual void SetUp() const { glColorMask(colorMask.r, colorMask.g, colorMask.b, true); }
+	virtual void TearDown() const { glColorMask(1,1,1,1); }
+private:
+	ColorMask colorMask;
+};
+
+class AnaglyphRightPose : public RightEyePose
+{
+public:
+	AnaglyphRightPose(const ColorMask& colorMask, float ipd) : RightEyePose(ipd), colorMask(colorMask) {}
+	virtual void SetUp() const { glColorMask(colorMask.r, colorMask.g, colorMask.b, true); }
+	virtual void TearDown() const { glColorMask(1,1,1,1); }
+private:
+	ColorMask colorMask;
+};
 
 class MaskAnaglyph : public Stereo3DMode
 {
 public:
 	MaskAnaglyph(const ColorMask& leftColorMask, double ipdMeters);
 private:
-	LeftEyePose leftEye;
-	RightEyePose rightEye;
+	AnaglyphLeftPose leftEye;
+	AnaglyphRightPose rightEye;
 };
 
 
