@@ -66,4 +66,14 @@ const LeftEyeView& LeftEyeView::getInstance(float ipd)
 	return instance;
 }
 
+
+/* static */
+const RightEyeView& RightEyeView::getInstance(float ipd)
+{
+	static RightEyeView instance(ipd);
+	instance.setIpd(ipd);
+	return instance;
+}
+
+
 } /* namespace s3d */

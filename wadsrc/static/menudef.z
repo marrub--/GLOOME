@@ -212,6 +212,7 @@ OptionValue VRMode
 {
 	0, "Normal"
 	1, "Left Eye"
+	2, "Right Eye"
 }
 
 OptionMenu "VideoOptions"

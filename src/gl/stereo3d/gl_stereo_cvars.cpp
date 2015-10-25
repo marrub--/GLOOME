@@ -28,6 +28,9 @@ const Stereo3DMode& Stereo3DMode::getCurrentMode()
 	case 1:
 		setCurrentMode(LeftEyeView::getInstance(vr_ipd));
 		break;
+	case 2:
+		setCurrentMode(RightEyeView::getInstance(vr_ipd));
+		break;
 	case 0:
 	default:
 		setCurrentMode(MonoView::getInstance());

@@ -5,6 +5,7 @@
 
 namespace s3d {
 
+
 class ShiftedEyePose : public EyePose
 {
 public:
@@ -17,6 +18,7 @@ protected:
 	float shift;
 };
 
+
 class LeftEyePose : public ShiftedEyePose
 {
 public:
@@ -25,6 +27,7 @@ public:
 	void setIpd(float ipd) { setShift(-0.5*ipd); }
 };
 
+
 class RightEyePose : public ShiftedEyePose
 {
 public:
@@ -32,6 +35,7 @@ public:
 	float getIpd() const { return +2.0*shift; }
 	void setIpd(float ipd) { setShift(+0.5*ipd); }
 };
+
 
 /**
  * As if viewed through the left eye only
@@ -52,6 +56,25 @@ public:
 protected:
 	LeftEyePose eye;
 };
+
+
+class RightEyeView : public Stereo3DMode
+{
+public:
+	static const RightEyeView& getInstance(float ipd);
+
+	RightEyeView(float ipd) : eye(ipd) {}
+	float getIpd() const { return eye.getIpd(); }
+	void setIpd(float ipd) { eye.setIpd(ipd); }
+	virtual const_iterator begin() const { return &eye; }
+	virtual const_iterator end() const {
+		EyePose const * penum = &eye;
+		return ++penum;
+	}
+protected:
+	RightEyePose eye;
+};
+
 
 } /* namespace s3d */
 
