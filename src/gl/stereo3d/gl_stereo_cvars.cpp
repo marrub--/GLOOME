@@ -6,7 +6,8 @@ CVAR(Int, vr_mode, 0, CVAR_GLOBALCONFIG)
 CVAR(Bool, vr_swap, false, CVAR_GLOBALCONFIG)
 // intraocular distance in meters
 CVAR(Float, vr_ipd, 0.062f, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // METERS
-CVAR(Float, vr_screendist, 0.600f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // METERS
+CVAR(Float, vr_screendist, 0.80f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // METERS
+CVAR(Float, vr_hunits_per_meter, 41.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG) // METERS
 
 namespace s3d {
 
@@ -19,15 +20,16 @@ void Stereo3DMode::setCurrentMode(const Stereo3DMode& mode) {
 }
 
 /* static */
-const Stereo3DMode& Stereo3DMode::getCurrentMode() {
-
+const Stereo3DMode& Stereo3DMode::getCurrentMode() 
+{
+	// NOTE: Ensure that these vr_mode values correspond to the ones in wadsrc/static/menudef.z
 	switch (vr_mode)
 	{
 	case 1:
 		setCurrentMode(LeftEyeView::getInstance(vr_ipd));
 		break;
-	default:
 	case 0:
+	default:
 		setCurrentMode(MonoView::getInstance());
 		break;
 	}

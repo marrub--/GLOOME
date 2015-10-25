@@ -40,18 +40,12 @@ Viewport EyePose::GetViewport(const Viewport& fullViewport) const
 
 
 /* virtual */
-void EyePose::GetView(
-	float viewx, float viewy, float viewz,
-	float roll, float pitch, float yaw,
-	float outViewPos[3], float outRollPitchYaw[3]) const
+void EyePose::GetViewShift(float yaw, float outViewShift[3]) const
 {
 	// pass-through for Mono view
-	outViewPos[0] = viewx;
-	outViewPos[1] = viewy;
-	outViewPos[2] = viewz;
-	outRollPitchYaw[0] = roll;
-	outRollPitchYaw[1] = pitch;
-	outRollPitchYaw[2] = yaw;
+	outViewShift[0] = 0;
+	outViewShift[1] = 0;
+	outViewShift[2] = 0;
 }
 
 

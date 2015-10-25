@@ -26,10 +26,7 @@ public:
 	virtual ~EyePose() {}
 	virtual void GetProjection(float fov, float aspectRatio, float fovRatio, GLdouble outMatrix[4][4]) const;
 	virtual Viewport GetViewport(const Viewport& fullViewport) const;
-	virtual void GetView(
-		float viewx, float viewy, float viewz,
-		float roll, float pitch, float yaw,
-		float outViewPos[3], float outRollPitchYaw[3]) const;
+	virtual void GetViewShift(float yaw, float outViewShift[3]) const;
 	virtual void SetUp() const {};
 	virtual void TearDown() const {};
 };

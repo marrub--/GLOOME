@@ -12,6 +12,7 @@ public:
 	float getShift() const { return shift; }
 	void setShift(float shift) { this->shift = shift; }
 	virtual void GetProjection(float fov, float aspectRatio, float fovRatio, GLdouble outMatrix[4][4]) const;
+	virtual void GetViewShift(float yaw, float outViewShift[3]) const;
 protected:
 	float shift;
 };
