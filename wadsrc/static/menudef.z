@@ -212,8 +212,9 @@ OptionValue VRMode
 {
 	0, "Normal"
 	1, "Green/Magenta"
-	2, "Left Eye"
-	3, "Right Eye"
+	2, "Red/Cyan"
+	3, "Left Eye"
+	4, "Right Eye"
 }
 
 OptionMenu "VideoOptions"

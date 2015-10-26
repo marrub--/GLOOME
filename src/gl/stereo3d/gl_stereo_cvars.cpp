@@ -31,9 +31,12 @@ const Stereo3DMode& Stereo3DMode::getCurrentMode()
 		setCurrentMode(GreenMagenta::getInstance(vr_ipd));
 		break;
 	case 2:
-		setCurrentMode(LeftEyeView::getInstance(vr_ipd));
+		setCurrentMode(RedCyan::getInstance(vr_ipd));
 		break;
 	case 3:
+		setCurrentMode(LeftEyeView::getInstance(vr_ipd));
+		break;
+	case 4:
 		setCurrentMode(RightEyeView::getInstance(vr_ipd));
 		break;
 	case 0:

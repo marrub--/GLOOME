@@ -18,4 +18,12 @@ const GreenMagenta& GreenMagenta::getInstance(float ipd)
 }
 
 
+/* static */
+const RedCyan& RedCyan::getInstance(float ipd)
+{
+	static RedCyan instance(ipd);
+	return instance;
+}
+
+
 } /* namespace s3d */
