@@ -19,6 +19,7 @@ make the hexen armors not hardcoded
 hitbox maps
 fix cameratextures, in software you can see the player's weapon sprite (but you can't in ogl)
 opus fuck yeah http://stackoverflow.com/questions/16496288/decoding-opus-audio-data
+[02:54] <DRL333> It'd draw the player in the fuzzy renderstyle, while causing monsters to become completely unhostile while the powerup is in effect. Sort of like a notarget powerup with invisibility.
 ```
 
 second priority stuff
