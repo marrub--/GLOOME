@@ -1052,8 +1052,8 @@
 
 // GLOOME
 
-#define PAF_FORCETID  1
-#define PAF_RETURNTID 2
+#define PICKAF_FORCETID  1
+#define PICKAF_RETURNTID 2
 
 #define BOB_STILL 0
 #define BOB_MOVE 1

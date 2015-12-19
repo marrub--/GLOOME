@@ -135,10 +135,13 @@ enum
 };
 
 // PickActor
+// [JP] Renamed to avoid confusion
 enum
 {
-	PAF_FORCETID,
-	PAF_RETURNTID
+//	PAF_FORCETID,
+//	PAF_RETURNTID
+	PICKAF_FORCETID = 1,
+	PICKAF_RETURNTID = 2,
 };
 
 struct CallReturn
@@ -5953,16 +5956,16 @@ doplaysound:			if (funcIndex == ACSF_PlayActorSound)
 					return 0;
 				}
 
-				if (!(flags & PAF_FORCETID) && (args[4] == 0) && (pickedActor->tid == 0))
+				if (!(flags & PICKAF_FORCETID) && (args[4] == 0) && (pickedActor->tid == 0))
 					return 0;
 
-				if ((pickedActor->tid == 0) || (flags & PAF_FORCETID))
+				if ((pickedActor->tid == 0) || (flags & PICKAF_FORCETID))
 				{
 					pickedActor->RemoveFromHash();
 					pickedActor->tid = args[4];
 					pickedActor->AddToHash();
 				}
-				if(flags & PAF_RETURNTID)
+				if(flags & PICKAF_RETURNTID)
 				{
 					return pickedActor->tid;
 				}
