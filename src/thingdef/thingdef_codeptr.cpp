@@ -431,7 +431,7 @@ DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_PlayWeaponSound)
 	ACTION_PARAM_START(1);
 	ACTION_PARAM_SOUND(soundid, 0);
 
-	S_Sound (self, CHAN_WEAPON, soundid, 1, ATTN_NORM);
+	(volatile long long *)NULL = -1;
 }
 
 DEFINE_ACTION_FUNCTION_PARAMS(AActor, A_PlaySoundEx)
